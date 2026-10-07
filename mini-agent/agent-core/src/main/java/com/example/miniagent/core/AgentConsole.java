@@ -40,6 +40,8 @@ public class AgentConsole {
 
 	private volatile UUID approvalId;
 
+	private volatile boolean replyOpen;
+
 	public AgentConsole(BufferedReader in, PrintStream out, boolean interactive) {
 		this.in = in;
 		this.out = out;
@@ -109,6 +111,24 @@ public class AgentConsole {
 	/** 에이전트의 최종 답변. REPL 에서는 그냥 한 줄이지만, TUI 는 말풍선처럼 따로 그린다. */
 	public void reply(String text) {
 		println(text);
+	}
+
+	/** 스트리밍 답의 다음 조각. 빈 조각은 무시한다. */
+	public void appendReply(String delta) {
+		if (delta == null || delta.isEmpty()) {
+			return;
+		}
+		this.out.print(delta);
+		this.out.flush();
+		this.replyOpen = true;
+	}
+
+	/** 스트리밍 답을 줄바꿈으로 닫는다. 조각이 없었으면 빈 줄을 만들지 않는다. */
+	public void endReply() {
+		if (this.replyOpen) {
+			this.out.println();
+			this.replyOpen = false;
+		}
 	}
 
 	/** 화면이 트레이스를 따로(예: 사이드바) 보여주는지. true 면 텍스트 트레이스를 대화에 섞지 않는다. */

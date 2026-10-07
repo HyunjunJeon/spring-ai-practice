@@ -38,6 +38,18 @@ public class ChatLog {
 		this.entries.add(new Entry(role, text));
 	}
 
+	/** 같은 역할의 마지막 항목에 스트리밍 조각을 붙인다. 공백은 유지한다. */
+	public synchronized void append(Role role, String delta) {
+		if (!this.entries.isEmpty()) {
+			Entry last = this.entries.get(this.entries.size() - 1);
+			if (last.role == role) {
+				this.entries.set(this.entries.size() - 1, new Entry(role, last.text + delta));
+				return;
+			}
+		}
+		this.entries.add(new Entry(role, delta));
+	}
+
 	public synchronized List<Entry> snapshot() {
 		return List.copyOf(this.entries);
 	}

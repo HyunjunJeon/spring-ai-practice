@@ -1,5 +1,6 @@
 package com.example.miniagent.plugin.fakemodel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -40,6 +41,9 @@ public class ScriptedChatModel implements ChatModel {
 
 	private static final Pattern TOOL_DIRECTIVE = Pattern.compile("^!tool\\s+(\\S+)\\s*(\\{.*})?\\s*$", Pattern.DOTALL);
 
+	/** 대화 화면에서 조각이 나뉘어 보이도록 텍스트 답을 이 길이로 자른다. */
+	private static final int STREAM_CHUNK = 24;
+
 	private final AtomicInteger callIds = new AtomicInteger();
 
 	@Override
@@ -72,9 +76,28 @@ public class ScriptedChatModel implements ChatModel {
 		return new ChatResponse(List.of(new Generation(output, generationMetadata)), metadata);
 	}
 
+	/**
+	 * 텍스트 답은 여러 조각으로 나눈다. 도구 호출은 한 덩어리로 둔다.
+	 * 사용량은 마지막 조각에만 실어, 스트리밍 합산이 {@link #call} 과 같아지게 한다.
+	 */
 	@Override
 	public Flux<ChatResponse> stream(Prompt prompt) {
-		return Flux.just(call(prompt));
+		ChatResponse full = call(prompt);
+		AssistantMessage output = full.getResult().getOutput();
+		String text = output.getText();
+		if (output.hasToolCalls() || text == null || text.length() <= STREAM_CHUNK) {
+			return Flux.just(full);
+		}
+		List<ChatResponse> chunks = new ArrayList<>();
+		for (int start = 0; start < text.length(); start += STREAM_CHUNK) {
+			boolean last = start + STREAM_CHUNK >= text.length();
+			String part = text.substring(start, Math.min(text.length(), start + STREAM_CHUNK));
+			var generation = new Generation(new AssistantMessage(part),
+					last ? full.getResult().getMetadata() : ChatGenerationMetadata.builder().finishReason("STOP").build());
+			var metadata = last ? full.getMetadata() : ChatResponseMetadata.builder().model("fake-scripted").build();
+			chunks.add(new ChatResponse(List.of(generation), metadata));
+		}
+		return Flux.fromIterable(chunks);
 	}
 
 	/**

@@ -1,8 +1,0 @@
-[2m  ⏱ 11ms · 모델 1회 · 도구 없음 · fake/fake-scripted[0m
-[fake] 모델이 받은 요청
-- 메시지 2개
-    SYSTEM    You are mini-agent, a minimal agent running in the user's terminal. Us…
-    USER      hello
-- 도구 9개: delegate, apply_staged, verify_staged, bash, read_file, write_file, edit_file, list_dir, load_skill
-도구를 호출시켜 보려면:  !tool list_dir {"path":"."}
-[2m  tokens: in 80 · cache 0 · out 70[0m

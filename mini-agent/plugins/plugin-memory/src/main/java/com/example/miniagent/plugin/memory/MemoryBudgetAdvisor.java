@@ -3,10 +3,15 @@ package com.example.miniagent.plugin.memory;
 import java.util.ArrayList;
 import java.util.List;
 
+import reactor.core.publisher.Flux;
+
+import org.springframework.ai.chat.client.ChatClientMessageAggregator;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
@@ -15,7 +20,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.core.Ordered;
 
 /** Final model boundary, including rounds where memory owns the tool history. */
-final class MemoryBudgetAdvisor implements CallAdvisor {
+final class MemoryBudgetAdvisor implements CallAdvisor, StreamAdvisor {
 
 	private static final String ACTIVE = MemoryBudgetAdvisor.class.getName() + ".active";
 
@@ -35,35 +40,24 @@ final class MemoryBudgetAdvisor implements CallAdvisor {
 
 	/** Capture before memory/compaction so intrinsic mandatory overflow never calls a model. */
 	CallAdvisor capture(int order) {
-		return new CallAdvisor() {
+		return new DualAdvisor(order, "MemoryActiveGroupCapture") {
 			@Override
-			public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+			protected ChatClientRequest prepare(ChatClientRequest request) {
 				List<Message> messages = request.prompt().getInstructions();
 				List<Message> active = new ArrayList<>(messages.subList(
 						JsonlChatMemory.groupStart(messages, messages.size()), messages.size()));
 				List<Message> system = messages.stream().filter(m -> m.getMessageType() == MessageType.SYSTEM).toList();
 				checkMandatory(system, active);
-				return chain.nextCall(request.mutate()
-					.context(ACTIVE, new ActiveGroup(system, active, new ArrayList<>())).build());
-			}
-
-			@Override
-			public int getOrder() {
-				return order;
-			}
-
-			@Override
-			public String getName() {
-				return "MemoryActiveGroupCapture";
+				return request.mutate().context(ACTIVE, new ActiveGroup(system, active, new ArrayList<>())).build();
 			}
 		};
 	}
 
 	/** Before in-loop memory: do not compact an intrinsically oversized live tool group. */
 	CallAdvisor preflight(int order) {
-		return new CallAdvisor() {
+		return new DualAdvisor(order, "MemoryActiveGroupPreflight") {
 			@Override
-			public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+			protected ChatClientRequest prepare(ChatClientRequest request) {
 				if (!(request.context().get(ACTIVE) instanceof ActiveGroup group)) {
 					throw new IllegalStateException("Memory active USER group was not captured");
 				}
@@ -87,23 +81,27 @@ final class MemoryBudgetAdvisor implements CallAdvisor {
 					}
 				}
 				checkMandatory(group.system(), group.messages());
-				return chain.nextCall(request);
-			}
-
-			@Override
-			public int getOrder() {
-				return order;
-			}
-
-			@Override
-			public String getName() {
-				return "MemoryActiveGroupPreflight";
+				return request;
 			}
 		};
 	}
 
 	@Override
 	public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+		ChatClientRequest bounded = bound(request);
+		ChatClientResponse response = chain.nextCall(bounded);
+		rememberToolCall(request, response);
+		return response;
+	}
+
+	@Override
+	public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
+		ChatClientRequest bounded = bound(request);
+		return new ChatClientMessageAggregator().aggregateChatClientResponse(chain.nextStream(bounded),
+				aggregated -> rememberToolCall(request, aggregated));
+	}
+
+	private ChatClientRequest bound(ChatClientRequest request) {
 		if (!(request.context().get(ACTIVE) instanceof ActiveGroup group)) {
 			throw new IllegalStateException("Memory active USER group was not captured");
 		}
@@ -183,15 +181,54 @@ final class MemoryBudgetAdvisor implements CallAdvisor {
 		List<Message> bounded = new ArrayList<>(system);
 		bounded.addAll(optional);
 		bounded.addAll(active);
-		ChatClientResponse response = chain.nextCall(request.mutate()
-			.prompt(new Prompt(bounded, request.prompt().getOptions())).build());
+		return request.mutate().prompt(new Prompt(bounded, request.prompt().getOptions())).build();
+	}
+
+	private static void rememberToolCall(ChatClientRequest request, ChatClientResponse response) {
+		if (!(request.context().get(ACTIVE) instanceof ActiveGroup group)) {
+			return;
+		}
 		if (response.chatResponse() != null && response.chatResponse().getResult() != null) {
 			AssistantMessage output = response.chatResponse().getResult().getOutput();
 			if (output.hasToolCalls()) {
-				active.add(output);
+				group.messages().add(output);
 			}
 		}
-		return response;
+	}
+
+	private abstract static class DualAdvisor implements CallAdvisor, StreamAdvisor {
+
+		private final int order;
+
+		private final String name;
+
+		DualAdvisor(int order, String name) {
+			this.order = order;
+			this.name = name;
+		}
+
+		protected abstract ChatClientRequest prepare(ChatClientRequest request);
+
+		@Override
+		public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+			return chain.nextCall(prepare(request));
+		}
+
+		@Override
+		public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
+			return chain.nextStream(prepare(request));
+		}
+
+		@Override
+		public int getOrder() {
+			return this.order;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
 	}
 
 	private void checkMandatory(List<Message> system, List<Message> active) {

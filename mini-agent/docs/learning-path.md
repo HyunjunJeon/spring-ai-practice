@@ -181,9 +181,9 @@ AGENT_PROFILE=mcp ./agent.sh
 쉬운 것부터 정렬했습니다.
 
 1. **plugin-todo** (30분): `@Tool`로 `todo_add`, `todo_list`, `todo_done`을 만듭니다. 세션별 상태는 `ToolContext`의 `agent.sessionId`로 나눕니다. pi 예제 `todo.ts`와 같은 기능입니다.
-2. **plugin-structured** (45분): `/plan <목표>` 명령이 `ctx.agent().chatClient().prompt()...call().entity(Plan.class)`로 구조화된 계획을 받게 합니다. 2.0의 `entity(..., spec -> spec.useProviderStructuredOutput().validateSchema())`도 써 보세요(진짜 모델 필요).
+2. **`/plan <목표>`**: 이미 붙어 있습니다. 그 턴에만 `submit_plan` 도구를 붙이고, 모델이 그 도구를 호출해야 계획이 됩니다. 답변 본문의 JSON 은 쓰지 않습니다. 가짜 모델은 도구를 스스로 고르지 않으므로 실패 메시지를 보고, 진짜 모델로 같은 명령을 다시 실행해 보세요.
 3. **요약 바꿔 보기** (1~2시간): 대화 요약은 `plugin-memory`의 `JsonlChatMemory`와 `ChatModelSummarizer`에 들어 있습니다. 요약 지침(`ChatModelSummarizer.INSTRUCTIONS`)을 바꾸거나, 요약만 더 싸고 빠른 모델로 부르도록 바꿔 보세요. 같은 일을 루프 바깥 어드바이저로 다시 만들어 비교해 보는 것도 좋습니다. 그때 order는 메모리(HIGHEST+200)보다 커야 메모리가 붙인 메시지를 볼 수 있습니다.
-4. **plugin-tool-search** (1시간): `spring-ai-starter-tool-search-advisor`를 붙여 기본 `ToolCallingAdvisor`를 `ToolSearchToolCallingAdvisor`로 교체합니다. MCP 프로필과 함께 쓰면 도구 19개 중 필요한 것만 모델에게 보이는지 확인할 수 있습니다. 이때 `/advisors` 출력이 어떻게 바뀌는지도 보세요(`ToolAdvisor`가 하나만 허용되는 이유).
-5. **스트리밍 REPL** (2~3시간): `Agent`에 `.stream()` 경로를 추가하고 `StreamAdvisor`도 구현합니다. 2.0.x는 스트리밍과 도구 호출이 겹치는 경로에 미해결 이슈가 몰려 있으니 `.call()` 경로와 결과를 비교하며 진행하세요.
+4. **도구 검색**: 스타터는 이미 의존성에 있습니다. `spring.ai.chat.client.tool-search-advisor.enabled=true`로 기본 `ToolCallingAdvisor`를 `ToolSearchToolCallingAdvisor`로 바꿉니다. MCP 프로필과 함께 쓰면 도구 중 필요한 것만 모델에게 보이는지 확인할 수 있습니다. `/advisors`의 도구 루프 이름이 바뀌는지도 보세요(`ToolAdvisor`는 클라이언트당 하나만 허용됩니다).
+5. **스트리밍**: 대화 입력은 `Agent.stream`입니다. 트레이스 어드바이저와 메모리 예산도 `StreamAdvisor`를 구현합니다. 관리 실행(`/run`, 자식 위임)은 `Agent.run`의 `call()`에 남아 있습니다. 2.0.x는 스트리밍과 도구 호출이 겹치는 경로가 가장 불안정하므로, 같은 입력을 `run`과 `stream`으로 보내 최종 답을 비교해 보세요.
 
 **완성 기준:** `./mvnw test`가 통과하고, 그 플러그인을 켰다 껐다 하는 테스트를 `PluginVariationsTest`에 하나 추가합니다.

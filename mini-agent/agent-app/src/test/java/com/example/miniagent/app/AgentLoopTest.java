@@ -3,6 +3,7 @@ package com.example.miniagent.app;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.miniagent.core.Agent;
@@ -87,6 +88,32 @@ class AgentLoopTest {
 
 		// 가짜 모델은 받은 메시지를 그대로 설명한다: system + (user, assistant) + user = 4개
 		assertThat(second.text()).contains("메시지 4개").contains("첫 번째 질문");
+	}
+
+	@Test
+	void streamMatchesCallAndEmitsTextPieces() {
+		Agent.AgentReply called = this.agent.run("안녕");
+		this.session.startNew();
+		List<String> pieces = new ArrayList<>();
+		Agent.AgentReply streamed = this.agent.stream("안녕", pieces::add);
+
+		assertThat(streamed.text()).isEqualTo(called.text());
+		assertThat(pieces.size()).isGreaterThan(1);
+		assertThat(String.join("", pieces)).isEqualTo(streamed.text());
+		assertThat(streamed.usage()).isNotNull();
+		assertThat(streamed.usage().getPromptTokens()).isEqualTo(called.usage().getPromptTokens());
+		assertThat(streamed.usage().getCompletionTokens()).isEqualTo(called.usage().getCompletionTokens());
+	}
+
+	@Test
+	void streamStillExecutesToolsAndRemembersTheTurn() {
+		List<String> pieces = new ArrayList<>();
+		Agent.AgentReply streamed = this.agent.stream("!tool list_dir {\"path\":\".\"}", pieces::add);
+
+		assertThat(streamed.text()).contains("list_dir").contains("hello.txt");
+		assertThat(String.join("", pieces)).isEqualTo(streamed.text());
+		Agent.AgentReply second = this.agent.run("두 번째 질문");
+		assertThat(second.text()).contains("메시지 4개").contains("!tool list_dir");
 	}
 
 	@Test

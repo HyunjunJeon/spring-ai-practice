@@ -6,11 +6,16 @@ import java.util.Set;
 
 import com.example.miniagent.core.TraceEvent;
 
+import reactor.core.publisher.Flux;
+
+import org.springframework.ai.chat.client.ChatClientMessageAggregator;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -25,7 +30,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * 다시 실행한다. order 가 HIGHEST+300 보다 큰 이 어드바이저는 그 "뒤"에 있으므로 라운드마다 불린다.
  * 응답에 tool call 이 있으면 ToolCallingAdvisor 가 도구를 실행하고 다음 라운드를 시작한다.
  */
-public class RoundTraceAdvisor implements CallAdvisor {
+public class RoundTraceAdvisor implements CallAdvisor, StreamAdvisor {
 
 	/** provider 마다 이름이 다른 "정상 종료" 사유. 이 밖의 값(LENGTH 등)만 따로 알린다. */
 	private static final Set<String> NORMAL_FINISH = Set.of("", "null", "stop", "end_turn", "tool_calls", "tool_use");
@@ -53,6 +58,24 @@ public class RoundTraceAdvisor implements CallAdvisor {
 		turn.roundFinished(finished);
 		this.events.publishEvent(finished);
 		return response;
+	}
+
+	@Override
+	public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
+		if (!(request.context().get(TurnTraceAdvisor.TURN_RECORD) instanceof TurnRecord turn)) {
+			return chain.nextStream(request);
+		}
+		int round = turn.rounds.incrementAndGet();
+		int messages = request.prompt().getInstructions().size();
+		int added = Math.max(0, messages - turn.lastMessages);
+		turn.lastMessages = messages;
+		this.events.publishEvent(new TraceEvent.RoundStarted(round, messages, added, toolCount(request)));
+		long start = System.nanoTime();
+		return new ChatClientMessageAggregator().aggregateChatClientResponse(chain.nextStream(request), aggregated -> {
+			TraceEvent.RoundFinished finished = finished(round, aggregated.chatResponse(), System.nanoTime() - start);
+			turn.roundFinished(finished);
+			this.events.publishEvent(finished);
+		});
 	}
 
 	@Override

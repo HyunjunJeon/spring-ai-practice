@@ -178,6 +178,28 @@ public class TuiConsole extends AgentConsole {
 	}
 
 	@Override
+	public void appendReply(String delta) {
+		if (delta == null || delta.isEmpty()) {
+			return;
+		}
+		if (!this.active) {
+			super.appendReply(delta);
+			return;
+		}
+		this.log.append(ChatLog.Role.AGENT, delta);
+		this.redraw.run();
+	}
+
+	@Override
+	public void endReply() {
+		if (!this.active) {
+			super.endReply();
+			return;
+		}
+		this.redraw.run();
+	}
+
+	@Override
 	public void info(String text) {
 		add(ChatLog.Role.INFO, text, () -> super.info(text));
 	}

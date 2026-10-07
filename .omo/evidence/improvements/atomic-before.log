@@ -1,9 +1,0 @@
-Invocation: bash .omo/qa/run-qa.sh atomic
-Exit code: 1
-OK new Unicode/CRLF bytes complete
-OK temporary fixture removed
-CLEANUP removed /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-13447455483716373738
-Exception in thread "main" java.lang.AssertionError: new file private permissions
-	at ImprovementQa.require(ImprovementQa.source:108)
-	at ImprovementQa.atomic(ImprovementQa.source:44)
-	at ImprovementQa.main(ImprovementQa.source:19)

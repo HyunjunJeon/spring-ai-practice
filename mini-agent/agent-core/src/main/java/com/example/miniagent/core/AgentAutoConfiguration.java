@@ -182,7 +182,8 @@ public class AgentAutoConfiguration {
 			ObjectProvider<ToolCallingManager> toolManager,
 			ObjectProvider<ToolExecutionEligibilityChecker> eligibility,
 			ObjectProvider<ChatClientCustomizer> clientCustomizers,
-			ObjectProvider<ChatClientBuilderCustomizer> builderCustomizers, ApplicationEventPublisher events,
+			ObjectProvider<ChatClientBuilderCustomizer> builderCustomizers,
+			ObjectProvider<ToolCallingAdvisor.Builder<?>> toolAdvisorBuilders, ApplicationEventPublisher events,
 			SessionModelStore selections) throws IOException {
 
 		// 1) 도구: 모든 도구를 ToolInterceptor 체인으로 감싼다.
@@ -208,15 +209,16 @@ public class AgentAutoConfiguration {
 
 		int toolCallingAdvisorOrder = environment.getProperty(TOOL_CALLING_ADVISOR_ORDER, Integer.class,
 				ToolCallingAdvisor.DEFAULT_ORDER);
+		// 도구 검색을 켜면 스타터가 ToolCallingAdvisor.Builder 빈을 하나 만든다. ToolAdvisor 는 클라이언트당 하나다.
+		ToolCallingAdvisor.Builder<?> toolAdvisor = toolAdvisor(toolAdvisorBuilders, toolManager, eligibility,
+				toolCallingAdvisorOrder);
+		String toolAdvisorName = toolAdvisor.copy().build().getName();
 		List<ModelProvider> contributedModels = modelProviders.orderedStream().toList();
 		if (!contributedModels.isEmpty()) {
 			ModelRegistry registry = new ModelRegistry(contributedModels, model -> {
-				var toolBuilder = ToolCallingAdvisor.builder().advisorOrder(toolCallingAdvisorOrder);
-				toolManager.ifAvailable(toolBuilder::toolCallingManager);
-				eligibility.ifAvailable(toolBuilder::toolExecutionEligibilityChecker);
 				ChatClient.Builder configured = ChatClient.builder(model,
 						observations.getIfAvailable(() -> ObservationRegistry.NOOP),
-						clientConvention.getIfAvailable(), advisorConvention.getIfAvailable(), toolBuilder);
+						clientConvention.getIfAvailable(), advisorConvention.getIfAvailable(), toolAdvisor.copy());
 				clientCustomizers.orderedStream().forEach(customizer -> customizer.customize(configured));
 				builderCustomizers.orderedStream().forEach(customizer -> customizer.customize(configured));
 				configured.defaultSystem(systemPrompt);
@@ -253,7 +255,7 @@ public class AgentAutoConfiguration {
 			}
 			return new Agent(registry, selections, new ModelSelection(defaultRef),
 					session, properties.getCwd(), systemPrompt, callbacks, providers, advisorList,
-					plugins.orderedStream().toList(), toolCallingAdvisorOrder, events::publishEvent);
+					plugins.orderedStream().toList(), toolCallingAdvisorOrder, events::publishEvent, toolAdvisorName);
 		}
 
 		// Spring AI 2.0.1: "요청에 붙인 도구만 실행된다"(resolution fallback 기본 off).
@@ -472,6 +474,24 @@ public class AgentAutoConfiguration {
 	}
 
 	@Bean
+	SlashCommand planCommand() {
+		return SlashCommand.of("plan", "목표를 구조화된 계획으로 받기 (/plan <목표>)", (args, ctx) -> {
+			if (args.isBlank()) {
+				ctx.console().error("사용법: /plan <목표>");
+				return;
+			}
+			try {
+				var binding = ctx.agent().modelRegistry().bind(ctx.agent().selectedModel());
+				StructuredPlan.Plan plan = StructuredPlan.request(binding.chatModel(), args.strip());
+				ctx.console().println(StructuredPlan.render(plan));
+			}
+			catch (RuntimeException ex) {
+				ctx.console().error("계획을 구조화하지 못했습니다: " + ex.getMessage());
+			}
+		});
+	}
+
+	@Bean
 	SlashCommand advisorsCommand() {
 		return SlashCommand.of("advisors", "어드바이저 체인(실행 순서) 보기", (args, ctx) -> {
 			Agent agent = ctx.agent();
@@ -479,14 +499,28 @@ public class AgentAutoConfiguration {
 			agent.advisors().forEach(a -> rows.add(new String[] { order(a.getOrder()), a.getName(), "" }));
 			boolean customToolAdvisor = agent.advisors().stream().anyMatch(ToolAdvisor.class::isInstance);
 			if (!customToolAdvisor) {
-				rows.add(new String[] { order(agent.toolCallingAdvisorOrder()), "Tool Calling Advisor",
-						"<- Spring AI 가 자동 등록. 도구 루프. 이보다 아래는 루프 안쪽(모델 호출마다 실행)" });
+				rows.add(new String[] { order(agent.toolCallingAdvisorOrder()), agent.toolCallingAdvisorName(),
+						"<- 도구 루프. 이보다 아래는 루프 안쪽(모델 호출마다 실행)" });
 			}
 			rows.sort((a, b) -> Integer.compare(parse(a[0]), parse(b[0])));
 			rows.add(new String[] { "LOWEST", "ChatModelCallAdvisor", "<- 마지막: 실제 ChatModel.call()" });
 			ctx.console().println("요청은 위에서 아래로, 응답은 아래에서 위로 흐른다.");
 			rows.forEach(r -> ctx.console().println("  %-14s %-28s %s".formatted(r[0], r[1], r[2])));
 		});
+	}
+
+	/**
+	 * 스타터가 만든 빌더가 있으면 그것을 복사한다. 없으면 기본 {@code ToolCallingAdvisor} 다.
+	 * 빌더 원본은 모델마다 {@code copy()} 하므로 한 번만 구성한다.
+	 */
+	private static ToolCallingAdvisor.Builder<?> toolAdvisor(ObjectProvider<ToolCallingAdvisor.Builder<?>> builders,
+			ObjectProvider<ToolCallingManager> toolManager, ObjectProvider<ToolExecutionEligibilityChecker> eligibility,
+			int order) {
+		ToolCallingAdvisor.Builder<?> configured = builders.getIfAvailable(ToolCallingAdvisor::builder).copy()
+			.advisorOrder(order);
+		toolManager.ifAvailable(configured::toolCallingManager);
+		eligibility.ifAvailable(configured::toolExecutionEligibilityChecker);
+		return configured;
 	}
 
 	private static String order(int order) {

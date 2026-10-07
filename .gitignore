@@ -1,0 +1,22 @@
+# 빌드 산출물
+**/target/
+
+# 비밀. 예제 파일은 남긴다.
+**/.env
+!**/.env.example
+
+# 로컬 에이전트 세션, 초안, 검증 로그, 스크린샷
+.omo/
+
+# IDE
+**/.idea/
+**/*.iml
+**/.vscode/
+**/.settings/
+**/.classpath
+**/.project
+**/.factorypath
+
+# OS
+**/.DS_Store
+**/*.log

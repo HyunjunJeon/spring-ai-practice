@@ -46,10 +46,19 @@ public class AgentInputHandler {
 			if (input.startsWith("/")) {
 				return runCommand(input.substring(1));
 			}
-			Agent.AgentReply reply = this.agent.run(input);
-			this.console.reply(reply.text());
-			printUsage(reply.usage());
-			return true;
+			Agent.AgentReply reply = null;
+			boolean completed = false;
+			try {
+				reply = this.agent.stream(input, this.console::appendReply);
+				completed = true;
+				return true;
+			}
+			finally {
+				this.console.endReply();
+				if (completed && reply != null) {
+					printUsage(reply.usage());
+				}
+			}
 		}
 		catch (RuntimeException ex) {
 			// Esc 취소는 작업 스레드의 인터럽트로 전달된다. 일반 오류로 표시하지 않는다.

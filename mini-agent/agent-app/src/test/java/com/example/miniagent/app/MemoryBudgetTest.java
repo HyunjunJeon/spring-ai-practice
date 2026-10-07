@@ -226,6 +226,17 @@ class MemoryBudgetTest {
 		}
 
 		@Test
+		void streamingRefusesTheSameMandatoryOverflowBeforeAModelCall() {
+			for (int i = 0; i < 5; i++) {
+				this.memory.add(this.session.id(), List.of(new UserMessage("old" + i), new AssistantMessage("answer")));
+			}
+			assertThatThrownBy(() -> this.agent.stream("x".repeat(2001), text -> { }))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("max-context-chars");
+			assertThat(this.model.prompts).isEmpty();
+		}
+
+		@Test
 		void oversizedLiveToolDataIsRefusedBeforeTheNextModelDispatch() {
 			this.model.toolRounds = 1;
 			this.model.toolChars = 2001;

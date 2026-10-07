@@ -1,5 +1,0 @@
-[2mrun=03761858-1b53-4e79-81a5-5d92c767f23b conversation=16f03de7-f045-4a71-ab10-3a03d3f2a532 attempt=d3ae531b-2ebb-49d7-8e44-c8b5cba60d8d state=RUNNING model=fake/fake-scripted[0m
-[2m  ⏱ 25ms · 모델 1회 · 도구 없음 · fake/fake-scripted[0m
-run=03761858-1b53-4e79-81a5-5d92c767f23b conversation=16f03de7-f045-4a71-ab10-3a03d3f2a532 parent=20261006-223834-419e attempt=d3ae531b-2ebb-49d7-8e44-c8b5cba60d8d state=WAITING_APPROVAL reason=NONE model=fake/fake-scripted tokens=99 unknown=false overshoot=0 tools=1 activeMillis=170
-pending approval 9c7fa6b7-715f-430a-b663-8ed23cb5e2d1 attempt=d3ae531b-2ebb-49d7-8e44-c8b5cba60d8d tool=write_file
-[2mrun=03761858-1b53-4e79-81a5-5d92c767f23b conversation=16f03de7-f045-4a71-ab10-3a03d3f2a532 attempt=d3ae531b-2ebb-49d7-8e44-c8b5cba60d8d state=WAITING_APPROVAL model=fake/fake-scripted[0m

@@ -1,2 +1,0 @@
-{"type":"user","text":"!tool read_file {\"path\":\"source.txt\"}","toolCalls":null,"toolResponses":null,"covers":null,"metadata":null}
-{"type":"assistant","text":"[fake] 도구 'read_file' 결과를 받았습니다:\n     1  Terminal verification source.","toolCalls":null,"toolResponses":null,"covers":null,"metadata":{"agent.provider":"fake","agent.model":"fake-scripted"}}

@@ -9,6 +9,10 @@ spring:
     chat:
       client:
         enabled: false
+        # true 면 ToolCallingAdvisor 하나를 ToolSearchToolCallingAdvisor 로 바꾼다.
+        # 모델에는 tool_search 만 먼저 보이고, 고른 도구만 그 턴에 붙는다. /advisors 로 이름을 확인한다.
+        tool-search-advisor:
+          enabled: false
     model:
       # 어떤 provider 의 ChatModel 을 만들지 고르는 스위치. 프로필이 덮어쓴다.
       # 기본값 fake = plugin-fake-model 의 가짜 모델 (API 키 불필요).

@@ -29,6 +29,8 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -91,7 +93,7 @@ class TuiCancellationTest {
 		TuiFrontEnd ui = new TuiFrontEnd(new AgentInputHandler(this.agent, this.session, this.console,
 				List.of(SlashCommand.of("model", "selection", (args, context) -> selected.set(true)))),
 				this.session, this.console, this.log, new TraceGraph(), () -> "fake/a", Path.of("unused.log"));
-		when(this.agent.run("first")).thenAnswer(invocation -> {
+		stubTurn("first", invocation -> {
 			started.countDown();
 			await(release);
 			return new Agent.AgentReply("done", null);
@@ -133,7 +135,7 @@ class TuiCancellationTest {
 		}).description("Blocking test tool").inputType(String.class).build();
 		ToolCallback wrapped = InterceptingToolCallback.wrap(callback,
 				List.of((invocation, chain) -> chain.proceed(invocation)));
-		when(this.agent.run("first")).thenAnswer(invocation -> {
+		stubTurn("first", invocation -> {
 			try {
 				return new Agent.AgentReply(wrapped.call("\"first\""), null);
 			}
@@ -174,13 +176,13 @@ class TuiCancellationTest {
 		submit("first");
 		event(KeyEvent.ofKey(KeyCode.ESCAPE));
 		assertIdleWithoutError();
-		when(this.agent.run("next")).thenReturn(new Agent.AgentReply("done", null));
+		stubTurn("next", invocation -> new Agent.AgentReply("done", null));
 		submit("next");
 		release.countDown();
 		drainWorker();
 
-		verify(this.agent, never()).run("first");
-		verify(this.agent).run("next");
+		verify(this.agent, never()).stream(eq("first"), any());
+		verify(this.agent).stream(eq("next"), any());
 		assertIdleWithoutError();
 		assertThat(this.log.snapshot()).anyMatch(entry -> entry.role() == ChatLog.Role.AGENT);
 	}
@@ -196,7 +198,7 @@ class TuiCancellationTest {
 				question.countDown();
 			}
 		});
-		when(this.agent.run("first")).thenAnswer(invocation -> {
+		stubTurn("first", invocation -> {
 			try {
 				this.console.readLine("Allow?");
 				continued.set(true);
@@ -224,7 +226,7 @@ class TuiCancellationTest {
 	void escapeWithDraftClearsInputWithoutCancellingTurn() throws Exception {
 		CountDownLatch started = new CountDownLatch(1);
 		CountDownLatch release = new CountDownLatch(1);
-		when(this.agent.run("first")).thenAnswer(invocation -> {
+		stubTurn("first", invocation -> {
 			started.countDown();
 			await(release);
 			return new Agent.AgentReply("done", null);
@@ -241,7 +243,7 @@ class TuiCancellationTest {
 		drainWorker();
 
 		assertIdleWithoutError();
-		verify(this.agent, never()).run("draft");
+		verify(this.agent, never()).stream(eq("draft"), any());
 		assertThat(this.log.snapshot()).anyMatch(entry -> entry.role() == ChatLog.Role.AGENT);
 	}
 
@@ -258,7 +260,7 @@ class TuiCancellationTest {
 			ui.requestRedraw();
 			if (this.console.pendingQuestion() != null) asked.countDown();
 		});
-		when(this.agent.run("first")).thenAnswer(invocation -> {
+		stubTurn("first", invocation -> {
 			this.console.requestApproval(request, answer -> {});
 			new CountDownLatch(1).await();
 			return new Agent.AgentReply("unexpected", null);
@@ -298,7 +300,7 @@ class TuiCancellationTest {
 	@Test
 	void ordinaryFailureRemainsAnErrorAndAllowsNextTurn() throws Exception {
 		this.console.activate(this.frontEnd::requestRedraw);
-		when(this.agent.run("first")).thenThrow(new IllegalStateException("failure"));
+		when(this.agent.stream(eq("first"), any())).thenThrow(new IllegalStateException("failure"));
 		submit("first");
 		drainWorker();
 
@@ -306,15 +308,26 @@ class TuiCancellationTest {
 		assertNextTurnRuns();
 	}
 
+	@SuppressWarnings("unchecked")
+	private void stubTurn(String input, org.mockito.stubbing.Answer<Agent.AgentReply> body) {
+		when(this.agent.stream(eq(input), any())).thenAnswer(invocation -> {
+			Agent.AgentReply reply = body.answer(invocation);
+			if (reply != null && reply.text() != null && !reply.text().isEmpty()) {
+				((java.util.function.Consumer<String>) invocation.getArgument(1)).accept(reply.text());
+			}
+			return reply;
+		});
+	}
+
 	private void assertNextTurnRuns() throws Exception {
 		AtomicBoolean interrupted = new AtomicBoolean(true);
-		when(this.agent.run("next")).thenAnswer(invocation -> {
+		stubTurn("next", invocation -> {
 			interrupted.set(Thread.currentThread().isInterrupted());
 			return new Agent.AgentReply("done", null);
 		});
 		submit("next");
 		drainWorker();
-		verify(this.agent).run("next");
+		verify(this.agent).stream(eq("next"), any());
 		assertThat(interrupted).isFalse();
 		assertThat(ReflectionTestUtils.getField(this.frontEnd, "busy")).isEqualTo(false);
 	}
