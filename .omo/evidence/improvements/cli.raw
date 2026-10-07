@@ -1,0 +1,29 @@
+mini-agent  (provider: fake, session: 20261006-115547-1b93)
+[2mplugins: bash, fake-model, fs, mcp, permission, skills, trace[0m
+[2m/help 명령 목록, /exit 종료[0m
+
+› !tool write_file {"path":"qa.txt","content":"hello"}
+y
+
+[permission] write_file {"path":"qa.txt","content":"hello"}
+  허용할까요? [y]es / [n]o / [a]lways(이 세션 동안): [2m  ⏱ 18ms · 모델 2회 · 도구 write_file · fake-scripted[0m
+[fake] 도구 'write_file' 결과를 받았습니다:
+"Wrote 5 chars to /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-cli-qa.cjaB6kEuGz/cwd/qa.txt"
+[2m  tokens: in 208 · cache 0 · out 37[0m
+
+› /undo
+삭제: /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-cli-qa.cjaB6kEuGz/cwd/qa.txt
+[2m파일만 되돌렸습니다. 대화 기록은 그대로이니 필요하면 모델에게 알려 주세요.[0m
+
+› !tool bash {"command":"printf qa-ok"}
+y
+/exit
+
+[permission] bash {"command":"printf qa-ok"}
+  허용할까요? [y]es / [n]o / [a]lways(이 세션 동안 같은 입력만): [2m  ⏱ 15ms · 모델 2회 · 도구 bash · fake-scripted[0m
+[fake] 도구 'bash' 결과를 받았습니다:
+"qa-ok\n(exit code 0)"
+[2m  tokens: in 197 · cache 0 · out 12[0m
+
+› 
+QA_JAVA_EXIT=0

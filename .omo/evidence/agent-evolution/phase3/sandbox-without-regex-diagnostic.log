@@ -1,0 +1,12 @@
+(version 1)
+(deny default)
+(allow process*)
+(allow sysctl-read)
+(allow file-read* (subpath "/bin") (subpath "/usr/bin") (subpath "/usr/lib") (subpath "/System/Library") (subpath "/Library/Apple/System/Library") (subpath "/private/var/db/dyld") (literal "/private/etc/localtime") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (subpath (param "STAGE")) (subpath (param "TEMP")))
+(allow file-write* (subpath (param "STAGE")) (subpath (param "TEMP")) (literal "/dev/null"))
+(deny file-write* (subpath "/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/sandbox-profile-smoke11514167874474269517/state/changes/886dec9dfe1577bc082834b8210a9bba0074d0fbddee9142aaec7039d2e045bb/staging/6ac8eb4e0ae26d8be60ce3b6e685f9f863842809519b448ac2f84e6cfe488e23/.mini-agent"))
+
+PROFILE_EXIT=134
+PROFILE_TEMP_REMOVED
+Exception in thread "main" java.lang.AssertionError: Managed profile cannot launch bash
+	at com.example.miniagent.plugin.bash.SandboxProfileSmoke.main(SandboxProfileSmoke.java:45)

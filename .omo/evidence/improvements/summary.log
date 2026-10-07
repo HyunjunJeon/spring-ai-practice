@@ -1,0 +1,42 @@
+FIXTURE /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-14747454911050036035
+[2m이전 대화 4개 메시지를 요약해 문맥 앞에 붙였습니다 (요약 128자)[0m
+OK one actual summary model request
+OK entire summary prompt fits request budget
+OK persisted summary fits output budget
+OK complete on-disk messages retained
+OK summary plus selected history fits context budgets
+OK newest small user group retained
+OK tool groups omitted or retained complete
+OK ordinary small conversation unchanged
+OK empty history unchanged
+OK oversized previous summary and tool transcript bounded together
+OK legacy oversized summary bounded when loaded
+OK legacy full history unchanged
+[2m대화 요약의 잘못된 covers 경계를 무시합니다: 1[0m
+OK misaligned summary coverage ignored
+[2m잘못된 도구 ID가 있는 최근 대화 그룹을 생략합니다[0m
+OK malformed historical tool group omitted whole
+OK malformed history still retained on disk
+OK outside actual tool loop completes three dispatches
+OK outside final provider prompt 0 bounded
+OK outside provider prompt 0 retains complete tool ID pairs
+OK outside final provider prompt 1 bounded
+OK outside provider prompt 1 retains complete tool ID pairs
+OK outside final provider prompt 2 bounded
+OK outside provider prompt 2 retains complete tool ID pairs
+OK outside oversized active prompt refused with zero provider calls
+[2m잘못된 도구 ID가 있는 최근 대화 그룹을 생략합니다[0m
+[2m잘못된 도구 ID가 있는 최근 대화 그룹을 생략합니다[0m
+OK inside actual tool loop completes three dispatches
+OK inside final provider prompt 0 bounded
+OK inside provider prompt 0 retains complete tool ID pairs
+OK inside final provider prompt 1 bounded
+OK inside provider prompt 1 retains complete tool ID pairs
+OK inside final provider prompt 2 bounded
+OK inside provider prompt 2 retains complete tool ID pairs
+OK inside oversized active prompt refused with zero provider calls
+11:55:32.370 [main] WARN org.springframework.context.annotation.AnnotationConfigApplicationContext -- Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'chatMemory' defined in com.example.miniagent.plugin.memory.MemoryPluginAutoConfiguration: Failed to instantiate [org.springframework.ai.chat.memory.ChatMemory]: Factory method 'chatMemory' threw exception with message: agent.plugins.memory.max-summary-request-chars must be at least 693
+OK invalid summary budget configuration rejected at creation
+PASS summary
+OK temporary fixture removed
+CLEANUP removed /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-14747454911050036035

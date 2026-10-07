@@ -1,0 +1,8 @@
+Invocation: bash .omo/qa/run-qa.sh bash
+Exit code: 1
+OK temporary fixture removed
+CLEANUP removed /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-2804138545748095885
+Exception in thread "main" java.lang.AssertionError: timeout 0 rejected before launch
+	at ImprovementQa.require(ImprovementQa.source:170)
+	at ImprovementQa.bash(ImprovementQa.source:64)
+	at ImprovementQa.main(ImprovementQa.source:27)

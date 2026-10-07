@@ -1,0 +1,18 @@
+# ChatGPT 구독(Codex OAuth) 으로 모델 사용. 실행: AGENT_PROFILE=codex ./agent.sh
+# 토큰: /login 으로 받은 자체 토큰(~/.mini-agent/auth/openai-codex.json) → 없으면 Codex CLI 토큰(~/.codex/auth.json, 읽기 전용)
+# 사용량은 API 크레딧이 아니라 ChatGPT 플랜 한도에서 차감된다.
+spring:
+  ai:
+    model:
+      chat: none
+
+agent:
+  models:
+    default: codex/${agent.codex.model}
+  codex:
+    model: ${CODEX_MODEL:gpt-6-luna}
+    # xhigh 는 답이 느리고 플랜 사용량을 더 쓴다. 가볍게 쓸 때는 /codex effort low
+    reasoning-effort: ${CODEX_REASONING_EFFORT:xhigh}
+    auth: auto
+    # 응답(헤더나 SSE 줄)이 이 시간 동안 하나도 오지 않으면 호출을 끊는다. 추론이 긴 모델이면 늘린다.
+    idle-timeout: 5m

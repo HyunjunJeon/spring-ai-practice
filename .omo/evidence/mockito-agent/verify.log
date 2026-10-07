@@ -1,0 +1,502 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] mini-agent                                                         [pom]
+[INFO] agent-core                                                         [jar]
+[INFO] plugin-fake-model                                                  [jar]
+[INFO] plugin-codex-model                                                 [jar]
+[INFO] plugin-fs                                                          [jar]
+[INFO] plugin-bash                                                        [jar]
+[INFO] plugin-permission                                                  [jar]
+[INFO] plugin-memory                                                      [jar]
+[INFO] plugin-trace                                                       [jar]
+[INFO] plugin-skills                                                      [jar]
+[INFO] plugin-mcp                                                         [jar]
+[INFO] plugin-tui                                                         [jar]
+[INFO] agent-app                                                          [jar]
+[INFO] 
+[INFO] --------------< com.example.miniagent:mini-agent-parent >---------------
+[INFO] Building mini-agent 0.1.0-SNAPSHOT                                [1/13]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-core >------------------
+[INFO] Building agent-core 0.1.0-SNAPSHOT                                [2/13]
+[INFO]   from agent-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-core ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-core ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-core ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-core ---
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ agent-core ---
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-fake-model >---------------
+[INFO] Building plugin-fake-model 0.1.0-SNAPSHOT                         [3/13]
+[INFO]   from plugins/plugin-fake-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-fake-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-fake-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-fake-model ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fake-model/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-fake-model ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-fake-model ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-fake-model ---
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-codex-model >--------------
+[INFO] Building plugin-codex-model 0.1.0-SNAPSHOT                        [4/13]
+[INFO]   from plugins/plugin-codex-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-codex-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-codex-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-codex-model ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-codex-model/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-codex-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-codex-model ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.codex.CodexResponsesTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.155 s -- in com.example.miniagent.plugin.codex.CodexResponsesTest
+[INFO] Running com.example.miniagent.plugin.codex.CodexModelPickerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s -- in com.example.miniagent.plugin.codex.CodexModelPickerTest
+[INFO] Running com.example.miniagent.plugin.codex.CodexHttpErrorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.062 s -- in com.example.miniagent.plugin.codex.CodexHttpErrorTest
+[INFO] Running com.example.miniagent.plugin.codex.CodexResponsesClientTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.664 s -- in com.example.miniagent.plugin.codex.CodexResponsesClientTest
+[INFO] Running com.example.miniagent.plugin.codex.CodexAuthTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.example.miniagent.plugin.codex.CodexAuthTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-codex-model ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-fs >-------------------
+[INFO] Building plugin-fs 0.1.0-SNAPSHOT                                 [5/13]
+[INFO]   from plugins/plugin-fs/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-fs ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-fs ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-fs ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fs/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-fs ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-fs ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.fs.FileToolsTest
+10월 06, 2026 12:07:19 오후 org.junit.jupiter.engine.extension.TempDirectory$CloseablePath$1 warnAboutLinkWithTargetOutsideTempDir
+경고: Deleting symbolic link from location inside of temp dir (/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-16252448433744602175/link) to location outside of temp dir (/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-7139172762798535919) but not the target file/directory
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.152 s -- in com.example.miniagent.plugin.fs.FileToolsTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-fs ---
+[INFO] Building jar: /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fs/target/plugin-fs-0.1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] -----------------< com.example.miniagent:plugin-bash >------------------
+[INFO] Building plugin-bash 0.1.0-SNAPSHOT                               [6/13]
+[INFO]   from plugins/plugin-bash/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-bash ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-bash ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-bash ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-bash/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-bash ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-bash ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.bash.BashToolTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.680 s -- in com.example.miniagent.plugin.bash.BashToolTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-bash ---
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-permission >---------------
+[INFO] Building plugin-permission 0.1.0-SNAPSHOT                         [7/13]
+[INFO]   from plugins/plugin-permission/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-permission ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-permission ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-permission ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-permission/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-permission ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-permission ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.permission.ConfirmToolInterceptorTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in com.example.miniagent.plugin.permission.ConfirmToolInterceptorTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-permission ---
+[INFO] 
+[INFO] ----------------< com.example.miniagent:plugin-memory >-----------------
+[INFO] Building plugin-memory 0.1.0-SNAPSHOT                             [8/13]
+[INFO]   from plugins/plugin-memory/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-memory ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-memory ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-memory ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-memory/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-memory ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-memory ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.memory.ChatModelSummarizerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.076 s -- in com.example.miniagent.plugin.memory.ChatModelSummarizerTest
+[INFO] Running com.example.miniagent.plugin.memory.JsonlChatMemoryTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.147 s -- in com.example.miniagent.plugin.memory.JsonlChatMemoryTest
+[INFO] Running com.example.miniagent.plugin.memory.MemoryBudgetAdvisorTest
+12:07:29.100 [main] WARN org.springframework.context.annotation.AnnotationConfigApplicationContext -- Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'chatMemory' defined in com.example.miniagent.plugin.memory.MemoryPluginAutoConfiguration: Failed to instantiate [org.springframework.ai.chat.memory.ChatMemory]: Factory method 'chatMemory' threw exception with message: agent.plugins.memory.max-messages must be positive
+12:07:29.118 [main] WARN org.springframework.context.annotation.AnnotationConfigApplicationContext -- Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'chatMemory' defined in com.example.miniagent.plugin.memory.MemoryPluginAutoConfiguration: Failed to instantiate [org.springframework.ai.chat.memory.ChatMemory]: Factory method 'chatMemory' threw exception with message: agent.plugins.memory.max-context-chars must be positive
+12:07:29.126 [main] WARN org.springframework.context.annotation.AnnotationConfigApplicationContext -- Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'chatMemory' defined in com.example.miniagent.plugin.memory.MemoryPluginAutoConfiguration: Failed to instantiate [org.springframework.ai.chat.memory.ChatMemory]: Factory method 'chatMemory' threw exception with message: agent.plugins.memory.max-summary-request-chars must be at least 693
+12:07:29.132 [main] WARN org.springframework.context.annotation.AnnotationConfigApplicationContext -- Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'chatMemory' defined in com.example.miniagent.plugin.memory.MemoryPluginAutoConfiguration: Failed to instantiate [org.springframework.ai.chat.memory.ChatMemory]: Factory method 'chatMemory' threw exception with message: agent.plugins.memory.max-summary-chars must be positive
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.165 s -- in com.example.miniagent.plugin.memory.MemoryBudgetAdvisorTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-memory ---
+[INFO] 
+[INFO] -----------------< com.example.miniagent:plugin-trace >-----------------
+[INFO] Building plugin-trace 0.1.0-SNAPSHOT                              [9/13]
+[INFO]   from plugins/plugin-trace/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-trace ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-trace ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-trace ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-trace/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-trace ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-trace ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.trace.ToolTraceInterceptorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in com.example.miniagent.plugin.trace.ToolTraceInterceptorTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-trace ---
+[INFO] 
+[INFO] ----------------< com.example.miniagent:plugin-skills >-----------------
+[INFO] Building plugin-skills 0.1.0-SNAPSHOT                            [10/13]
+[INFO]   from plugins/plugin-skills/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-skills ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-skills ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-skills ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-skills/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-skills ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-skills ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-skills ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-mcp >------------------
+[INFO] Building plugin-mcp 0.1.0-SNAPSHOT                               [11/13]
+[INFO]   from plugins/plugin-mcp/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-mcp ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-mcp ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-mcp ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-mcp/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-mcp ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-mcp ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-mcp ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-tui >------------------
+[INFO] Building plugin-tui 0.1.0-SNAPSHOT                               [12/13]
+[INFO]   from plugins/plugin-tui/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/3.10.0/maven-dependency-plugin-3.10.0.pom
+Progress (1): 744 BProgress (1): 1.7 kBProgress (1): 3.6 kBProgress (1): 7.9 kBProgress (1): 10 kB Progress (1): 14 kBProgress (1): 17 kBProgress (1): 19 kB                   Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/3.10.0/maven-dependency-plugin-3.10.0.pom (19 kB at 76 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/3.10.0/maven-dependency-plugin-3.10.0.jar
+Progress (1): 0.9/228 kBProgress (1): 2.3/228 kBProgress (1): 3.6/228 kBProgress (1): 5.0/228 kBProgress (1): 6.4/228 kBProgress (1): 7.7/228 kBProgress (1): 9.1/228 kBProgress (1): 10/228 kB Progress (1): 11/228 kBProgress (1): 13/228 kBProgress (1): 14/228 kBProgress (1): 15/228 kBProgress (1): 17/228 kBProgress (1): 18/228 kBProgress (1): 20/228 kBProgress (1): 21/228 kBProgress (1): 22/228 kBProgress (1): 24/228 kBProgress (1): 25/228 kBProgress (1): 26/228 kBProgress (1): 28/228 kBProgress (1): 29/228 kBProgress (1): 31/228 kBProgress (1): 32/228 kBProgress (1): 33/228 kBProgress (1): 35/228 kBProgress (1): 36/228 kBProgress (1): 37/228 kBProgress (1): 39/228 kBProgress (1): 40/228 kBProgress (1): 41/228 kBProgress (1): 43/228 kBProgress (1): 44/228 kBProgress (1): 46/228 kBProgress (1): 47/228 kBProgress (1): 48/228 kBProgress (1): 53/228 kBProgress (1): 57/228 kBProgress (1): 61/228 kBProgress (1): 65/228 kBProgress (1): 69/228 kBProgress (1): 74/228 kBProgress (1): 78/228 kBProgress (1): 82/228 kBProgress (1): 86/228 kBProgress (1): 91/228 kBProgress (1): 95/228 kBProgress (1): 99/228 kBProgress (1): 103/228 kBProgress (1): 108/228 kBProgress (1): 112/228 kBProgress (1): 116/228 kBProgress (1): 120/228 kBProgress (1): 124/228 kBProgress (1): 129/228 kBProgress (1): 133/228 kBProgress (1): 137/228 kBProgress (1): 141/228 kBProgress (1): 142/228 kBProgress (1): 147/228 kBProgress (1): 151/228 kBProgress (1): 155/228 kBProgress (1): 159/228 kBProgress (1): 164/228 kBProgress (1): 168/228 kBProgress (1): 172/228 kBProgress (1): 176/228 kBProgress (1): 181/228 kBProgress (1): 185/228 kBProgress (1): 189/228 kBProgress (1): 193/228 kBProgress (1): 197/228 kBProgress (1): 202/228 kBProgress (1): 206/228 kBProgress (1): 210/228 kBProgress (1): 214/228 kBProgress (1): 228 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/3.10.0/maven-dependency-plugin-3.10.0.jar (228 kB at 4.7 MB/s)
+[INFO] 
+[INFO] --- dependency:3.10.0:properties (default) @ plugin-tui ---
+Downloading from central: https://repo.maven.apache.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.9.0.M4/org.eclipse.sisu.inject-0.9.0.M4.pom
+Progress (1): 805 BProgress (1): 3.7 kBProgress (1): 11 kB Progress (1): 18 kB                   Downloaded from central: https://repo.maven.apache.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.9.0.M4/org.eclipse.sisu.inject-0.9.0.M4.pom (18 kB at 689 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/4.11.0/plexus-archiver-4.11.0.pom
+Progress (1): 1.2 kBProgress (1): 4.2 kBProgress (1): 5.6 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/4.11.0/plexus-archiver-4.11.0.pom (5.6 kB at 201 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/tukaani/xz/1.11/xz-1.11.pom
+Progress (1): 1.1 kBProgress (1): 1.9 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/tukaani/xz/1.11/xz-1.11.pom (1.9 kB at 74 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-i18n/1.1.0/plexus-i18n-1.1.0.pom
+Progress (1): 1.2 kBProgress (1): 2.8 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-i18n/1.1.0/plexus-i18n-1.1.0.pom (2.8 kB at 111 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.17.0/maven-dependency-analyzer-1.17.0.pom
+Progress (1): 793 BProgress (1): 2.3 kBProgress (1): 5.3 kBProgress (1): 7.1 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.17.0/maven-dependency-analyzer-1.17.0.pom (7.1 kB at 321 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.9.25/maven-resolver-util-1.9.25.pom
+Progress (1): 838 BProgress (1): 2.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.9.25/maven-resolver-util-1.9.25.pom (2.2 kB at 68 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver/1.9.25/maven-resolver-1.9.25.pom
+Progress (1): 756 BProgress (1): 2.3 kBProgress (1): 4.0 kBProgress (1): 9.1 kBProgress (1): 12 kB Progress (1): 16 kBProgress (1): 19 kBProgress (1): 22 kBProgress (1): 25 kB                   Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver/1.9.25/maven-resolver-1.9.25.pom (25 kB at 908 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/1.9.25/maven-resolver-api-1.9.25.pom
+Progress (1): 835 BProgress (1): 2.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/1.9.25/maven-resolver-api-1.9.25.pom (2.2 kB at 101 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/velocity/velocity-engine-core/2.4.1/velocity-engine-core-2.4.1.pom
+Progress (1): 797 BProgress (1): 2.2 kBProgress (1): 5.1 kBProgress (1): 9.3 kBProgress (1): 12 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/velocity/velocity-engine-core/2.4.1/velocity-engine-core-2.4.1.pom (12 kB at 136 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/velocity/velocity-engine-parent/2.4.1/velocity-engine-parent-2.4.1.pom
+Progress (1): 806 BProgress (1): 2.6 kBProgress (1): 5.1 kBProgress (1): 7.7 kBProgress (1): 9.5 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/velocity/velocity-engine-parent/2.4.1/velocity-engine-parent-2.4.1.pom (9.5 kB at 328 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.9.0.M4/org.eclipse.sisu.inject-0.9.0.M4.jar
+Progress (1): 7.7/305 kBProgress (1): 7.7/305 kBProgress (1): 24/305 kB Progress (1): 40/305 kBProgress (1): 57/305 kBProgress (1): 73/305 kBProgress (1): 90/305 kBProgress (1): 106/305 kBProgress (1): 122/305 kBProgress (1): 139/305 kBProgress (1): 155/305 kBProgress (1): 172/305 kBProgress (1): 188/305 kBProgress (1): 204/305 kBProgress (1): 221/305 kBProgress (1): 237/305 kBProgress (1): 253/305 kBProgress (1): 270/305 kBProgress (1): 286/305 kBProgress (1): 303/305 kBProgress (1): 305 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.9.0.M4/org.eclipse.sisu.inject-0.9.0.M4.jar (305 kB at 6.6 MB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/4.11.0/plexus-archiver-4.11.0.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/tukaani/xz/1.11/xz-1.11.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-i18n/1.1.0/plexus-i18n-1.1.0.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.17.0/maven-dependency-analyzer-1.17.0.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.9.25/maven-resolver-util-1.9.25.jar
+Progress (1): 3.2/227 kBProgress (1): 20/227 kB Progress (1): 36/227 kBProgress (1): 52/227 kBProgress (1): 69/227 kBProgress (1): 85/227 kBProgress (1): 101/227 kBProgress (1): 118/227 kBProgress (1): 134/227 kBProgress (1): 147/227 kBProgress (1): 164/227 kBProgress (1): 180/227 kBProgress (1): 197/227 kBProgress (1): 213/227 kBProgress (1): 227 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/4.11.0/plexus-archiver-4.11.0.jar (227 kB at 6.9 MB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/velocity/velocity-engine-core/2.4.1/velocity-engine-core-2.4.1.jar
+Progress (1): 0.9/10 kBProgress (1): 2.3/10 kBProgress (1): 3.2/10 kBProgress (1): 4.5/10 kBProgress (1): 5.9/10 kBProgress (1): 7.3/10 kBProgress (1): 8.7/10 kBProgress (1): 10/10 kB Progress (1): 10 kB   Progress (2): 10 kB | 3.2/516 kBProgress (3): 10 kB | 3.2/516 kB | 0.9/54 kBProgress (3): 10 kB | 20/516 kB | 0.9/54 kB Progress (3): 10 kB | 20/516 kB | 2.3/54 kBProgress (4): 10 kB | 20/516 kB | 2.3/54 kB | 0.9/197 kBProgress (4): 10 kB | 20/516 kB | 3.6/54 kB | 0.9/197 kBProgress (4): 10 kB | 20/516 kB | 3.6/54 kB | 2.3/197 kBProgress (4): 10 kB | 20/516 kB | 5.0/54 kB | 2.3/197 kBProgress (4): 10 kB | 20/516 kB | 5.0/54 kB | 3.6/197 kBProgress (4): 10 kB | 20/516 kB | 6.4/54 kB | 3.6/197 kBProgress (5): 10 kB | 20/516 kB | 6.4/54 kB | 3.6/197 kB | 0.9/169 kBProgress (5): 10 kB | 20/516 kB | 6.4/54 kB | 5.0/197 kB | 0.9/169 kBProgress (5): 10 kB | 20/516 kB | 7.7/54 kB | 5.0/197 kB | 0.9/169 kBProgress (5): 10 kB | 36/516 kB | 7.7/54 kB | 5.0/197 kB | 0.9/169 kBProgress (5): 10 kB | 36/516 kB | 7.7/54 kB | 6.4/197 kB | 0.9/169 kBProgress (5): 10 kB | 36/516 kB | 8.2/54 kB | 6.4/197 kB | 0.9/169 kBProgress (5): 10 kB | 36/516 kB | 8.2/54 kB | 6.4/197 kB | 2.3/169 kBProgress (5): 10 kB | 36/516 kB | 8.2/54 kB | 7.7/197 kB | 2.3/169 kBProgress (5): 10 kB | 36/516 kB | 9.6/54 kB | 7.7/197 kB | 2.3/169 kBProgress (5): 10 kB | 36/516 kB | 9.6/54 kB | 9.1/197 kB | 2.3/169 kBProgress (5): 10 kB | 36/516 kB | 9.6/54 kB | 9.1/197 kB | 3.6/169 kBProgress (5): 10 kB | 36/516 kB | 9.6/54 kB | 10/197 kB | 3.6/169 kB Progress (5): 10 kB | 36/516 kB | 9.6/54 kB | 10/197 kB | 5.0/169 kBProgress (5): 10 kB | 36/516 kB | 9.6/54 kB | 12/197 kB | 5.0/169 kBProgress (5): 10 kB | 36/516 kB | 11/54 kB | 12/197 kB | 5.0/169 kB                                                                    Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-i18n/1.1.0/plexus-i18n-1.1.0.jar (10 kB at 162 kB/s)
+Progress (4): 36/516 kB | 11/54 kB | 12/197 kB | 6.4/169 kBProgress (4): 52/516 kB | 11/54 kB | 12/197 kB | 6.4/169 kBProgress (4): 52/516 kB | 11/54 kB | 13/197 kB | 6.4/169 kBProgress (4): 52/516 kB | 11/54 kB | 13/197 kB | 7.7/169 kBProgress (4): 52/516 kB | 12/54 kB | 13/197 kB | 7.7/169 kBProgress (4): 52/516 kB | 12/54 kB | 15/197 kB | 7.7/169 kBProgress (4): 52/516 kB | 12/54 kB | 15/197 kB | 9.1/169 kBProgress (4): 52/516 kB | 12/54 kB | 16/197 kB | 9.1/169 kBProgress (4): 52/516 kB | 14/54 kB | 16/197 kB | 9.1/169 kBProgress (4): 52/516 kB | 14/54 kB | 16/197 kB | 10/169 kB Progress (4): 52/516 kB | 14/54 kB | 17/197 kB | 10/169 kBProgress (4): 52/516 kB | 14/54 kB | 17/197 kB | 12/169 kBProgress (4): 52/516 kB | 15/54 kB | 17/197 kB | 12/169 kBProgress (4): 52/516 kB | 15/54 kB | 17/197 kB | 13/169 kBProgress (4): 52/516 kB | 16/54 kB | 17/197 kB | 13/169 kBProgress (4): 52/516 kB | 16/54 kB | 17/197 kB | 15/169 kBProgress (4): 52/516 kB | 16/54 kB | 17/197 kB | 16/169 kBProgress (4): 52/516 kB | 18/54 kB | 17/197 kB | 16/169 kBProgress (4): 52/516 kB | 18/54 kB | 17/197 kB | 17/169 kBProgress (4): 52/516 kB | 18/54 kB | 17/197 kB | 19/169 kBProgress (4): 52/516 kB | 19/54 kB | 17/197 kB | 19/169 kBProgress (4): 52/516 kB | 19/54 kB | 17/197 kB | 20/169 kBProgress (4): 52/516 kB | 21/54 kB | 17/197 kB | 20/169 kBProgress (4): 52/516 kB | 21/54 kB | 17/197 kB | 21/169 kBProgress (4): 52/516 kB | 21/54 kB | 17/197 kB | 23/169 kBProgress (4): 52/516 kB | 22/54 kB | 17/197 kB | 23/169 kBProgress (4): 52/516 kB | 22/54 kB | 17/197 kB | 24/169 kBProgress (4): 52/516 kB | 23/54 kB | 17/197 kB | 24/169 kBProgress (4): 52/516 kB | 23/54 kB | 17/197 kB | 26/169 kBProgress (4): 52/516 kB | 23/54 kB | 17/197 kB | 27/169 kBProgress (4): 52/516 kB | 25/54 kB | 17/197 kB | 27/169 kBProgress (4): 52/516 kB | 25/54 kB | 17/197 kB | 28/169 kBProgress (4): 52/516 kB | 26/54 kB | 17/197 kB | 28/169 kBProgress (4): 52/516 kB | 26/54 kB | 17/197 kB | 30/169 kBProgress (4): 52/516 kB | 27/54 kB | 17/197 kB | 30/169 kBProgress (4): 52/516 kB | 29/54 kB | 17/197 kB | 30/169 kBProgress (4): 52/516 kB | 30/54 kB | 17/197 kB | 30/169 kBProgress (4): 52/516 kB | 30/54 kB | 17/197 kB | 31/169 kBProgress (4): 52/516 kB | 31/54 kB | 17/197 kB | 31/169 kBProgress (4): 52/516 kB | 33/54 kB | 17/197 kB | 31/169 kBProgress (4): 52/516 kB | 33/54 kB | 17/197 kB | 32/169 kBProgress (4): 52/516 kB | 34/54 kB | 17/197 kB | 32/169 kBProgress (4): 52/516 kB | 34/54 kB | 17/197 kB | 34/169 kBProgress (4): 52/516 kB | 34/54 kB | 17/197 kB | 35/169 kBProgress (4): 52/516 kB | 34/54 kB | 17/197 kB | 36/169 kBProgress (4): 52/516 kB | 34/54 kB | 19/197 kB | 36/169 kBProgress (4): 52/516 kB | 34/54 kB | 19/197 kB | 38/169 kBProgress (4): 52/516 kB | 34/54 kB | 19/197 kB | 39/169 kBProgress (4): 52/516 kB | 34/54 kB | 20/197 kB | 39/169 kBProgress (4): 52/516 kB | 34/54 kB | 20/197 kB | 41/169 kBProgress (4): 52/516 kB | 34/54 kB | 21/197 kB | 41/169 kBProgress (4): 52/516 kB | 34/54 kB | 21/197 kB | 42/169 kBProgress (4): 52/516 kB | 34/54 kB | 21/197 kB | 43/169 kBProgress (4): 52/516 kB | 34/54 kB | 21/197 kB | 45/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 45/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 46/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 47/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 49/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 50/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 52/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 53/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 54/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 56/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 57/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 61/169 kBProgress (4): 69/516 kB | 34/54 kB | 21/197 kB | 65/169 kBProgress (4): 85/516 kB | 34/54 kB | 21/197 kB | 65/169 kBProgress (4): 85/516 kB | 34/54 kB | 23/197 kB | 65/169 kBProgress (4): 85/516 kB | 36/54 kB | 23/197 kB | 65/169 kBProgress (4): 85/516 kB | 36/54 kB | 24/197 kB | 65/169 kBProgress (4): 85/516 kB | 37/54 kB | 24/197 kB | 65/169 kBProgress (4): 85/516 kB | 37/54 kB | 26/197 kB | 65/169 kBProgress (4): 101/516 kB | 37/54 kB | 26/197 kB | 65/169 kBProgress (4): 101/516 kB | 38/54 kB | 26/197 kB | 65/169 kBProgress (4): 101/516 kB | 38/54 kB | 27/197 kB | 65/169 kBProgress (4): 101/516 kB | 40/54 kB | 27/197 kB | 65/169 kBProgress (4): 101/516 kB | 40/54 kB | 28/197 kB | 65/169 kBProgress (4): 101/516 kB | 41/54 kB | 28/197 kB | 65/169 kBProgress (4): 101/516 kB | 41/54 kB | 30/197 kB | 65/169 kBProgress (4): 101/516 kB | 42/54 kB | 30/197 kB | 65/169 kBProgress (4): 101/516 kB | 42/54 kB | 31/197 kB | 65/169 kBProgress (4): 101/516 kB | 42/54 kB | 32/197 kB | 65/169 kBProgress (4): 101/516 kB | 44/54 kB | 32/197 kB | 65/169 kBProgress (4): 118/516 kB | 44/54 kB | 32/197 kB | 65/169 kBProgress (4): 118/516 kB | 44/54 kB | 34/197 kB | 65/169 kBProgress (4): 118/516 kB | 44/54 kB | 35/197 kB | 65/169 kBProgress (4): 118/516 kB | 45/54 kB | 35/197 kB | 65/169 kBProgress (4): 118/516 kB | 45/54 kB | 36/197 kB | 65/169 kBProgress (4): 118/516 kB | 47/54 kB | 36/197 kB | 65/169 kBProgress (4): 118/516 kB | 47/54 kB | 38/197 kB | 65/169 kBProgress (4): 118/516 kB | 48/54 kB | 38/197 kB | 65/169 kBProgress (4): 118/516 kB | 48/54 kB | 39/197 kB | 65/169 kBProgress (4): 118/516 kB | 48/54 kB | 41/197 kB | 65/169 kBProgress (4): 118/516 kB | 49/54 kB | 41/197 kB | 65/169 kBProgress (4): 118/516 kB | 49/54 kB | 42/197 kB | 65/169 kBProgress (4): 118/516 kB | 51/54 kB | 42/197 kB | 65/169 kBProgress (4): 118/516 kB | 51/54 kB | 43/197 kB | 65/169 kBProgress (4): 118/516 kB | 52/54 kB | 43/197 kB | 65/169 kBProgress (4): 118/516 kB | 52/54 kB | 45/197 kB | 65/169 kBProgress (4): 118/516 kB | 53/54 kB | 45/197 kB | 65/169 kBProgress (4): 118/516 kB | 53/54 kB | 46/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 46/197 kB | 65/169 kB   Progress (4): 118/516 kB | 54 kB | 47/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 49/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 50/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 52/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 53/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 54/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 56/197 kB | 65/169 kBProgress (4): 118/516 kB | 54 kB | 60/197 kB | 65/169 kB                                                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.17.0/maven-dependency-analyzer-1.17.0.jar (54 kB at 788 kB/s)
+Progress (3): 118/516 kB | 60/197 kB | 70/169 kBProgress (3): 118/516 kB | 60/197 kB | 74/169 kBProgress (3): 118/516 kB | 60/197 kB | 78/169 kBProgress (3): 118/516 kB | 60/197 kB | 82/169 kBProgress (3): 118/516 kB | 60/197 kB | 86/169 kBProgress (3): 118/516 kB | 60/197 kB | 91/169 kBProgress (3): 118/516 kB | 60/197 kB | 95/169 kBProgress (3): 118/516 kB | 60/197 kB | 99/169 kBProgress (3): 118/516 kB | 60/197 kB | 103/169 kBProgress (3): 118/516 kB | 60/197 kB | 108/169 kBProgress (3): 118/516 kB | 60/197 kB | 112/169 kBProgress (3): 118/516 kB | 60/197 kB | 116/169 kBProgress (3): 118/516 kB | 60/197 kB | 120/169 kBProgress (3): 118/516 kB | 60/197 kB | 125/169 kBProgress (3): 118/516 kB | 60/197 kB | 129/169 kBProgress (3): 118/516 kB | 60/197 kB | 133/169 kBProgress (3): 118/516 kB | 60/197 kB | 137/169 kBProgress (3): 118/516 kB | 60/197 kB | 141/169 kBProgress (3): 118/516 kB | 60/197 kB | 146/169 kBProgress (3): 118/516 kB | 60/197 kB | 150/169 kBProgress (3): 118/516 kB | 60/197 kB | 154/169 kBProgress (3): 118/516 kB | 60/197 kB | 158/169 kBProgress (3): 126/516 kB | 60/197 kB | 158/169 kBProgress (3): 126/516 kB | 60/197 kB | 163/169 kBProgress (3): 126/516 kB | 60/197 kB | 167/169 kBProgress (3): 126/516 kB | 60/197 kB | 169 kB    Progress (3): 142/516 kB | 60/197 kB | 169 kB                                             Downloaded from central: https://repo.maven.apache.org/maven2/org/tukaani/xz/1.11/xz-1.11.jar (169 kB at 2.0 MB/s)
+Progress (2): 159/516 kB | 60/197 kBProgress (2): 175/516 kB | 60/197 kBProgress (2): 192/516 kB | 60/197 kBProgress (2): 208/516 kB | 60/197 kBProgress (2): 208/516 kB | 61/197 kBProgress (2): 208/516 kB | 66/197 kBProgress (2): 224/516 kB | 66/197 kBProgress (2): 224/516 kB | 70/197 kBProgress (2): 224/516 kB | 74/197 kBProgress (2): 224/516 kB | 78/197 kBProgress (2): 241/516 kB | 78/197 kBProgress (2): 241/516 kB | 83/197 kBProgress (2): 241/516 kB | 87/197 kBProgress (2): 241/516 kB | 91/197 kBProgress (2): 257/516 kB | 91/197 kBProgress (2): 257/516 kB | 95/197 kBProgress (2): 257/516 kB | 100/197 kBProgress (2): 257/516 kB | 104/197 kBProgress (2): 274/516 kB | 104/197 kBProgress (2): 274/516 kB | 108/197 kBProgress (2): 274/516 kB | 112/197 kBProgress (2): 274/516 kB | 116/197 kBProgress (2): 274/516 kB | 121/197 kBProgress (2): 290/516 kB | 121/197 kBProgress (2): 290/516 kB | 125/197 kBProgress (2): 290/516 kB | 129/197 kBProgress (2): 306/516 kB | 129/197 kBProgress (2): 306/516 kB | 133/197 kBProgress (2): 306/516 kB | 138/197 kBProgress (2): 306/516 kB | 142/197 kBProgress (2): 323/516 kB | 142/197 kBProgress (2): 323/516 kB | 146/197 kBProgress (2): 323/516 kB | 150/197 kBProgress (2): 323/516 kB | 154/197 kBProgress (2): 323/516 kB | 159/197 kBProgress (2): 339/516 kB | 159/197 kBProgress (2): 339/516 kB | 163/197 kBProgress (2): 339/516 kB | 167/197 kBProgress (2): 355/516 kB | 167/197 kBProgress (2): 355/516 kB | 171/197 kBProgress (2): 355/516 kB | 176/197 kBProgress (2): 355/516 kB | 180/197 kBProgress (2): 372/516 kB | 180/197 kBProgress (2): 372/516 kB | 184/197 kBProgress (2): 388/516 kB | 184/197 kBProgress (2): 405/516 kB | 184/197 kBProgress (2): 421/516 kB | 184/197 kBProgress (2): 437/516 kB | 184/197 kBProgress (2): 454/516 kB | 184/197 kBProgress (2): 470/516 kB | 184/197 kBProgress (2): 487/516 kB | 184/197 kBProgress (2): 503/516 kB | 184/197 kBProgress (2): 503/516 kB | 188/197 kBProgress (2): 503/516 kB | 193/197 kBProgress (2): 516 kB | 193/197 kB    Progress (2): 516 kB | 197/197 kBProgress (2): 516 kB | 197 kB                                 Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.9.25/maven-resolver-util-1.9.25.jar (197 kB at 2.1 MB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/velocity/velocity-engine-core/2.4.1/velocity-engine-core-2.4.1.jar (516 kB at 5.5 MB/s)
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-tui ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-tui ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-tui ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-tui/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-tui ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-tui ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.tui.TuiCancellationTest
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.348 s -- in com.example.miniagent.plugin.tui.TuiCancellationTest
+[INFO] Running com.example.miniagent.plugin.tui.TraceGraphTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.example.miniagent.plugin.tui.TraceGraphTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ plugin-tui ---
+[INFO] Building jar: /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-tui/target/plugin-tui-0.1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-app >-------------------
+[INFO] Building agent-app 0.1.0-SNAPSHOT                                [13/13]
+[INFO]   from agent-app/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.10.0:properties (default) @ agent-app ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-app ---
+[INFO] Copying 6 resources from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-app ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-app ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-app ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 5 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-app ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.app.OneShotExitCodeTest
+12:07:32.115 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.miniagent.app.OneShotExitCodeTest]: OneShotExitCodeTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:07:32.154 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.miniagent.app.MiniAgentApplication for test class com.example.miniagent.app.OneShotExitCodeTest
+12:07:32.177 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.miniagent.app.OneShotExitCodeTest]: OneShotExitCodeTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:07:32.178 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.miniagent.app.MiniAgentApplication for test class com.example.miniagent.app.OneShotExitCodeTest
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.925 s -- in com.example.miniagent.app.OneShotExitCodeTest
+[INFO] Running com.example.miniagent.app.PluginVariationsTest
+[INFO] Running com.example.miniagent.app.PluginVariationsTest$MemoryInsideTheLoop
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.164 s -- in com.example.miniagent.app.PluginVariationsTest$MemoryInsideTheLoop
+[INFO] Running com.example.miniagent.app.PluginVariationsTest$ToolPluginsDisabled
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.106 s -- in com.example.miniagent.app.PluginVariationsTest$ToolPluginsDisabled
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.273 s -- in com.example.miniagent.app.PluginVariationsTest
+[INFO] Running com.example.miniagent.app.AgentLoopTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.117 s -- in com.example.miniagent.app.AgentLoopTest
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$Inside
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.124 s -- in com.example.miniagent.app.MemoryBudgetTest$Inside
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$CompletionInside
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.091 s -- in com.example.miniagent.app.MemoryBudgetTest$CompletionInside
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$Outside
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s -- in com.example.miniagent.app.MemoryBudgetTest$Outside
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$CompletionOutside
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.088 s -- in com.example.miniagent.app.MemoryBudgetTest$CompletionOutside
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.400 s -- in com.example.miniagent.app.MemoryBudgetTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 34, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ agent-app ---
+[INFO] Building jar: /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/target/mini-agent.jar
+[INFO] 
+[INFO] --- spring-boot:4.1.1:repackage (repackage) @ agent-app ---
+[INFO] Replacing main artifact /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/target/mini-agent.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/target/mini-agent.jar.original
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for mini-agent 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] mini-agent ......................................... SUCCESS [  0.001 s]
+[INFO] agent-core ......................................... SUCCESS [  0.335 s]
+[INFO] plugin-fake-model .................................. SUCCESS [  0.019 s]
+[INFO] plugin-codex-model ................................. SUCCESS [  1.614 s]
+[INFO] plugin-fs .......................................... SUCCESS [  0.435 s]
+[INFO] plugin-bash ........................................ SUCCESS [  8.918 s]
+[INFO] plugin-permission .................................. SUCCESS [  0.261 s]
+[INFO] plugin-memory ...................................... SUCCESS [  0.633 s]
+[INFO] plugin-trace ....................................... SUCCESS [  0.254 s]
+[INFO] plugin-skills ...................................... SUCCESS [  0.009 s]
+[INFO] plugin-mcp ......................................... SUCCESS [  0.014 s]
+[INFO] plugin-tui ......................................... SUCCESS [  1.644 s]
+[INFO] agent-app .......................................... SUCCESS [  2.887 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  17.171 s
+[INFO] Finished at: 2026-10-06T12:07:33+09:00
+[INFO] ------------------------------------------------------------------------

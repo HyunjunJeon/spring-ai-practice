@@ -1,0 +1,61 @@
+LAUNCH packaged jar; isolated cwd/home; empty environment; no .env import
+mini-agent  (next: fake/fake-scripted [available], session: 20261006-173420-e4be)
+[2mplugins: claude, bash, codex, fake-model, fs, mcp, permission, skills, trace[0m
+[2m/help 명령 목록, /exit 종료[0m
+
+›   openai/gpt-5-mini [AUTH_MISSING]
+  zai/glm-5.3 [AUTH_MISSING]
+  anthropic/claude-sonnet-5-5 [AUTH_MISSING]
+  ollama/qwen3:8b [available]
+  claude/claude-sonnet-5-5 [AUTH_MISSING]
+  codex/gpt-6-luna [AUTH_MISSING]
+* fake/fake-scripted [available]
+next: fake/fake-scripted [available]
+
+› next: fake/fake-scripted [available]
+
+›   /advisors     어드바이저 체인(실행 순서) 보기
+  /claude       Claude 구독 연동 설정
+  /codex        상태 | models | model [번호|slug] | effort [level] | refresh
+  /login        /login [provider] (생략하면 현재 선택 provider)
+  /logout       /logout [provider] (생략하면 현재 선택 provider)
+  /mcp          연결된 MCP 서버와 도구
+  /model        show | [select] provider/model [key=value ...] (다음 턴)
+  /models       모델 목록과 인증 상태
+  /plugins      붙어 있는 플러그인 목록
+  /skill        스킬을 강제로 적용해 실행 (/skill <이름> <요청>)
+  /skills       발견된 스킬 목록
+  /system       조립된 시스템 프롬프트 보기
+  /tools        모델에게 노출된 도구 목록
+  /trace        트레이스 수준 (off | summary: 턴당 한 줄 | detail: 라운드별 트리)
+  /undo         직전 턴에 write_file·edit_file 로 바꾼 파일 되돌리기
+  /exit         종료
+
+› next: fake/fake-scripted [available]
+
+› next: fake/fake-scripted [available]
+
+› [2mmodel: fake/fake-scripted options=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 session=20261006-173420-e4be turn=66aabfb4-9aa0-4493-89a5-14344c7ec217 binding=f186e9c5-3f79-4bdc-b19e-46c54088d9ba[0m
+[2m┌ 턴 시작 — 입력 메시지 2개[0m
+[2m│ [1] → 모델       메시지 2개 · 도구 6개[0m
+[2m│ [1] ← 최종 답변    252자   2ms[0m
+[2m└ 턴 완료 — 모델 1회 · 도구 0회 · 3ms[0m
+[fake] 모델이 받은 요청
+- 메시지 2개
+    SYSTEM    You are mini-agent, a minimal agent running in the user's terminal. Us…
+    USER      hello offline
+- 도구 6개: bash, read_file, write_file, edit_file, list_dir, load_skill
+도구를 호출시켜 보려면:  !tool list_dir {"path":"."}
+[2m  tokens: in 74 · cache 0 · out 63[0m
+
+› REPL_EXIT=0
+[2m  ⏱ 3ms · 모델 1회 · 도구 없음 · fake/fake-scripted[0m
+[fake] 모델이 받은 요청
+- 메시지 2개
+    SYSTEM    You are mini-agent, a minimal agent running in the user's terminal. Us…
+    USER      literal fake one-shot
+- 도구 6개: bash, read_file, write_file, edit_file, list_dir, load_skill
+도구를 호출시켜 보려면:  !tool list_dir {"path":"."}
+[2m  tokens: in 76 · cache 0 · out 65[0m
+ONESHOT_EXIT=0
+TEMP_RESOURCES_CLEANED

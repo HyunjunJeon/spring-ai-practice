@@ -1,0 +1,4 @@
+com.example.miniagent.core.AgentAutoConfiguration
+com.example.miniagent.core.run.RunJournalAutoConfiguration
+com.example.miniagent.core.run.RunCommandAutoConfiguration
+com.example.miniagent.core.change.command.ChangeCommandAutoConfiguration

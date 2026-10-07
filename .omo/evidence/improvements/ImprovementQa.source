@@ -1,0 +1,426 @@
+// Archived production-path QA driver; original invocations and results are in the notepad.
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.plugin.fs.FileCheckpoints;
+import com.example.miniagent.plugin.fs.FileTools;
+import org.springframework.ai.chat.model.ToolContext;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.boot.convert.ApplicationConversionService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.MapPropertySource;
+import com.example.miniagent.plugin.bash.BashPluginAutoConfiguration;
+import com.example.miniagent.core.AgentConsole;
+import com.example.miniagent.core.AgentSession;
+import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.plugin.memory.MemoryPluginAutoConfiguration;
+import com.example.miniagent.plugin.memory.JsonlChatMemoryRepository;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.ToolResponseMessage;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.tool.function.FunctionToolCallback;
+import com.example.miniagent.plugin.memory.ChatModelSummarizer;
+
+class ImprovementQa {
+    public static void main(String[] args) throws Exception {
+        Path root = Files.createTempDirectory("mini-agent-improvement-qa-");
+        System.out.println("FIXTURE " + root);
+        try {
+            if (args[0].equals("undo")) {
+                undo(root);
+            } else if (args[0].equals("atomic")) {
+                atomic(root);
+            } else if (args[0].equals("bash")) {
+                bash(root);
+            } else if (args[0].equals("summary")) {
+                summary(root);
+            } else {
+                throw new IllegalArgumentException("Unknown scenario: " + args[0]);
+            }
+            System.out.println("PASS " + args[0]);
+        } catch (Throwable failure) {
+            failure.printStackTrace(System.out);
+            throw failure;
+        } finally {
+            for (String name : List.of("child.pid", "bash.pid")) {
+                Path pidFile = root.resolve(name);
+                if (Files.exists(pidFile)) {
+                    long pid = Long.parseLong(Files.readString(pidFile));
+                    var process = ProcessHandle.of(pid);
+                    if (process.isPresent() && process.get().isAlive()) {
+                        process.get().destroyForcibly();
+                        process.get().onExit().get(5, TimeUnit.SECONDS);
+                    }
+                    require(ProcessHandle.of(pid).map(h -> !h.isAlive()).orElse(true), "fixture pid " + pid + " dead");
+                    System.out.println("CLEANUP fixture pid " + pid);
+                }
+            }
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                    Files.delete(path);
+                }
+            }
+            require(!Files.exists(root), "temporary fixture removed");
+            System.out.println("CLEANUP removed " + root);
+        }
+    }
+
+    static void summary(Path root) throws Exception {
+        var request = new java.util.concurrent.atomic.AtomicReference<Prompt>();
+        var calls = new java.util.concurrent.atomic.AtomicInteger();
+        var ordinary = new java.util.concurrent.atomic.AtomicBoolean();
+        var rounds = new java.util.concurrent.atomic.AtomicInteger();
+        List<Prompt> providerPrompts = new java.util.ArrayList<>();
+        ChatModel model = new ChatModel() {
+            @Override
+            public ToolCallingChatOptions getOptions() {
+                return ToolCallingChatOptions.builder().build();
+            }
+
+            @Override
+            public ChatResponse call(Prompt prompt) {
+                request.set(prompt);
+                calls.incrementAndGet();
+                AssistantMessage output;
+                if (!ordinary.get()) {
+                    output = new AssistantMessage("S".repeat(5000));
+                } else {
+                    providerPrompts.add(prompt);
+                    int round = rounds.incrementAndGet();
+                    output = round <= 2
+                            ? AssistantMessage.builder().content("").toolCalls(List.of(
+                                    new AssistantMessage.ToolCall("live" + round, "function", "qa", "{\"value\":\"v\"}"))).build()
+                            : new AssistantMessage("done");
+                }
+                return new ChatResponse(List.of(new Generation(output)));
+            }
+        };
+        var settings = Map.<String, Object>of(
+                "agent.home", root.resolve("home").toString(),
+                "agent.plugins.memory.max-messages", "6",
+                "agent.plugins.memory.max-context-chars", "800",
+                "agent.plugins.memory.max-summary-request-chars", "2000",
+                "agent.plugins.memory.max-summary-chars", "128");
+        try (var context = new AnnotationConfigApplicationContext()) {
+            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("qa", settings));
+            context.getBeanFactory().setConversionService(ApplicationConversionService.getSharedInstance());
+            context.registerBean(ChatModel.class, () -> model);
+            context.registerBean(AgentProperties.class, () -> {
+                AgentProperties properties = new AgentProperties();
+                properties.setHome(root.resolve("home"));
+                properties.setCwd(root);
+                return properties;
+            });
+            context.registerBean(AgentConsole.class, () -> new AgentConsole(
+                    new java.io.BufferedReader(new java.io.StringReader("")), System.out, false));
+            context.registerBean(AgentSession.class, AgentSession::new);
+            context.register(MemoryPluginAutoConfiguration.class);
+            context.refresh();
+            ChatMemory memory = context.getBean(ChatMemory.class);
+            JsonlChatMemoryRepository repository = context.getBean(JsonlChatMemoryRepository.class);
+            var toolCall = new AssistantMessage.ToolCall("call1", "function", "qa", "{\"x\":\"" + "X".repeat(9000) + "\"}");
+            var response = new ToolResponseMessage.ToolResponse("call1", "qa", "R".repeat(9000));
+            List<Message> history = List.of(new UserMessage("old".repeat(2000)),
+                    AssistantMessage.builder().content("").toolCalls(List.of(toolCall)).build(),
+                    ToolResponseMessage.builder().responses(List.of(response)).build(), new AssistantMessage("old done"),
+                    new UserMessage("next"), new AssistantMessage("done"));
+            memory.add("qa", history);
+            List<Message> selected = memory.get("qa");
+            require(calls.get() == 1 && request.get() != null, "one actual summary model request");
+            require(request.get().getInstructions().stream().mapToLong(ImprovementQa::messageChars).sum() <= 2000,
+                    "entire summary prompt fits request budget");
+            var persisted = repository.read("qa");
+            require(persisted.summary() != null && persisted.summary().text().length() <= 128,
+                    "persisted summary fits output budget");
+            require(persisted.messages().equals(history), "complete on-disk messages retained");
+            require(selected.size() <= 6 && selected.stream().mapToLong(ImprovementQa::messageChars).sum() <= 800,
+                    "summary plus selected history fits context budgets");
+            require(selected.stream().anyMatch(m -> "next".equals(m.getText())),
+                    "newest small user group retained");
+            require(selected.stream().filter(m -> m instanceof ToolResponseMessage).count()
+                    == selected.stream().filter(m -> m instanceof AssistantMessage a && a.hasToolCalls()).count(),
+                    "tool groups omitted or retained complete");
+            memory.add("small", List.of(new UserMessage("hello"), new AssistantMessage("world")));
+            require(memory.get("small").size() == 2, "ordinary small conversation unchanged");
+            require(memory.get("empty").isEmpty(), "empty history unchanged");
+            String bounded = new ChatModelSummarizer(() -> model, 2000, 128)
+                    .summarize("legacy".repeat(10000), history);
+            require(bounded.length() <= 128
+                    && request.get().getInstructions().stream().mapToLong(ImprovementQa::messageChars).sum() <= 2000,
+                    "oversized previous summary and tool transcript bounded together");
+            repository.append("legacy", history);
+            repository.appendSummary("legacy", new JsonlChatMemoryRepository.Summary("L".repeat(5000), 4));
+            List<Message> legacy = memory.get("legacy");
+            require(legacy.size() <= 6 && legacy.stream().mapToLong(ImprovementQa::messageChars).sum() <= 800,
+                    "legacy oversized summary bounded when loaded");
+            require(repository.read("legacy").messages().equals(history), "legacy full history unchanged");
+            List<Message> small = List.of(new UserMessage("small"), new AssistantMessage("answer"));
+            repository.append("malformed", small);
+            repository.appendSummary("malformed", new JsonlChatMemoryRepository.Summary("bad", 1));
+            require(memory.get("malformed").equals(small), "misaligned summary coverage ignored");
+            List<Message> invalid = List.of(new UserMessage("bad"),
+                    AssistantMessage.builder().content("").toolCalls(List.of(
+                            new AssistantMessage.ToolCall("wanted", "function", "qa", "{}"))).build(),
+                    ToolResponseMessage.builder().responses(List.of(
+                            new ToolResponseMessage.ToolResponse("wrong", "qa", "data"))).build());
+            memory.add("invalid", invalid);
+            require(memory.get("invalid").isEmpty(), "malformed historical tool group omitted whole");
+            require(repository.read("invalid").messages().equals(invalid), "malformed history still retained on disk");
+            ordinary.set(true);
+            liveBudget(context, model, providerPrompts, rounds, "outside");
+        }
+        Map<String, Object> inside = new java.util.HashMap<>(settings);
+        inside.put("agent.plugins.memory.inside-loop", "true");
+        try (var context = memoryContext(inside, root.resolve("inside"), model)) {
+            providerPrompts.clear();
+            rounds.set(0);
+            liveBudget(context, model, providerPrompts, rounds, "inside");
+        }
+        Map<String, Object> malformed = new java.util.HashMap<>(settings);
+        malformed.put("agent.plugins.memory.max-summary-request-chars", "0");
+        boolean rejected = false;
+        try (var ignored = memoryContext(malformed, root.resolve("invalid-config"), model)) {
+            throw new AssertionError("Invalid configuration unexpectedly accepted");
+        } catch (RuntimeException expected) {
+            rejected = true;
+        }
+        require(rejected, "invalid summary budget configuration rejected at creation");
+    }
+
+    public record QaInput(String value) {
+    }
+
+    static void liveBudget(AnnotationConfigApplicationContext context, ChatModel model,
+            List<Prompt> prompts, java.util.concurrent.atomic.AtomicInteger rounds, String placement) {
+        List<Advisor> advisors = List.copyOf(context.getBeansOfType(Advisor.class).values());
+        ToolCallback callback = FunctionToolCallback.builder("qa", (QaInput input) -> input.value())
+                .description("Local QA echo").inputType(QaInput.class).build();
+        ChatClient client = ChatClient.builder(model).defaultAdvisors(advisors).defaultTools(callback).build();
+        String answer = client.prompt().system("s").user("round")
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "round")).call().content();
+        require("done".equals(answer) && prompts.size() == 3, placement + " actual tool loop completes three dispatches");
+        for (int i = 0; i < prompts.size(); i++) {
+            List<Message> messages = prompts.get(i).getInstructions();
+            require(messages.size() <= 6 && messages.stream().mapToLong(ImprovementQa::messageChars).sum() <= 800,
+                    placement + " final provider prompt " + i + " bounded");
+            var expectedCalls = new java.util.HashSet<String>();
+            var actualResponses = new java.util.HashSet<String>();
+            for (Message message : messages) {
+                if (message instanceof AssistantMessage assistant) {
+                    assistant.getToolCalls().forEach(call -> expectedCalls.add(call.id()));
+                } else if (message instanceof ToolResponseMessage tool) {
+                    tool.getResponses().forEach(response -> actualResponses.add(response.id()));
+                }
+            }
+            require(expectedCalls.size() == i && expectedCalls.equals(actualResponses),
+                    placement + " provider prompt " + i + " retains complete tool ID pairs");
+        }
+        int before = prompts.size();
+        boolean rejected = false;
+        try {
+            client.prompt().system("s").user("X".repeat(800))
+                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "too-large")).call().content();
+        } catch (IllegalArgumentException expected) {
+            rejected = true;
+        }
+        require(rejected && prompts.size() == before, placement + " oversized active prompt refused with zero provider calls");
+    }
+
+    static AnnotationConfigApplicationContext memoryContext(Map<String, Object> settings, Path root, ChatModel model) {
+        var context = new AnnotationConfigApplicationContext();
+        try {
+            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("qa", settings));
+            context.getBeanFactory().setConversionService(ApplicationConversionService.getSharedInstance());
+            context.registerBean(ChatModel.class, () -> model);
+            context.registerBean(AgentProperties.class, () -> {
+                AgentProperties properties = new AgentProperties();
+                properties.setHome(root.resolve("home"));
+                properties.setCwd(root);
+                return properties;
+            });
+            context.registerBean(AgentConsole.class, () -> new AgentConsole(
+                    new java.io.BufferedReader(new java.io.StringReader("")), System.out, false));
+            context.registerBean(AgentSession.class, AgentSession::new);
+            context.register(MemoryPluginAutoConfiguration.class);
+            context.refresh();
+            return context;
+        } catch (Throwable failure) {
+            context.close();
+            throw failure;
+        }
+    }
+
+    static long messageChars(Message message) {
+        long size = message.getText() == null ? 0 : message.getText().length();
+        if (message instanceof AssistantMessage assistant) {
+            for (var call : assistant.getToolCalls()) {
+                size += call.name().length() + call.arguments().length();
+            }
+        }
+        if (message instanceof ToolResponseMessage tool) {
+            for (var response : tool.getResponses()) {
+                size += response.responseData().length();
+            }
+        }
+        return size;
+    }
+
+    static void bash(Path root) throws Exception {
+        var settings = Map.<String, Object>of(
+                "agent.plugins.bash.timeout", "1s",
+                "agent.plugins.bash.max-timeout", "2s",
+                "agent.plugins.bash.max-output-chars", "64",
+                "agent.plugins.bash.max-output-bytes", "128",
+                "agent.plugins.bash.sandbox", "off");
+        try (var context = new AnnotationConfigApplicationContext()) {
+            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("qa", settings));
+            context.getBeanFactory().setConversionService(ApplicationConversionService.getSharedInstance());
+            context.register(BashPluginAutoConfiguration.class);
+            context.refresh();
+            ToolCallback callback = context.getBean(ToolCallback.class);
+            ToolContext toolContext = new ToolContext(Map.of(ToolContextKeys.CWD, root.toString()));
+            for (int timeout : new int[] {0, -1, 3}) {
+                boolean rejected = false;
+                try {
+                    callback.call("{\"command\":\"touch invalid\",\"timeoutSeconds\":" + timeout + "}", toolContext);
+                } catch (RuntimeException expected) {
+                    rejected = true;
+                }
+                require(rejected && !Files.exists(root.resolve("invalid")),
+                        "timeout " + timeout + " rejected before launch");
+            }
+            require(callback.call("{\"command\":\"printf qa-ok\",\"timeoutSeconds\":2}", toolContext)
+                    .contains("qa-ok"), "normal command at exact maximum works");
+            require(callback.call("{\"command\":\"printf out; printf err >&2\"}", toolContext)
+                    .contains("outerr"), "stdout/stderr merged");
+            String command = "printf '%s' \"$$\" > bash.pid; mkfifo gate; "
+                    + "(read token < gate; while :; do printf 'abcdefghijklmnopqrstuvwxyz0123456789'; done) & "
+                    + "printf '%s' \"$!\" > child.pid; printf 'go\\n' > gate; wait";
+            String json = tools.jackson.databind.json.JsonMapper.builder().build()
+                    .writeValueAsString(Map.of("command", command));
+            String result = callback.call(json, toolContext);
+            require(result.length() < 1024, "flooding output response remains bounded");
+            require(result.toLowerCase(java.util.Locale.ROOT).contains("limit")
+                    || result.toLowerCase(java.util.Locale.ROOT).contains("exceed"),
+                    "output byte overflow explicitly reported");
+            require(!result.contains("cleanup failed"), "production cleanup succeeds within its grace");
+            for (String name : List.of("bash.pid", "child.pid")) {
+                long pid = Long.parseLong(Files.readString(root.resolve(name)));
+                var handle = ProcessHandle.of(pid);
+                if (handle.isPresent() && handle.get().isAlive()) {
+                    handle.get().onExit().get(5, TimeUnit.SECONDS);
+                }
+                require(ProcessHandle.of(pid).map(h -> !h.isAlive()).orElse(true), name + " pid " + pid + " reaped");
+                System.out.println("CLEANUP confirmed dead pid " + pid);
+            }
+            try (var files = Files.list(root)) {
+                require(files.noneMatch(p -> p.getFileName().toString().endsWith(".log")),
+                        "no disk spool created in invocation workspace");
+            }
+        }
+    }
+
+    static void atomic(Path root) throws Exception {
+        Path work = Files.createDirectories(root.resolve("work"));
+        FileTools tools = new FileTools(List.of(), 1024, null);
+        ToolContext context = new ToolContext(Map.of(ToolContextKeys.CWD, work.toString()));
+        String content = "안녕\r\n두 번째 줄\r\n";
+        tools.writeFile("new.txt", content, context);
+        Path created = work.resolve("new.txt");
+        require(java.util.Arrays.equals(Files.readAllBytes(created),
+                content.getBytes(java.nio.charset.StandardCharsets.UTF_8)), "new Unicode/CRLF bytes complete");
+        require(Files.getPosixFilePermissions(created).equals(
+                java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")), "new file private permissions");
+        Path existing = Files.writeString(work.resolve("existing.txt"), "old\r\n");
+        var permissions = java.nio.file.attribute.PosixFilePermissions.fromString("rwxr-----");
+        Files.setPosixFilePermissions(existing, permissions);
+        tools.editFile("existing.txt", "old", "new", context);
+        require(Files.readString(existing).equals("new\r\n"), "existing CRLF preserved");
+        require(Files.getPosixFilePermissions(existing).equals(permissions), "existing permissions preserved");
+        Path blocked = Files.createDirectories(work.resolve("blocked.txt"));
+        Files.writeString(blocked.resolve("keep"), "not a file destination");
+        boolean failed = false;
+        try {
+            tools.writeFile("blocked.txt", "never-published", context);
+        } catch (IllegalArgumentException expected) {
+            failed = true;
+            System.out.println("EXPECTED tool boundary rejection: " + expected.getMessage());
+        }
+        require(failed, "directory destination rejected at tool boundary");
+        var writer = FileTools.class.getDeclaredMethod("write", Path.class, String.class);
+        writer.setAccessible(true);
+        failed = false;
+        try {
+            writer.invoke(null, blocked, "never-published");
+        } catch (java.lang.reflect.InvocationTargetException expected) {
+            require(expected.getCause() instanceof java.io.UncheckedIOException,
+                    "real atomic writer exposes filesystem publication failure");
+            failed = true;
+            System.out.println("EXPECTED publication failure: " + expected.getCause().getMessage());
+        }
+        require(failed, "failed publication reported by actual atomic writer");
+        require(Files.readString(blocked.resolve("keep")).equals("not a file destination"),
+                "failed publication preserves destination");
+        try (var files = Files.list(work)) {
+            require(files.noneMatch(p -> p.getFileName().toString().startsWith(".")), "no leftover sibling temp file");
+        }
+    }
+
+    static void undo(Path root) throws Exception {
+        Path work = Files.createDirectories(root.resolve("work"));
+        Path secondDir = Files.createDirectories(work.resolve("second"));
+        Path first = Files.writeString(work.resolve("first.txt"), "first-original");
+        Path second = Files.writeString(secondDir.resolve("second.txt"), "second-original");
+        try (FileCheckpoints checkpoints = new FileCheckpoints(root.resolve("backups"))) {
+            FileTools tools = new FileTools(List.of(), 1024, checkpoints);
+            ToolContext context = new ToolContext(Map.of(ToolContextKeys.CWD, work.toString(),
+                    ToolContextKeys.SESSION_ID, "s", ToolContextKeys.TURN_ID, "t"));
+            tools.writeFile("first.txt", "first-changed", context);
+            tools.writeFile("second/second.txt", "second-changed", context);
+            Path hidden = root.resolve("hidden-second");
+            Files.move(secondDir, hidden);
+            Files.writeString(secondDir, "blocked parent");
+            boolean failed = false;
+            try {
+                checkpoints.undo("s");
+            } catch (java.io.UncheckedIOException expected) {
+                failed = true;
+                System.out.println("EXPECTED restoration failure: " + expected.getMessage());
+            }
+            require(failed, "partial restore must fail");
+            require(Files.readString(first).equals("first-original"), "first file restored before failure");
+            Files.writeString(first, "human-after-restoration");
+            Files.delete(secondDir);
+            Files.move(hidden, secondDir);
+            List<FileCheckpoints.Change> remaining = checkpoints.undo("s");
+            require(remaining.size() == 1, "retry restores only the pending file");
+            require(Files.readString(first).equals("human-after-restoration"), "completed restore not repeated");
+            require(Files.readString(second).equals("second-original"), "pending original recovered");
+            require(checkpoints.undo("s").isEmpty(), "successful checkpoint consumed");
+            try (var backups = Files.list(root.resolve("backups"))) {
+                require(backups.findAny().isEmpty(), "all backups cleaned after success");
+            }
+        }
+    }
+
+    static void require(boolean condition, String message) {
+        if (!condition) {
+            throw new AssertionError(message);
+        }
+        System.out.println("OK " + message);
+    }
+}

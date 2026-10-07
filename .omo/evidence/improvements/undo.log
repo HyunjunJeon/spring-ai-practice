@@ -1,0 +1,12 @@
+FIXTURE /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-17370538781094913456
+EXPECTED restoration failure: Cannot undo /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-17370538781094913456/work/second/second.txt: /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-17370538781094913456/work/second/.second.txt.15619286345795334571.undo: Not a directory
+OK partial restore must fail
+OK first file restored before failure
+OK retry restores only the pending file
+OK completed restore not repeated
+OK pending original recovered
+OK successful checkpoint consumed
+OK all backups cleaned after success
+PASS undo
+OK temporary fixture removed
+CLEANUP removed /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-17370538781094913456

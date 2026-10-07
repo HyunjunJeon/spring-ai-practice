@@ -1,0 +1,10 @@
+Invocation: bash .omo/qa/run-qa.sh summary
+Exit code: 1
+Notice: 이전 대화 4개 메시지를 요약해 문맥 앞에 붙였습니다 (요약 5,000자)
+OK one actual summary model request
+OK temporary fixture removed
+CLEANUP removed /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-11748832941566773777
+Exception in thread "main" java.lang.AssertionError: entire summary prompt fits request budget
+	at ImprovementQa.require(ImprovementQa.source:287)
+	at ImprovementQa.summary(ImprovementQa.source:112)
+	at ImprovementQa.main(ImprovementQa.source:43)

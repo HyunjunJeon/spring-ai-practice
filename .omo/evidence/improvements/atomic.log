@@ -1,0 +1,15 @@
+FIXTURE /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-12426375442528738139
+OK new Unicode/CRLF bytes complete
+OK new file private permissions
+OK existing CRLF preserved
+OK existing permissions preserved
+EXPECTED tool boundary rejection: Is a directory: /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-12426375442528738139/work/blocked.txt
+OK directory destination rejected at tool boundary
+OK real atomic writer exposes filesystem publication failure
+EXPECTED publication failure: Cannot write /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-12426375442528738139/work/blocked.txt: /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-12426375442528738139/work/.blocked.txt.644814035000192077.tmp -> /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-12426375442528738139/work/blocked.txt: Is a directory
+OK failed publication reported by actual atomic writer
+OK failed publication preserves destination
+OK no leftover sibling temp file
+PASS atomic
+OK temporary fixture removed
+CLEANUP removed /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-improvement-qa-12426375442528738139

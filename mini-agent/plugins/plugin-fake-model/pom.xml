@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example.miniagent</groupId>
+        <artifactId>mini-agent-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>plugin-fake-model</artifactId>
+    <name>plugin-fake-model</name>
+    <description>API 키 없이 돌아가는 가짜 ChatModel (ChatModel SPI 학습용)</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example.miniagent</groupId>
+            <artifactId>agent-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

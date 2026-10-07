@@ -1,0 +1,9 @@
+# 사전 준비: brew install ollama && ollama serve && ollama pull qwen3:8b
+spring:
+  ai:
+    model:
+      chat: none
+
+agent:
+  models:
+    default: ollama/${agent.models.providers.ollama.model}

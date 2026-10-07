@@ -1,0 +1,11 @@
+mini-agent  (next: fake/fake-scripted [available], session: 20261006-225604-d517)
+[2mplugins: claude, bash, codex, fake-model, fs, mcp, memory, permission, skills, trace[0m
+[2m/help 명령 목록, /exit 종료[0m
+
+› [2mrun=fa534141-bdc2-479f-b071-faa6321f881b conversation=0af77170-16a6-4626-95f8-56261aa13a66 attempt=eb6345e5-f69d-4094-958f-5852176c0bae state=RUNNING model=fake/fake-scripted[0m
+[2m  ⏱ 30ms · 모델 1회 · 도구 없음 · fake/fake-scripted[0m
+run=fa534141-bdc2-479f-b071-faa6321f881b conversation=0af77170-16a6-4626-95f8-56261aa13a66 parent=20261006-225604-d517 attempt=eb6345e5-f69d-4094-958f-5852176c0bae state=WAITING_APPROVAL reason=NONE model=fake/fake-scripted tokens=98 unknown=false overshoot=0 tools=1 activeMillis=173
+pending approval 97b45026-90ac-4014-b0bd-cd2c572c6b60 attempt=eb6345e5-f69d-4094-958f-5852176c0bae tool=write_file
+[2mrun=fa534141-bdc2-479f-b071-faa6321f881b conversation=0af77170-16a6-4626-95f8-56261aa13a66 attempt=eb6345e5-f69d-4094-958f-5852176c0bae state=WAITING_APPROVAL model=fake/fake-scripted[0m
+
+› 

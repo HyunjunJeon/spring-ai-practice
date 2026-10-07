@@ -1,0 +1,22 @@
+Actual packaged CLI via PTY; full ANSI stream: cli.raw; visual replay: cli.png.
+Isolated fixture: /var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-cli-qa.cjaB6kEuGz
+Java21 -jar mini-agent/agent-app/target/mini-agent.jar --agent.ui=repl --agent.plugins.memory.enabled=false --agent.plugins.permission.allow-non-interactive=true
+HOME/user.home/java.io.tmpdir/agent.home isolated inside fixture.
+
+> !tool write_file {"path":"qa.txt","content":"hello"}
+> y
+[permission] write_file {"path":"qa.txt","content":"hello"}
+"Wrote 5 chars to /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-cli-qa.cjaB6kEuGz/cwd/qa.txt"
+Filesystem receipt: exact UTF8 hello, POSIX mode0600.
+> /undo
+삭제: /private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/mini-agent-cli-qa.cjaB6kEuGz/cwd/qa.txt
+Filesystem receipt: qa.txt absent.
+> !tool bash {"command":"printf qa-ok"}
+> y
+> /exit
+[permission] bash {"command":"printf qa-ok"}
+"qa-ok\n(exit code 0)"
+QA_JAVA_EXIT=0
+PTY script exit0. java.io.tmpdir empty after Java exit.
+PASS C5
+Cleanup receipt: CLI fixture and browser profile absent; browser closed; HTTP server stopped and connection refused.

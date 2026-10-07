@@ -1,0 +1,9 @@
+# Z.ai 는 공식 OpenAI 호환 ChatModel 을 재사용한다. 별도 모델/인증 전송 구현은 없다.
+spring:
+  ai:
+    model:
+      chat: none
+
+agent:
+  models:
+    default: zai/${agent.models.providers.zai.model}

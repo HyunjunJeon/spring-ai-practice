@@ -1,0 +1,101 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] mini-agent                                                         [pom]
+[INFO] agent-core                                                         [jar]
+[INFO] 
+[INFO] --------------< com.example.miniagent:mini-agent-parent >---------------
+[INFO] Building mini-agent 0.1.0-SNAPSHOT                                 [1/2]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-core >------------------
+[INFO] Building agent-core 0.1.0-SNAPSHOT                                 [2/2]
+[INFO]   from agent-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-core ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-core ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-core ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.core.delegation.ChildScopeFactoryTest
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.135 s <<< FAILURE! -- in com.example.miniagent.core.delegation.ChildScopeFactoryTest
+[ERROR] com.example.miniagent.core.delegation.ChildScopeFactoryTest.parentModelSelectionAndJsonlAreNotCopiedOrAltered -- Time elapsed: 0.130 s <<< ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	InterceptingToolCallback cannot be resolved
+	ToolContextKeys cannot be resolved to a variable
+	ToolContextKeys cannot be resolved to a variable
+	ToolContextKeys cannot be resolved to a variable
+
+	at com.example.miniagent.core.delegation.ChildScopeFactory$Scope$5.<init>(ChildScopeFactory.java:135)
+	at com.example.miniagent.core.delegation.ChildScopeFactory$Scope.lambda$4(ChildScopeFactory.java:125)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.Iterator.forEachRemaining(Iterator.java:133)
+	at java.base/java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1939)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:575)
+	at java.base/java.util.stream.AbstractPipeline.evaluateToArrayNode(AbstractPipeline.java:260)
+	at java.base/java.util.stream.ReferencePipeline.toArray(ReferencePipeline.java:616)
+	at java.base/java.util.stream.ReferencePipeline.toArray(ReferencePipeline.java:622)
+	at java.base/java.util.stream.ReferencePipeline.toList(ReferencePipeline.java:627)
+	at com.example.miniagent.core.delegation.ChildScopeFactory$Scope.<init>(ChildScopeFactory.java:141)
+	at com.example.miniagent.core.delegation.ChildScopeFactory.create(ChildScopeFactory.java:90)
+	at com.example.miniagent.core.delegation.ChildScopeFactory.create(ChildScopeFactory.java:85)
+	at com.example.miniagent.core.delegation.ChildScopeFactoryTest.parentModelSelectionAndJsonlAreNotCopiedOrAltered(ChildScopeFactoryTest.java:60)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Errors: 
+[ERROR]   ChildScopeFactoryTest.parentModelSelectionAndJsonlAreNotCopiedOrAltered:60 »  Unresolved compilation problems: 
+	InterceptingToolCallback cannot be resolved
+	ToolContextKeys cannot be resolved to a variable
+	ToolContextKeys cannot be resolved to a variable
+	ToolContextKeys cannot be resolved to a variable
+
+[INFO] 
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for mini-agent 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] mini-agent ......................................... SUCCESS [  0.000 s]
+[INFO] agent-core ......................................... FAILURE [  0.665 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.802 s
+[INFO] Finished at: 2026-10-06T20:47:32+09:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project agent-core: 
+[ERROR] 
+[ERROR] See /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :agent-core

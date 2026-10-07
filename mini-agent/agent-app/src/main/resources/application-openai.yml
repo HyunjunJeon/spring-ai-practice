@@ -1,0 +1,8 @@
+spring:
+  ai:
+    model:
+      chat: none
+
+agent:
+  models:
+    default: openai/${agent.models.providers.openai.model}

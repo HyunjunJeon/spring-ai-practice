@@ -1,0 +1,466 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] mini-agent                                                         [pom]
+[INFO] agent-core                                                         [jar]
+[INFO] plugin-fake-model                                                  [jar]
+[INFO] plugin-codex-model                                                 [jar]
+[INFO] plugin-claude-model                                                [jar]
+[INFO] plugin-fs                                                          [jar]
+[INFO] plugin-bash                                                        [jar]
+[INFO] plugin-permission                                                  [jar]
+[INFO] plugin-memory                                                      [jar]
+[INFO] plugin-trace                                                       [jar]
+[INFO] plugin-skills                                                      [jar]
+[INFO] plugin-mcp                                                         [jar]
+[INFO] plugin-tui                                                         [jar]
+[INFO] agent-app                                                          [jar]
+[INFO] 
+[INFO] --------------< com.example.miniagent:mini-agent-parent >---------------
+[INFO] Building mini-agent 0.1.0-SNAPSHOT                                [1/14]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-core >------------------
+[INFO] Building agent-core 0.1.0-SNAPSHOT                                [2/14]
+[INFO]   from agent-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-core ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-core ---
+[INFO] Recompiling the module because of added or removed source files.
+[INFO] Compiling 52 source files with javac [debug parameters release 21] to target/classes
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[109,40] org.springframework.ai.chat.client.ChatClientCustomizer in org.springframework.ai.chat.client has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java: org.springframework.ai.chat.client.ChatClientCustomizer in org.springframework.ai.chat.client has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[148,51] defaultToolCallbacks(java.util.List<org.springframework.ai.tool.ToolCallback>) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[151,51] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[187,32] defaultToolCallbacks(java.util.List<org.springframework.ai.tool.ToolCallback>) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[190,32] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-core ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-core ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 5 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-core ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.core.model.ProviderPrivateFieldFilterTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.082 s -- in com.example.miniagent.core.model.ProviderPrivateFieldFilterTest
+[INFO] Running com.example.miniagent.core.model.ModelRegistryTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s -- in com.example.miniagent.core.model.ModelRegistryTest
+[INFO] Running com.example.miniagent.core.run.RunBudgetTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.example.miniagent.core.run.RunBudgetTest
+[INFO] Running com.example.miniagent.core.run.FileRunStoreTest
+[INFO] Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.917 s -- in com.example.miniagent.core.run.FileRunStoreTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 55, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-fake-model >---------------
+[INFO] Building plugin-fake-model 0.1.0-SNAPSHOT                         [3/14]
+[INFO]   from plugins/plugin-fake-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-fake-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-fake-model ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-fake-model ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fake-model/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-fake-model ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-fake-model ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-codex-model >--------------
+[INFO] Building plugin-codex-model 0.1.0-SNAPSHOT                        [4/14]
+[INFO]   from plugins/plugin-codex-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-codex-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-codex-model ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 10 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-codex-model ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-codex-model/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-codex-model ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-codex-model ---
+[INFO] 
+[INFO] -------------< com.example.miniagent:plugin-claude-model >--------------
+[INFO] Building plugin-claude-model 0.1.0-SNAPSHOT                       [5/14]
+[INFO]   from plugins/plugin-claude-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-claude-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-claude-model ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 9 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-claude-model ---
+[INFO] Copying 0 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-claude-model ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 6 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-claude-model ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-fs >-------------------
+[INFO] Building plugin-fs 0.1.0-SNAPSHOT                                 [6/14]
+[INFO]   from plugins/plugin-fs/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-fs ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-fs ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-fs ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fs/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-fs ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-fs ---
+[INFO] 
+[INFO] -----------------< com.example.miniagent:plugin-bash >------------------
+[INFO] Building plugin-bash 0.1.0-SNAPSHOT                               [7/14]
+[INFO]   from plugins/plugin-bash/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-bash ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-bash ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-bash ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-bash/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-bash ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-bash ---
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-permission >---------------
+[INFO] Building plugin-permission 0.1.0-SNAPSHOT                         [8/14]
+[INFO]   from plugins/plugin-permission/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-permission ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-permission ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-permission ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-permission/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-permission ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-permission ---
+[INFO] 
+[INFO] ----------------< com.example.miniagent:plugin-memory >-----------------
+[INFO] Building plugin-memory 0.1.0-SNAPSHOT                             [9/14]
+[INFO]   from plugins/plugin-memory/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-memory ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-memory ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-memory ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-memory/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-memory ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-memory ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.plugin.memory.ProviderPrivateFieldFilterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.195 s -- in com.example.miniagent.plugin.memory.ProviderPrivateFieldFilterTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] -----------------< com.example.miniagent:plugin-trace >-----------------
+[INFO] Building plugin-trace 0.1.0-SNAPSHOT                             [10/14]
+[INFO]   from plugins/plugin-trace/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-trace ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-trace ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-trace ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-trace/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-trace ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-trace ---
+[INFO] 
+[INFO] ----------------< com.example.miniagent:plugin-skills >-----------------
+[INFO] Building plugin-skills 0.1.0-SNAPSHOT                            [11/14]
+[INFO]   from plugins/plugin-skills/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-skills ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-skills ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-skills ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-skills/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-skills ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-skills ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-mcp >------------------
+[INFO] Building plugin-mcp 0.1.0-SNAPSHOT                               [12/14]
+[INFO]   from plugins/plugin-mcp/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-mcp ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-mcp ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-mcp ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-mcp/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-mcp ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-mcp ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-tui >------------------
+[INFO] Building plugin-tui 0.1.0-SNAPSHOT                               [13/14]
+[INFO]   from plugins/plugin-tui/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.10.0:properties (default) @ plugin-tui ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-tui ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-tui ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 6 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-tui ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-tui/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-tui ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-tui ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-app >-------------------
+[INFO] Building agent-app 0.1.0-SNAPSHOT                                [14/14]
+[INFO]   from agent-app/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.10.0:properties (default) @ agent-app ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-app ---
+[INFO] Copying 8 resources from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-app ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 6 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-app ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-app ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 14 source files with javac [debug parameters release 21] to target/test-classes
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/java/com/example/miniagent/app/AgentTurnBindingTest.java:[51,67] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/java/com/example/miniagent/app/AgentTurnBindingTest.java:[76,67] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-app ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.app.ModelCommandTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.037 s -- in com.example.miniagent.app.ModelCommandTest
+[INFO] Running com.example.miniagent.app.ModelDisplayTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.187 s -- in com.example.miniagent.app.ModelDisplayTest
+[INFO] Running com.example.miniagent.app.AgentTurnBindingTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in com.example.miniagent.app.AgentTurnBindingTest
+[INFO] Running com.example.miniagent.app.RunExecutorTest
+[ERROR] Tests run: 30, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 2.065 s <<< FAILURE! -- in com.example.miniagent.app.RunExecutorTest
+[ERROR] com.example.miniagent.app.RunExecutorTest.capturedToolLookupWorksAcrossThreadsOnlyWithExplicitScopes -- Time elapsed: 0.071 s <<< ERROR!
+org.springframework.ai.tool.execution.ToolExecutionException: 
+
+Expecting an empty Optional but was containing value: com.example.miniagent.core.run.RunContext@28d56028
+	at org.springframework.ai.tool.method.MethodToolCallback.callMethod(MethodToolCallback.java:192)
+	at org.springframework.ai.tool.method.MethodToolCallback.call(MethodToolCallback.java:114)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.lambda$executeToolCall$4(DefaultToolCallingManager.java:328)
+	at io.micrometer.observation.Observation.observe(Observation.java:634)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:325)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:195)
+	at org.springframework.ai.chat.client.advisor.ToolCallingAdvisor.adviseCall(ToolCallingAdvisor.java:182)
+	at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.lambda$nextCall$1(DefaultAroundAdvisorChain.java:117)
+	at io.micrometer.observation.Observation.observe(Observation.java:634)
+	at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.nextCall(DefaultAroundAdvisorChain.java:116)
+	at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.lambda$doGetObservableChatClientResponse$1(DefaultChatClient.java:658)
+	at io.micrometer.observation.Observation.observe(Observation.java:634)
+	at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.doGetObservableChatClientResponse(DefaultChatClient.java:656)
+	at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.doGetObservableChatClientResponse(DefaultChatClient.java:636)
+	at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.chatClientResponse(DefaultChatClient.java:621)
+	at com.example.miniagent.core.Agent.call(Agent.java:181)
+	at com.example.miniagent.core.Agent.run(Agent.java:152)
+	at com.example.miniagent.core.run.RunExecutor.execute(RunExecutor.java:223)
+	at com.example.miniagent.core.run.RunExecutor.start(RunExecutor.java:103)
+	at com.example.miniagent.app.RunExecutorTest.start(RunExecutorTest.java:129)
+	at com.example.miniagent.app.RunExecutorTest.capturedToolLookupWorksAcrossThreadsOnlyWithExplicitScopes(RunExecutorTest.java:464)
+Caused by: java.lang.AssertionError: 
+Expecting an empty Optional but was containing value: com.example.miniagent.core.run.RunContext@28d56028
+	at com.example.miniagent.app.RunExecutorTest.lambda$capturedToolLookupWorksAcrossThreadsOnlyWithExplicitScopes$26(RunExecutorTest.java:438)
+	at com.example.miniagent.app.RunExecutorTest$ContextTool.inspect(RunExecutorTest.java:523)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.ai.tool.method.MethodToolCallback.callMethod(MethodToolCallback.java:186)
+	... 20 more
+
+[ERROR] com.example.miniagent.app.RunExecutorTest.usagePrecedesAttemptEndAndTerminalWithoutDoubleCountingRounds -- Time elapsed: 0.075 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: RunUsage[knownTokens=14, tokensUnknown=false, toolCalls=0, activeMillis=200, overshootTokens=0]
+ but was: RunUsage[knownTokens=55, tokensUnknown=false, toolCalls=0, activeMillis=200, overshootTokens=0]
+	at com.example.miniagent.app.RunExecutorTest.usagePrecedesAttemptEndAndTerminalWithoutDoubleCountingRounds(RunExecutorTest.java:353)
+
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$Inside
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.349 s -- in com.example.miniagent.app.MemoryBudgetTest$Inside
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$CompletionInside
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.098 s -- in com.example.miniagent.app.MemoryBudgetTest$CompletionInside
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$Outside
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.095 s -- in com.example.miniagent.app.MemoryBudgetTest$Outside
+[INFO] Running com.example.miniagent.app.MemoryBudgetTest$CompletionOutside
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s -- in com.example.miniagent.app.MemoryBudgetTest$CompletionOutside
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.628 s -- in com.example.miniagent.app.MemoryBudgetTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   RunExecutorTest.usagePrecedesAttemptEndAndTerminalWithoutDoubleCountingRounds:353 
+expected: RunUsage[knownTokens=14, tokensUnknown=false, toolCalls=0, activeMillis=200, overshootTokens=0]
+ but was: RunUsage[knownTokens=55, tokensUnknown=false, toolCalls=0, activeMillis=200, overshootTokens=0]
+[ERROR] Errors: 
+[ERROR]   RunExecutorTest.capturedToolLookupWorksAcrossThreadsOnlyWithExplicitScopes:464->start:129 » ToolExecution 
+Expecting an empty Optional but was containing value: com.example.miniagent.core.run.RunContext@28d56028
+[INFO] 
+[ERROR] Tests run: 76, Failures: 1, Errors: 1, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for mini-agent 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] mini-agent ......................................... SUCCESS [  0.001 s]
+[INFO] agent-core ......................................... SUCCESS [  2.566 s]
+[INFO] plugin-fake-model .................................. SUCCESS [  0.077 s]
+[INFO] plugin-codex-model ................................. SUCCESS [  0.250 s]
+[INFO] plugin-claude-model ................................ SUCCESS [  0.315 s]
+[INFO] plugin-fs .......................................... SUCCESS [  0.147 s]
+[INFO] plugin-bash ........................................ SUCCESS [  0.155 s]
+[INFO] plugin-permission .................................. SUCCESS [  0.099 s]
+[INFO] plugin-memory ...................................... SUCCESS [  0.635 s]
+[INFO] plugin-trace ....................................... SUCCESS [  0.104 s]
+[INFO] plugin-skills ...................................... SUCCESS [  0.043 s]
+[INFO] plugin-mcp ......................................... SUCCESS [  0.053 s]
+[INFO] plugin-tui ......................................... SUCCESS [  0.354 s]
+[INFO] agent-app .......................................... FAILURE [  5.169 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.122 s
+[INFO] Finished at: 2026-10-06T17:48:49+09:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project agent-app: There are test failures.
+[ERROR] 
+[ERROR] See /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :agent-app

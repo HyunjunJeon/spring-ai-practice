@@ -1,0 +1,6 @@
+1	1	f6cac432	{"type":"StateChanged","payload":{"at":"2026-10-06T13:48:48.440123Z","state":"RUNNING","reason":"NONE"}}
+1	2	e1582e3a	{"type":"AttemptStarted","payload":{"at":"2026-10-06T13:48:48.443461Z","attemptId":"e1e82d01-a8d9-42b9-a9e4-a1516f5c2f8f","bindingId":"b0f912bf-e8f1-444d-9ad3-d3215b16e99c"}}
+1	3	21f9546a	{"type":"UsageRecorded","payload":{"at":"2026-10-06T13:49:25.575913Z","attemptId":"e1e82d01-a8d9-42b9-a9e4-a1516f5c2f8f","kind":"MODEL_ROUND","callId":"operator-no-model","usage":{"knownTokens":0,"tokensUnknown":false,"toolCalls":0,"activeMillis":0,"overshootTokens":0}}}
+1	4	d0f7937e	{"type":"UsageRecorded","payload":{"at":"2026-10-06T13:49:25.579437Z","attemptId":"e1e82d01-a8d9-42b9-a9e4-a1516f5c2f8f","kind":"ACTIVE_TIME","callId":"d3ed94de-c604-466b-800a-ee4d84a17b7c","usage":{"knownTokens":0,"tokensUnknown":false,"toolCalls":0,"activeMillis":56,"overshootTokens":0}}}
+1	5	ab0abd9e	{"type":"AttemptEnded","payload":{"at":"2026-10-06T13:49:25.583096Z","attemptId":"e1e82d01-a8d9-42b9-a9e4-a1516f5c2f8f"}}
+1	6	7b58c919	{"type":"StateChanged","payload":{"at":"2026-10-06T13:49:25.585939Z","state":"COMPLETED","reason":"NONE"}}

@@ -1,0 +1,15 @@
+# MCP 서버 연결 예시. 실행: AGENT_PROFILE=mcp ./agent.sh  (provider 와 함께: AGENT_PROFILE=anthropic,mcp)
+# 서버마다 MCP 클라이언트 하나가 만들어지고, 그 서버의 도구가 ToolCallbackProvider 로 에이전트에 붙는다.
+spring:
+  ai:
+    mcp:
+      client:
+        request-timeout: 60s
+        stdio:
+          connections:
+            # MCP 공식 테스트용 서버 (echo, add 등 데모 도구). Node.js 의 npx 가 필요하다.
+            everything:
+              command: npx
+              args:
+                - "-y"
+                - "@modelcontextprotocol/server-everything"

@@ -1,0 +1,67 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] mini-agent                                                         [pom]
+[INFO] agent-core                                                         [jar]
+[INFO] 
+[INFO] --------------< com.example.miniagent:mini-agent-parent >---------------
+[INFO] Building mini-agent 0.1.0-SNAPSHOT                                 [1/2]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-core >------------------
+[INFO] Building agent-core 0.1.0-SNAPSHOT                                 [2/2]
+[INFO]   from agent-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-core ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-core ---
+[INFO] Recompiling the module because of added or removed source files.
+[INFO] Compiling 120 source files with javac [debug parameters release 21] to target/classes
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[182,40] org.springframework.ai.chat.client.ChatClientCustomizer in org.springframework.ai.chat.client has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java: org.springframework.ai.chat.client.ChatClientCustomizer in org.springframework.ai.chat.client has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[222,51] defaultToolCallbacks(java.util.List<org.springframework.ai.tool.ToolCallback>) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[225,51] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[261,32] defaultToolCallbacks(java.util.List<org.springframework.ai.tool.ToolCallback>) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java:[264,32] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[INFO] 6 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/delegation/ChildScopeFactory.java:[140,50] cannot find symbol
+  symbol: class ChatClient
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for mini-agent 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] mini-agent ......................................... SUCCESS [  0.001 s]
+[INFO] agent-core ......................................... FAILURE [  1.050 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.201 s
+[INFO] Finished at: 2026-10-06T20:38:10+09:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.15.0:compile (default-compile) on project agent-core: Compilation failure
+[ERROR] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/main/java/com/example/miniagent/core/delegation/ChildScopeFactory.java:[140,50] cannot find symbol
+[ERROR]   symbol: class ChatClient
+[ERROR] 
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :agent-core

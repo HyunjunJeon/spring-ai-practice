@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/xterm.css">
+<style>html,body{margin:0}#terminal{padding:8px}</style>
+</head>
+<body><div id="terminal"></div>
+<script src="/xterm.js"></script>
+<script>
+const options = new URLSearchParams(location.search);
+const light = options.get("theme") === "light";
+document.body.style.background = light ? "#ffffff" : "#111111";
+window.term = new Terminal({
+  cols: Number(options.get("cols") || 120), rows: Number(options.get("rows") || 32),
+  fontSize: 16, fontFamily: "Menlo, monospace", scrollback: 1000,
+  theme: {background: light ? "#ffffff" : "#111111", foreground: light ? "#222222" : "#dddddd"}
+});
+term.open(document.querySelector("#terminal"));
+window.screenText = () => {
+  const buffer = term.buffer.active;
+  return Array.from({length: term.rows}, (_, i) =>
+    buffer.getLine(buffer.viewportY + i)?.translateToString(true) || "").join("\n");
+};
+const pending = [];
+window.awaitScreen = (pattern, limit = 20000) => new Promise((resolve, reject) => {
+  const check = () => new RegExp(pattern).test(screenText());
+  if (check()) { resolve(screenText()); return; }
+  const item = {check, resolve, reject};
+  item.timer = setTimeout(() => {
+    pending.splice(pending.indexOf(item), 1);
+    reject(new Error("Missing terminal state: " + pattern + "\n" + screenText()));
+  }, limit);
+  pending.push(item);
+});
+const socket = new WebSocket(location.origin.replace("http", "ws") + "/stream");
+term.onData(data => socket.send(data));
+socket.onmessage = event => term.write(event.data, () => {
+  for (const item of [...pending]) {
+    if (item.check()) {
+      clearTimeout(item.timer);
+      pending.splice(pending.indexOf(item), 1);
+      requestAnimationFrame(() => item.resolve(screenText()));
+    }
+  }
+});
+window.socket = socket;
+</script></body></html>

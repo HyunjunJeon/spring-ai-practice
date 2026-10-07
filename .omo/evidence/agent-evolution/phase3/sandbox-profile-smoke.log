@@ -1,0 +1,19 @@
+(version 1)
+(deny default)
+(allow process*)
+(allow sysctl-read)
+(allow file-read* (subpath "/bin") (subpath "/usr/bin") (subpath "/usr/lib") (subpath "/System/Library") (subpath "/Library/Apple/System/Library") (subpath "/private/var/db/dyld") (literal "/private/etc/localtime") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (subpath (param "STAGE")) (subpath (param "TEMP")))
+(allow file-write* (subpath (param "STAGE")) (subpath (param "TEMP")) (literal "/dev/null"))
+(deny file-read* file-write* (regex #"^/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/sandbox-profile-smoke835558116341673165/state/changes/fb6812556a595138f2ba7d489af0d882d12a5d202bf1bd352767da94839b1b3e/staging/6ac8eb4e0ae26d8be60ce3b6e685f9f863842809519b448ac2f84e6cfe488e23/([^/]+/)*([.][gG][iI][tT]|[tT][aA][rR][gG][eE][tT]|[bB][uU][iI][lL][dD]|[dD][iI][sS][tT]|[nN][oO][dD][eE]_[mM][oO][dD][uU][lL][eE][sS]|[.][gG][rR][aA][dD][lL][eE]|[.][mM]2|[.][oO][mM][oO]|[.][cC][aA][cC][hH][eE]|[.][cC][oO][nN][fF][iI][gG]|[.][sS][sS][hH]|[.][aA][wW][sS]|[.][cC][oO][dD][eE][xX]|[.][cC][lL][aA][uU][dD][eE]|[aA][uU][tT][hH]|[aA][uU][tT][hH][eE][nN][tT][iI][cC][aA][tT][iI][oO][nN]|[cC][rR][eE][dD][eE][nN][tT][iI][aA][lL][sS]|[kK][eE][yY][sS]|[cC][eE][rR][tT][sS]|[cC][eE][rR][tT][iI][fF][iI][cC][aA][tT][eE][sS]|[rR][uU][nN][sS]|[rR][uU][nN]-[rR][eE][qQ][uU][eE][sS][tT][sS]|[tT][oO][oO][lL]-[eE][vV][iI][dD][eE][nN][cC][eE]|[mM][oO][dD][eE][lL]-[sS][eE][lL][eE][cC][tT][iI][oO][nN][sS]|[cC][hH][aA][nN][gG][eE][sS]|[lL][oO][gG][sS]|[.][eE][nN][vV][^/]*|[^/]*[cC][rR][eE][dD][eE][nN][tT][iI][aA][lL][^/]*|[^/]*[sS][eE][cC][rR][eE][tT][^/]*|[aA][uU][tT][hH][.][jJ][sS][oO][nN]|[.][nN][pP][mM][rR][cC]|[.][nN][eE][tT][rR][cC]|[iI][dD]_[rR][sS][aA][^/]*|[iI][dD]_[eE][dD]25519[^/]*|[^/]*[.]([kK][eE][yY]|[pP][eE][mM]|[cC][rR][tT]|[cC][eE][rR]|[dD][eE][rR]|[pP]12|[pP][fF][xX]|[jJ][kK][sS]|[kK][eE][yY][sS][tT][oO][rR][eE]))(/|$)"))
+(deny file-write* (subpath "/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/sandbox-profile-smoke835558116341673165/state/changes/fb6812556a595138f2ba7d489af0d882d12a5d202bf1bd352767da94839b1b3e/staging/6ac8eb4e0ae26d8be60ce3b6e685f9f863842809519b448ac2f84e6cfe488e23/.mini-agent"))
+sandbox-exec: Error reading string
+
+Backtrace: 
+<input string>:6:72:
+	(literal "/dev/null")
+
+
+PROFILE_EXIT=65
+PROFILE_TEMP_REMOVED
+Exception in thread "main" java.lang.AssertionError: Managed profile cannot launch bash
+	at com.example.miniagent.plugin.bash.SandboxProfileSmoke.main(SandboxProfileSmoke.java:39)

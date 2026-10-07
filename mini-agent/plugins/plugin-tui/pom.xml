@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example.miniagent</groupId>
+        <artifactId>mini-agent-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>plugin-tui</artifactId>
+    <name>plugin-tui</name>
+    <description>전체 화면 TUI: 대화 + 오른쪽 트레이스 그래프 사이드바 (InteractiveFrontEnd + TraceEvent 학습용)</description>
+
+    <properties>
+        <tamboui.version>0.5.0</tamboui.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example.miniagent</groupId>
+            <artifactId>agent-core</artifactId>
+        </dependency>
+        <!-- TuiRunner, 레이아웃, 위젯 (tamboui-core, tamboui-widgets 를 함께 가져온다) -->
+        <dependency>
+            <groupId>dev.tamboui</groupId>
+            <artifactId>tamboui-tui</artifactId>
+            <version>${tamboui.version}</version>
+        </dependency>
+        <!-- 터미널 백엔드. ServiceLoader 로 찾는다. Java 21 에서는 JLine 백엔드를 쓴다(Panama 백엔드는 Java 22+). -->
+        <dependency>
+            <groupId>dev.tamboui</groupId>
+            <artifactId>tamboui-jline3-backend</artifactId>
+            <version>${tamboui.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Java 21 에서 Mockito 의 동적 self-attach 대신 시작 시 계측한다. -->
+                    <argLine>@{argLine} -javaagent:"${org.mockito:mockito-core:jar}"</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

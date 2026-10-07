@@ -1,0 +1,405 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] mini-agent                                                         [pom]
+[INFO] agent-core                                                         [jar]
+[INFO] plugin-fake-model                                                  [jar]
+[INFO] plugin-codex-model                                                 [jar]
+[INFO] plugin-claude-model                                                [jar]
+[INFO] plugin-fs                                                          [jar]
+[INFO] plugin-bash                                                        [jar]
+[INFO] plugin-permission                                                  [jar]
+[INFO] plugin-memory                                                      [jar]
+[INFO] plugin-trace                                                       [jar]
+[INFO] plugin-skills                                                      [jar]
+[INFO] plugin-mcp                                                         [jar]
+[INFO] plugin-tui                                                         [jar]
+[INFO] agent-app                                                          [jar]
+[INFO] 
+[INFO] --------------< com.example.miniagent:mini-agent-parent >---------------
+[INFO] Building mini-agent 0.1.0-SNAPSHOT                                [1/14]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-core >------------------
+[INFO] Building agent-core 0.1.0-SNAPSHOT                                [2/14]
+[INFO]   from agent-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-core ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-core ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-core/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-core ---
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-fake-model >---------------
+[INFO] Building plugin-fake-model 0.1.0-SNAPSHOT                         [3/14]
+[INFO]   from plugins/plugin-fake-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-fake-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-fake-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-fake-model ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fake-model/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-fake-model ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-fake-model ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-codex-model >--------------
+[INFO] Building plugin-codex-model 0.1.0-SNAPSHOT                        [4/14]
+[INFO]   from plugins/plugin-codex-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-codex-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-codex-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-codex-model ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-codex-model/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-codex-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-codex-model ---
+[INFO] 
+[INFO] -------------< com.example.miniagent:plugin-claude-model >--------------
+[INFO] Building plugin-claude-model 0.1.0-SNAPSHOT                       [5/14]
+[INFO]   from plugins/plugin-claude-model/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-claude-model ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-claude-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-claude-model ---
+[INFO] Copying 0 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-claude-model ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-claude-model ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-fs >-------------------
+[INFO] Building plugin-fs 0.1.0-SNAPSHOT                                 [6/14]
+[INFO]   from plugins/plugin-fs/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-fs ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-fs ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-fs ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-fs/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-fs ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-fs ---
+[INFO] 
+[INFO] -----------------< com.example.miniagent:plugin-bash >------------------
+[INFO] Building plugin-bash 0.1.0-SNAPSHOT                               [7/14]
+[INFO]   from plugins/plugin-bash/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-bash ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-bash ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-bash ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-bash/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-bash ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-bash ---
+[INFO] 
+[INFO] --------------< com.example.miniagent:plugin-permission >---------------
+[INFO] Building plugin-permission 0.1.0-SNAPSHOT                         [8/14]
+[INFO]   from plugins/plugin-permission/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-permission ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-permission ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-permission ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-permission/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-permission ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-permission ---
+[INFO] 
+[INFO] ----------------< com.example.miniagent:plugin-memory >-----------------
+[INFO] Building plugin-memory 0.1.0-SNAPSHOT                             [9/14]
+[INFO]   from plugins/plugin-memory/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-memory ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-memory ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-memory ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-memory/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-memory ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-memory ---
+[INFO] 
+[INFO] -----------------< com.example.miniagent:plugin-trace >-----------------
+[INFO] Building plugin-trace 0.1.0-SNAPSHOT                             [10/14]
+[INFO]   from plugins/plugin-trace/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-trace ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-trace ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-trace ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-trace/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-trace ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-trace ---
+[INFO] 
+[INFO] ----------------< com.example.miniagent:plugin-skills >-----------------
+[INFO] Building plugin-skills 0.1.0-SNAPSHOT                            [11/14]
+[INFO]   from plugins/plugin-skills/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-skills ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-skills ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-skills ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-skills/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-skills ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-skills ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-mcp >------------------
+[INFO] Building plugin-mcp 0.1.0-SNAPSHOT                               [12/14]
+[INFO]   from plugins/plugin-mcp/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-mcp ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-mcp ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-mcp ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-mcp/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-mcp ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-mcp ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] ------------------< com.example.miniagent:plugin-tui >------------------
+[INFO] Building plugin-tui 0.1.0-SNAPSHOT                               [13/14]
+[INFO]   from plugins/plugin-tui/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.10.0:properties (default) @ plugin-tui ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ plugin-tui ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ plugin-tui ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ plugin-tui ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/plugins/plugin-tui/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ plugin-tui ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ plugin-tui ---
+[INFO] 
+[INFO] ------------------< com.example.miniagent:agent-app >-------------------
+[INFO] Building agent-app 0.1.0-SNAPSHOT                                [14/14]
+[INFO]   from agent-app/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.10.0:properties (default) @ agent-app ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ agent-app ---
+[INFO] Copying 8 resources from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ agent-app ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ agent-app ---
+[INFO] skip non existing resourceDirectory /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ agent-app ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 19 source files with javac [debug parameters release 21] to target/test-classes
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/java/com/example/miniagent/app/AgentTurnBindingTest.java:[51,67] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[WARNING] /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/src/test/java/com/example/miniagent/app/AgentTurnBindingTest.java:[76,67] defaultToolCallbacks(org.springframework.ai.tool.ToolCallbackProvider...) in org.springframework.ai.chat.client.ChatClient.Builder has been deprecated and marked for removal
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agent-app ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.miniagent.app.RunCommandTest
+18:59:58.422 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.miniagent.app.MiniAgentApplication for test class com.example.miniagent.app.RunCommandTest
+18:59:58.448 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.miniagent.app.MiniAgentApplication for test class com.example.miniagent.app.RunCommandTest
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[ERROR] Tests run: 11, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 2.089 s <<< FAILURE! -- in com.example.miniagent.app.RunCommandTest
+[ERROR] com.example.miniagent.app.RunCommandTest.interruptedRunResumesStoredSelectionNotActiveConsole -- Time elapsed: 0.138 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+[Console output: run=b52349ac-bf1a-403e-83fd-c23b9415e7b0 conversation=7359c318-97b9-4512-9af9-123b894acb3b parent=20261006-185958-9601 attempt=f8cc165f-a582-4de1-bb78-b454d70a72a9 state=INTERRUPTED reason=NONE model=fake/run-fixture tokens=0 unknown=true overshoot=0 tools=0 activeMillis=22
+Expected: Snapshot[schemaVersion=1, specDigest=150cbc2894ee8c8a86ce023ecb6ec9c74756ad56b0ffe2edd8e1c4a4f7e4e560, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+Actual: Snapshot[schemaVersion=1, specDigest=150cbc2894ee8c8a86ce023ecb6ec9c74756ad56b0ffe2edd8e1c4a4f7e4e560, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+IDENTITY_DRIFT: Run source/tool/config drift cause=IOException: Exact source/tool/config drift acknowledgement required
+Usage: /run start <goal> | show/status/cancel/inspect-drift <id> | approve/reject/defer <id> <request UUID> | resume <id> [--resolve <attempt> <key> READ_RETRY|MUTATING_RETRY|SKIP <evidence-id>] [--ack-drift <expected-sha256> <actual-sha256> <evidence-id>]
+] 
+Expecting value to be true but was false
+	at com.example.miniagent.app.RunCommandTest.interruptedRunResumesStoredSelectionNotActiveConsole(RunCommandTest.java:93)
+
+[ERROR] com.example.miniagent.app.RunCommandTest.pendingDeferResolveDoesNotMutateUntilExplicitResume -- Time elapsed: 0.122 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+[Console output: run=0b4a9c8b-8781-41ea-8ba6-dbe5fa6c37fc conversation=8a682a9d-d3f0-43ff-8355-93eb7d1350ec parent=20261006-185958-9601 attempt=2c1ed0bc-80dc-47b2-a98c-ab78ae36448e state=WAITING_APPROVAL reason=NONE model=fake/run-fixture tokens=96 unknown=false overshoot=0 tools=1 activeMillis=25
+pending approval 5b0072c0-ab60-4b84-80d4-0cdc56c70800 attempt=2c1ed0bc-80dc-47b2-a98c-ab78ae36448e tool=write_file
+IllegalArgumentException: No matching pending approval
+Usage: /run start <goal> | show/status/cancel/inspect-drift <id> | approve/reject/defer <id> <request UUID> | resume <id> [--resolve <attempt> <key> READ_RETRY|MUTATING_RETRY|SKIP <evidence-id>] [--ack-drift <expected-sha256> <actual-sha256> <evidence-id>]
+run=0b4a9c8b-8781-41ea-8ba6-dbe5fa6c37fc conversation=8a682a9d-d3f0-43ff-8355-93eb7d1350ec parent=20261006-185958-9601 attempt=2c1ed0bc-80dc-47b2-a98c-ab78ae36448e state=INTERRUPTED reason=NONE model=fake/run-fixture tokens=96 unknown=false overshoot=0 tools=1 activeMillis=25
+Expected: Snapshot[schemaVersion=1, specDigest=54f6e8b0ff0cd5bd7107e4e87cfcc2af015a309707ae45103547e1b92f9b043f, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+Actual: Snapshot[schemaVersion=1, specDigest=54f6e8b0ff0cd5bd7107e4e87cfcc2af015a309707ae45103547e1b92f9b043f, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/8a682a9d-d3f0-43ff-8355-93eb7d1350ec.jsonl=file:160:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:386291756cd2c5b22d9c7879391ea57d79601490cceaef4a1caea8265032a382, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+IDENTITY_DRIFT: Run source/tool/config drift cause=IOException: Exact source/tool/config drift acknowledgement required
+Usage: /run start <goal> | show/status/cancel/inspect-drift <id> | approve/reject/defer <id> <request UUID> | resume <id> [--resolve <attempt> <key> READ_RETRY|MUTATING_RETRY|SKIP <evidence-id>] [--ack-drift <expected-sha256> <actual-sha256> <evidence-id>]
+] 
+Expecting value to be true but was false
+	at com.example.miniagent.app.RunCommandTest.pendingDeferResolveDoesNotMutateUntilExplicitResume(RunCommandTest.java:122)
+
+[ERROR] com.example.miniagent.app.RunCommandTest.unknownRequiresExactOperatorInputAndNeverFabricatesFinish -- Time elapsed: 0.099 s <<< FAILURE!
+java.lang.AssertionError: 
+[Console output: run=8124dae0-3680-4c81-b2a3-094cf41dd1c4 conversation=2fc3ec7b-2d64-4022-9e00-d61d95da044c parent=20261006-185958-9601 attempt=6d2b797f-2a91-4a6b-9a57-02fb43cb1914 state=INTERRUPTED reason=NONE model=fake/run-fixture tokens=0 unknown=true overshoot=0 tools=0 activeMillis=20
+Expected: Snapshot[schemaVersion=1, specDigest=af28259870abb33e8a1e5a24e2fe00ea1d6d76a5615535e651f78948232a07dc, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/20261006-185958-9601.jsonl=file:573:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:15334af351f8901678a0c54f1fbfa58fa2d9145ff7103909a7d83f4fc7d1889a, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/8a682a9d-d3f0-43ff-8355-93eb7d1350ec.jsonl=file:160:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:386291756cd2c5b22d9c7879391ea57d79601490cceaef4a1caea8265032a382, .home/sessions/97bdfd3c-10b7-4287-b45c-89e3b9ae8b1b.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:cd06bbe43c952c7dbbdd4b0ef2eda5eec362b41b31e0f0a4d7ab2960a93b919e, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, .home/sessions/fe9ef424-1cb6-406b-b9b9-2ca2fa8c492c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+Actual: Snapshot[schemaVersion=1, specDigest=af28259870abb33e8a1e5a24e2fe00ea1d6d76a5615535e651f78948232a07dc, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/20261006-185958-9601.jsonl=file:573:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:15334af351f8901678a0c54f1fbfa58fa2d9145ff7103909a7d83f4fc7d1889a, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/2fc3ec7b-2d64-4022-9e00-d61d95da044c.jsonl=file:102:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:af26e84a33a30c227e20d78f1e5167d6eb9344726ead081c79b84a1ac4b046ec, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/8a682a9d-d3f0-43ff-8355-93eb7d1350ec.jsonl=file:160:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:386291756cd2c5b22d9c7879391ea57d79601490cceaef4a1caea8265032a382, .home/sessions/97bdfd3c-10b7-4287-b45c-89e3b9ae8b1b.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:cd06bbe43c952c7dbbdd4b0ef2eda5eec362b41b31e0f0a4d7ab2960a93b919e, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, .home/sessions/fe9ef424-1cb6-406b-b9b9-2ca2fa8c492c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+] 
+Expecting actual not to be empty
+	at com.example.miniagent.app.RunCommandTest.unknownRequiresExactOperatorInputAndNeverFabricatesFinish(RunCommandTest.java:160)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   RunCommandTest.interruptedRunResumesStoredSelectionNotActiveConsole:93 [Console output: run=b52349ac-bf1a-403e-83fd-c23b9415e7b0 conversation=7359c318-97b9-4512-9af9-123b894acb3b parent=20261006-185958-9601 attempt=f8cc165f-a582-4de1-bb78-b454d70a72a9 state=INTERRUPTED reason=NONE model=fake/run-fixture tokens=0 unknown=true overshoot=0 tools=0 activeMillis=22
+Expected: Snapshot[schemaVersion=1, specDigest=150cbc2894ee8c8a86ce023ecb6ec9c74756ad56b0ffe2edd8e1c4a4f7e4e560, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+Actual: Snapshot[schemaVersion=1, specDigest=150cbc2894ee8c8a86ce023ecb6ec9c74756ad56b0ffe2edd8e1c4a4f7e4e560, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+IDENTITY_DRIFT: Run source/tool/config drift cause=IOException: Exact source/tool/config drift acknowledgement required
+Usage: /run start <goal> | show/status/cancel/inspect-drift <id> | approve/reject/defer <id> <request UUID> | resume <id> [--resolve <attempt> <key> READ_RETRY|MUTATING_RETRY|SKIP <evidence-id>] [--ack-drift <expected-sha256> <actual-sha256> <evidence-id>]
+] 
+Expecting value to be true but was false
+[ERROR]   RunCommandTest.pendingDeferResolveDoesNotMutateUntilExplicitResume:122 [Console output: run=0b4a9c8b-8781-41ea-8ba6-dbe5fa6c37fc conversation=8a682a9d-d3f0-43ff-8355-93eb7d1350ec parent=20261006-185958-9601 attempt=2c1ed0bc-80dc-47b2-a98c-ab78ae36448e state=WAITING_APPROVAL reason=NONE model=fake/run-fixture tokens=96 unknown=false overshoot=0 tools=1 activeMillis=25
+pending approval 5b0072c0-ab60-4b84-80d4-0cdc56c70800 attempt=2c1ed0bc-80dc-47b2-a98c-ab78ae36448e tool=write_file
+IllegalArgumentException: No matching pending approval
+Usage: /run start <goal> | show/status/cancel/inspect-drift <id> | approve/reject/defer <id> <request UUID> | resume <id> [--resolve <attempt> <key> READ_RETRY|MUTATING_RETRY|SKIP <evidence-id>] [--ack-drift <expected-sha256> <actual-sha256> <evidence-id>]
+run=0b4a9c8b-8781-41ea-8ba6-dbe5fa6c37fc conversation=8a682a9d-d3f0-43ff-8355-93eb7d1350ec parent=20261006-185958-9601 attempt=2c1ed0bc-80dc-47b2-a98c-ab78ae36448e state=INTERRUPTED reason=NONE model=fake/run-fixture tokens=96 unknown=false overshoot=0 tools=1 activeMillis=25
+Expected: Snapshot[schemaVersion=1, specDigest=54f6e8b0ff0cd5bd7107e4e87cfcc2af015a309707ae45103547e1b92f9b043f, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+Actual: Snapshot[schemaVersion=1, specDigest=54f6e8b0ff0cd5bd7107e4e87cfcc2af015a309707ae45103547e1b92f9b043f, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/8a682a9d-d3f0-43ff-8355-93eb7d1350ec.jsonl=file:160:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:386291756cd2c5b22d9c7879391ea57d79601490cceaef4a1caea8265032a382, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+IDENTITY_DRIFT: Run source/tool/config drift cause=IOException: Exact source/tool/config drift acknowledgement required
+Usage: /run start <goal> | show/status/cancel/inspect-drift <id> | approve/reject/defer <id> <request UUID> | resume <id> [--resolve <attempt> <key> READ_RETRY|MUTATING_RETRY|SKIP <evidence-id>] [--ack-drift <expected-sha256> <actual-sha256> <evidence-id>]
+] 
+Expecting value to be true but was false
+[ERROR]   RunCommandTest.unknownRequiresExactOperatorInputAndNeverFabricatesFinish:160 [Console output: run=8124dae0-3680-4c81-b2a3-094cf41dd1c4 conversation=2fc3ec7b-2d64-4022-9e00-d61d95da044c parent=20261006-185958-9601 attempt=6d2b797f-2a91-4a6b-9a57-02fb43cb1914 state=INTERRUPTED reason=NONE model=fake/run-fixture tokens=0 unknown=true overshoot=0 tools=0 activeMillis=20
+Expected: Snapshot[schemaVersion=1, specDigest=af28259870abb33e8a1e5a24e2fe00ea1d6d76a5615535e651f78948232a07dc, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/20261006-185958-9601.jsonl=file:573:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:15334af351f8901678a0c54f1fbfa58fa2d9145ff7103909a7d83f4fc7d1889a, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/8a682a9d-d3f0-43ff-8355-93eb7d1350ec.jsonl=file:160:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:386291756cd2c5b22d9c7879391ea57d79601490cceaef4a1caea8265032a382, .home/sessions/97bdfd3c-10b7-4287-b45c-89e3b9ae8b1b.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:cd06bbe43c952c7dbbdd4b0ef2eda5eec362b41b31e0f0a4d7ab2960a93b919e, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, .home/sessions/fe9ef424-1cb6-406b-b9b9-2ca2fa8c492c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+Actual: Snapshot[schemaVersion=1, specDigest=af28259870abb33e8a1e5a24e2fe00ea1d6d76a5615535e651f78948232a07dc, workspace=WorkspaceFingerprint[cwd=/private/var/folders/dj/g3hmbb2j11gdpwyh6bjxstvc0000gn/T/junit-1405477954862588265, entries={.home/sessions/149cc801-d173-4e3a-a302-117501733799.jsonl=file:949:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:33bf950eec53441f637c6da3f8c4acd71bf09e4e90d49e8147c8f6fc9703d8f3, .home/sessions/20261006-185958-9601.jsonl=file:573:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:15334af351f8901678a0c54f1fbfa58fa2d9145ff7103909a7d83f4fc7d1889a, .home/sessions/277b105b-6222-4825-8bf1-6d195371362d.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6274778ca2517281258dac5009f5f65840021377a884af3981d02056d3d7ea4f, .home/sessions/2fc3ec7b-2d64-4022-9e00-d61d95da044c.jsonl=file:102:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:af26e84a33a30c227e20d78f1e5167d6eb9344726ead081c79b84a1ac4b046ec, .home/sessions/7359c318-97b9-4512-9af9-123b894acb3b.jsonl=file:104:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:006fea757ba79c30646a24923d1f370562b9bcb765d7c254468d0611ad1894f5, .home/sessions/8a682a9d-d3f0-43ff-8355-93eb7d1350ec.jsonl=file:160:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:386291756cd2c5b22d9c7879391ea57d79601490cceaef4a1caea8265032a382, .home/sessions/97bdfd3c-10b7-4287-b45c-89e3b9ae8b1b.jsonl=file:155:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:cd06bbe43c952c7dbbdd4b0ef2eda5eec362b41b31e0f0a4d7ab2960a93b919e, .home/sessions/c25c8e74-2b6a-4c70-8a45-5cf07b1b287c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, .home/sessions/fe9ef424-1cb6-406b-b9b9-2ca2fa8c492c.jsonl=file:559:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:01d5b5eca3d1f46e44eba21b6e42e1c00cbae371b35729893f444116ae1ef30a, sentinel.txt=file:6:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:6db7d803e74f1ffa7d8f5adc0bf95b3e15bf4c8373fffadf546227cc6c6742cb, source.txt=file:5:[GROUP_READ, OTHERS_READ, OWNER_READ, OWNER_WRITE]:b1e99324505bd32da0e1f85dcf5e19a09db0481e8a15f62c41eb320304a8e927}], tools={bash=Definition[digest=737c2f70023304157b7e7485b71b9c6a21056ebb5d8fa9581ee731dfc477bb10, effect=MUTATING], edit_file=Definition[digest=2043f24e88beef8e99d865f9708cf55da988257999d631b551ff893a734102d0, effect=MUTATING], fixture=Definition[digest=5e60d8d35ad07cd8307e743c89a955da59d34e00e4390d7f55f40abdddb15a53, effect=MUTATING], list_dir=Definition[digest=4d7cd0df192cd383422edfa413dbeadde7ce7b2667c0c43c67f335f6aa867174, effect=READ_ONLY], load_skill=Definition[digest=e7d977b825ab5ac8933419842c0c13789a9330a338b7d6e25bcf66cab227dd8f, effect=READ_ONLY], read_file=Definition[digest=0b9528b2f816b4b5b7b41e5374e1f6593cc9a99fffb6f86a31a49c2a851cf663, effect=READ_ONLY], write_file=Definition[digest=df76cf9aa0079031b7f8c1fa62b126e6c14bd9dd286cc88996b953ba0fda7f99, effect=MUTATING]}, configurationDigest=4a00a5bf3f13d875a3a1d823511403517559684db2cd81f55502f936a34c8ffd]
+] 
+Expecting actual not to be empty
+[INFO] 
+[ERROR] Tests run: 11, Failures: 3, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for mini-agent 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] mini-agent ......................................... SUCCESS [  0.001 s]
+[INFO] agent-core ......................................... SUCCESS [  0.270 s]
+[INFO] plugin-fake-model .................................. SUCCESS [  0.024 s]
+[INFO] plugin-codex-model ................................. SUCCESS [  0.023 s]
+[INFO] plugin-claude-model ................................ SUCCESS [  0.021 s]
+[INFO] plugin-fs .......................................... SUCCESS [  0.021 s]
+[INFO] plugin-bash ........................................ SUCCESS [  0.017 s]
+[INFO] plugin-permission .................................. SUCCESS [  0.015 s]
+[INFO] plugin-memory ...................................... SUCCESS [  0.025 s]
+[INFO] plugin-trace ....................................... SUCCESS [  0.017 s]
+[INFO] plugin-skills ...................................... SUCCESS [  0.009 s]
+[INFO] plugin-mcp ......................................... SUCCESS [  0.016 s]
+[INFO] plugin-tui ......................................... SUCCESS [  0.192 s]
+[INFO] agent-app .......................................... FAILURE [  3.852 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.653 s
+[INFO] Finished at: 2026-10-06T19:00:00+09:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project agent-app: There are test failures.
+[ERROR] 
+[ERROR] See /Users/rascal/Desktop/p_work/spring_ai_test/mini-agent/agent-app/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :agent-app

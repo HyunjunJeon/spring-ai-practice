@@ -1,0 +1,12 @@
+mini-agent  (next: fake/fake-scripted [available], session: 20261006-225255-e3ba)
+[2mplugins: claude, bash, codex, fake-model, fs, mcp, memory, permission, skills, trace[0m
+[2m/help 명령 목록, /exit 종료[0m
+
+› [2mrun=06ada0c1-0816-48a6-a249-2cecc89ccdeb conversation=2f5e7ad3-f9e5-45db-a96d-176637c7f09f attempt=de781181-fd93-4632-9177-873fbc4cad64 state=RUNNING model=fake/fake-scripted[0m
+[approval 7d0be704-541a-478e-9d0a-2c1f4ecbc6b0 run=06ada0c1-0816-48a6-a249-2cecc89ccdeb attempt=de781181-fd93-4632-9177-873fbc4cad64 child=null tool=write_file args=5b7a964d5cf2701ae6c1342e37cf18906e3f98bc82e2b9a9c185c93b4e1d19c8 diff=null]
+  <UUID> y / n / a(exact scope) / defer / cancel: [2m  ⏱ 32ms · 모델 1회 · 도구 없음 · fake/fake-scripted[0m
+run=06ada0c1-0816-48a6-a249-2cecc89ccdeb conversation=2f5e7ad3-f9e5-45db-a96d-176637c7f09f parent=20261006-225255-e3ba attempt=de781181-fd93-4632-9177-873fbc4cad64 state=WAITING_APPROVAL reason=NONE model=fake/fake-scripted tokens=98 unknown=false overshoot=0 tools=1 activeMillis=165
+pending approval 7d0be704-541a-478e-9d0a-2c1f4ecbc6b0 attempt=de781181-fd93-4632-9177-873fbc4cad64 tool=write_file
+[2mrun=06ada0c1-0816-48a6-a249-2cecc89ccdeb conversation=2f5e7ad3-f9e5-45db-a96d-176637c7f09f attempt=de781181-fd93-4632-9177-873fbc4cad64 state=WAITING_APPROVAL model=fake/fake-scripted[0m
+
+› 

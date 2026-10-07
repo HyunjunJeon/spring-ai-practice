@@ -1,0 +1,1 @@
+{"type":"user","text":"!tool write_file {\"path\":\"source.txt\",\"content\":\"must-not-publish\"}","toolCalls":null,"toolResponses":null,"covers":null,"metadata":null}
