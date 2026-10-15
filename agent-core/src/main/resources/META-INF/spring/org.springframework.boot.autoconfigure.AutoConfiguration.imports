@@ -1,0 +1,8 @@
+com.example.miniagent.core.AgentAutoConfiguration
+com.example.miniagent.core.run.RunJournalAutoConfiguration
+com.example.miniagent.core.run.RunCommandAutoConfiguration
+com.example.miniagent.core.change.command.ChangeCommandAutoConfiguration
+com.example.miniagent.core.artifact.ArtifactAutoConfiguration
+com.example.miniagent.core.goal.GoalAutoConfiguration
+com.example.miniagent.core.lesson.LessonAutoConfiguration
+com.example.miniagent.core.messaging.MessagingAutoConfiguration

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example.miniagent</groupId>
+        <artifactId>agent-forge-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>plugin-mcp</artifactId>
+    <name>plugin-mcp</name>
+    <description>MCP 서버의 도구를 붙이기 (spring-ai-starter-mcp-client 학습용)</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example.miniagent</groupId>
+            <artifactId>agent-core</artifactId>
+        </dependency>
+        <!-- MCP 클라이언트 자동 구성: 설정된 서버마다 연결하고 ToolCallbackProvider 빈을 등록한다. -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+        </dependency>
+    </dependencies>
+</project>

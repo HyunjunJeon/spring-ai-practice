@@ -1,0 +1,133 @@
+package com.example.miniagent.app;
+
+import java.util.Set;
+
+import com.example.miniagent.core.AgentAutoConfiguration;
+import com.example.miniagent.core.model.AgentChatClientFactory;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaAccess;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ToolContext;
+import org.springframework.ai.model.tool.DefaultToolCallingManager;
+import org.springframework.ai.model.tool.ToolCallingManager;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.context.annotation.ImportCandidates;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * AGENTS.md 의 구조 규칙을 바이트코드 수준에서 검사한다.
+ *
+ * <p>agent-app 은 core 와 모든 플러그인이 한 클래스패스에 모이는 유일한 모듈이라 모듈 경계 규칙을 여기서 본다.
+ * Maven 의존성은 "컴파일 가능 여부"만 막고, 이 테스트는 "누가 무엇을 호출하는가"까지 막는다.
+ * 클래스 이름을 문자열로만 적은 참조(예: {@code RunJournalAutoConfiguration} 의 플러그인 이름)는 바이트코드
+ * 의존이 아니므로 잡히지 않는다.
+ */
+class ArchitectureTest {
+
+	private static final String CORE = "com.example.miniagent.core..";
+
+	private static final String PLUGINS = "com.example.miniagent.plugin..";
+
+	private static final String APP = "com.example.miniagent.app..";
+
+	/** 테스트 픽스처를 빼고 운영 코드만 읽는다. 가져오기는 비싸므로 한 번만 한다. */
+	private static final JavaClasses CLASSES = new ClassFileImporter()
+		.withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+		.importPackages("com.example.miniagent");
+
+	@Test
+	void importsProductionClassesFromEveryModule() {
+		assertThat(CLASSES.containPackage("com.example.miniagent.core")).isTrue();
+		assertThat(CLASSES.containPackage("com.example.miniagent.plugin.tui")).isTrue();
+		assertThat(CLASSES.containPackage("com.example.miniagent.app")).isTrue();
+		assertThat(CLASSES.contain(ArchitectureTest.class)).isFalse();
+	}
+
+	@Test
+	void coreDependsOnNeitherPluginsNorApp() {
+		noClasses().that().resideInAPackage(CORE)
+			.should().dependOnClassesThat().resideInAnyPackage(PLUGINS, APP)
+			.because("core 는 SPI 를 정의하고 플러그인은 Spring 빈으로 기여한다 (AGENTS.md CONVENTIONS)")
+			.check(CLASSES);
+	}
+
+	@Test
+	void pluginsDoNotDependOnApp() {
+		noClasses().that().resideInAPackage(PLUGINS)
+			.should().dependOnClassesThat().resideInAPackage(APP)
+			.because("실행 조립은 agent-app 이 플러그인을 고르는 방향으로만 흐른다")
+			.check(CLASSES);
+	}
+
+	@Test
+	void pluginsDoNotDependOnEachOther() {
+		slices().matching("com.example.miniagent.plugin.(*)..")
+			.should().notDependOnEachOther()
+			.because("Trace 와 TUI 처럼 플러그인끼리는 core 의 TraceEvent 같은 공용 타입으로만 통신한다")
+			.check(CLASSES);
+	}
+
+	@Test
+	void onlyCoreAssemblesTheToolLoop() {
+		noClasses().that().doNotHaveFullyQualifiedName(AgentAutoConfiguration.class.getName())
+			.and().doNotHaveFullyQualifiedName(AgentChatClientFactory.ScopedAssembly.class.getName())
+			.should().accessTargetWhere(toolLoopBuilder())
+			.because("도구 루프는 ChatClient 당 ToolCallingAdvisor 하나다. 두 번째 루프나 두 번째 ToolAdvisor 를 만들지 않는다")
+			.check(CLASSES);
+	}
+
+	@Test
+	void chatModelsDoNotExecuteTools() {
+		noClasses().that().implement(ChatModel.class)
+			.should().dependOnClassesThat().areAssignableTo(ToolCallingManager.class)
+			.orShould().callMethod(ToolCallback.class, "call", String.class)
+			.orShould().callMethod(ToolCallback.class, "call", String.class, ToolContext.class)
+			.because("ChatModel.call() 은 tool call 을 돌려줄 뿐이고 실행은 ToolCallingAdvisor 가 한다")
+			.check(CLASSES);
+	}
+
+	@Test
+	void autoConfigurationsAreRegisteredInImportsFiles() {
+		Set<String> registered = Set.copyOf(ImportCandidates
+			.load(AutoConfiguration.class, ArchitectureTest.class.getClassLoader()).getCandidates());
+		classes().that().areAnnotatedWith(AutoConfiguration.class)
+			.should(beListedIn(registered))
+			.because("등록하지 않은 자동 구성은 조용히 로드되지 않는다")
+			.check(CLASSES);
+	}
+
+	private static DescribedPredicate<JavaAccess<?>> toolLoopBuilder() {
+		return DescribedPredicate.describe("ToolCallingAdvisor 또는 DefaultToolCallingManager 의 builder()",
+				access -> access.getName().equals("builder")
+						&& (access.getTargetOwner().isAssignableTo(ToolCallingAdvisor.class)
+								|| access.getTargetOwner().isAssignableTo(DefaultToolCallingManager.class)));
+	}
+
+	private static ArchCondition<JavaClass> beListedIn(Set<String> registered) {
+		return new ArchCondition<>("be listed in META-INF/spring/...AutoConfiguration.imports") {
+			@Override
+			public void check(JavaClass item, ConditionEvents events) {
+				if (!registered.contains(item.getName())) {
+					events.add(SimpleConditionEvent.violated(item,
+							item.getName() + " 가 AutoConfiguration.imports 에 없다"));
+				}
+			}
+		};
+	}
+
+}
