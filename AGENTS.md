@@ -17,6 +17,8 @@ spring_ai_test/
 |-- plugins/          Eleven extension modules
 |-- docs/             Learning material
 |-- agent.sh          Launcher; invocation directory is the agent workspace
+|-- scripts/verify.sh Unified verification command (compile, tests, ArchUnit rules)
+|-- harness/          Improvement log for coding-agent harness failures and fixes
 |-- reports/
 |   |-- Spring AI 최신 버전 심층 조사.md    Research synthesis
 |   `-- research_notes/                  Topic evidence
@@ -34,6 +36,8 @@ spring_ai_test/
 - Launch and provider selection: `agent.sh`.
 - Learning exercises: `docs/learning-path.md`.
 - Bundled code tour: `.mini-agent/skills/code-tour/SKILL.md`.
+- Coding-agent failures and the harness changes they caused: `harness/improvement-log.md`.
+- Retrospective after an expensive coding-agent failure: `.claude/skills/harness-retro/SKILL.md`.
 - Final research synthesis: `reports/Spring AI 최신 버전 심층 조사.md`.
 - Topic evidence: `reports/research_notes/Spring AI 최신 버전 심층 조사/`.
 - Research topics: `version_status_compatibility.md`, `core_api_features.md`,
@@ -69,7 +73,7 @@ reference centrality is unmeasured, and import counts are not reference counts.
 - Core gathers ordered providers, callbacks, advisors, commands, and prompt contributors.
 - Attach plugin tools as ChatClient defaults; resolution fallback is disabled.
 - Wrap dynamic ToolCallbackProviders without eagerly expanding their tool lists.
-- Advisor placement matters: turn trace +100, memory +200, tool loop +300, round trace +400 relative to HIGHEST.
+- Advisor placement matters: turn trace +100, lesson +150, memory +200, tool loop +300, round trace +400 relative to HIGHEST. `AdvisorPlacementTest` reads this line and compares it with the assembled advisors.
 - Trace and TUI communicate through core TraceEvent types, not each other's implementations.
 - Tests use synthetic models, temporary cwd/home, local HTTP fixtures and observable durable state.
 - Claude OAuth and Messages tests use Java local HTTP servers and synthetic credentials.
@@ -80,7 +84,7 @@ reference centrality is unmeasured, and import counts are not reference counts.
 ## ANTI-PATTERNS (THIS PROJECT)
 - Do not treat research recommendations as application configuration; inspect the POM.
 - Do not conflate milestone capabilities with the application's pinned GA release.
-- Do not treat launcher-triggered builds as evidence that tests passed.
+- Do not treat launcher-triggered builds as evidence that tests passed; the exit code of `scripts/verify.sh` is.
 - Do not implement a second tool loop in Agent or ChatModel.call(), or register two ToolAdvisors.
 - Do not omit ChatMemory.CONVERSATION_ID from per-turn advisor context.
 - Do not swallow one-shot failures; `AgentRepl` maps them to exit code 1.
@@ -92,7 +96,8 @@ reference centrality is unmeasured, and import counts are not reference counts.
 
 ## COMMANDS
 ```bash
-./mvnw test
+bash ./scripts/verify.sh
+bash ./scripts/verify.sh -pl agent-app -am -Dtest=ArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false
 ./mvnw install -DskipTests
 bash ./agent.sh
 bash ./agent.sh "hello"
@@ -102,7 +107,7 @@ AGENT_PROFILE=claude bash ./agent.sh
 ```
 
 ## NOTES
-- JDK 21 is required; set JAVA_HOME when invoking the Maven wrapper directly.
+- JDK 21 is required. `scripts/verify.sh` and `agent.sh` fall back to Homebrew `openjdk@21`; set JAVA_HOME when invoking the Maven wrapper directly. `/usr/libexec/java_home -v 21` does not find the Homebrew JDK.
 - The launcher defaults to profile `default` and TUI; piped input uses REPL.
 - The default model configuration selects `fake/fake-scripted`.
 - The launcher rebuilds a missing or stale JAR with tests skipped.
