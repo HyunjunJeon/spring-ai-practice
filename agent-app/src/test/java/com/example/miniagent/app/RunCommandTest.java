@@ -9,6 +9,7 @@ import com.example.miniagent.core.*;
 import com.example.miniagent.core.approval.*;
 import com.example.miniagent.core.model.*;
 import com.example.miniagent.core.run.*;
+import com.example.miniagent.core.run.command.RunCommand;
 import com.example.miniagent.plugin.fakemodel.ScriptedChatModel;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;

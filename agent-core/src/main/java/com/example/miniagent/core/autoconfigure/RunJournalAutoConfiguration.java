@@ -1,8 +1,12 @@
-package com.example.miniagent.core.run;
+package com.example.miniagent.core.autoconfigure;
 
 import java.io.IOException;
 import java.util.*;
 import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.run.DriftGate;
+import com.example.miniagent.core.run.SideEffectClass;
+import com.example.miniagent.core.run.ToolEvidenceStore;
+import com.example.miniagent.core.run.ToolJournalInterceptor;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;

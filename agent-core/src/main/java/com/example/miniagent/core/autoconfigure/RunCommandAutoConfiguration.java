@@ -1,4 +1,4 @@
-package com.example.miniagent.core.run;
+package com.example.miniagent.core.autoconfigure;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -6,6 +6,17 @@ import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.approval.ApprovalBroker;
 import com.example.miniagent.core.model.SessionModelStore;
+import com.example.miniagent.core.run.DriftGate;
+import com.example.miniagent.core.run.FileRunStore;
+import com.example.miniagent.core.run.JournalResumeContributor;
+import com.example.miniagent.core.run.RunExecutor;
+import com.example.miniagent.core.run.RunProperties;
+import com.example.miniagent.core.run.RunRequestStore;
+import com.example.miniagent.core.run.RunResumeContributor;
+import com.example.miniagent.core.run.RunStore;
+import com.example.miniagent.core.run.ToolEvidenceStore;
+import com.example.miniagent.core.run.command.RunCommand;
+import com.example.miniagent.core.run.command.RunsCommand;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,7 +48,7 @@ public class RunCommandAutoConfiguration {
 	@Bean @ConditionalOnMissingBean
 	RunExecutor runExecutor(Agent agent, SessionModelStore selections, RunStore runs, RunRequestStore requests,
 			Clock clock, ObjectProvider<RunResumeContributor> contributors, ApprovalBroker broker, DriftGate gate,
-			com.example.miniagent.core.change.StagingToolInterceptor staging,
+			com.example.miniagent.core.execution.StagingToolInterceptor staging,
 			ObjectProvider<com.example.miniagent.core.change.ChangeStore> changes,
 			org.springframework.core.env.Environment environment) {
 		gate.stagingConfiguration(() -> "staged-v1\0" + environment.getProperty("agent.changes.shell-cache-roots", ""));

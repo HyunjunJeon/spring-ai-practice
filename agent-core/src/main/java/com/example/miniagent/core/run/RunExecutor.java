@@ -45,7 +45,7 @@ public final class RunExecutor {
 	private final List<RunResumeContributor> contributors;
 	private final ApprovalBroker approvals;
 	private final DriftGate drift;
-	private com.example.miniagent.core.change.StagingToolInterceptor staging;
+	private com.example.miniagent.core.execution.StagingToolInterceptor staging;
 	private java.util.function.Supplier<com.example.miniagent.core.change.ChangeStore> changes;
 	private final ConcurrentHashMap<RunId, Active> active = new ConcurrentHashMap<>();
 	private java.util.function.Consumer<RunRecord> created = record -> {};
@@ -128,7 +128,7 @@ public final class RunExecutor {
 	}
 
 	/** Production wiring remains lazy: ordinary turns never initialize the change store. */
-	public RunExecutor staging(com.example.miniagent.core.change.StagingToolInterceptor staging,
+	public RunExecutor staging(com.example.miniagent.core.execution.StagingToolInterceptor staging,
 			java.util.function.Supplier<com.example.miniagent.core.change.ChangeStore> changes) {
 		this.staging = Objects.requireNonNull(staging);
 		this.changes = Objects.requireNonNull(changes);

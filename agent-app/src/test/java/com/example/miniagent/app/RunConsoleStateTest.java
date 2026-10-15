@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import com.example.miniagent.core.*;
 import com.example.miniagent.core.run.*;
+import com.example.miniagent.core.run.command.RunCommand;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.ObjectProvider;

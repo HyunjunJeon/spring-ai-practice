@@ -1,7 +1,10 @@
-package com.example.miniagent.core.run;
+package com.example.miniagent.core.run.command;
 
 import java.io.IOException;
 import com.example.miniagent.core.SlashCommand;
+import com.example.miniagent.core.run.RunId;
+import com.example.miniagent.core.run.RunStore;
+import com.example.miniagent.core.run.RunStoreException;
 
 public final class RunsCommand implements SlashCommand {
 	private final RunStore runs;

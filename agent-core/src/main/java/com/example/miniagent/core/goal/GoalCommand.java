@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.run.RunBudget;
-import com.example.miniagent.core.run.RunCommand;
+import com.example.miniagent.core.run.command.RunCommand;
 import tools.jackson.databind.node.ObjectNode;
 
 /** Operator-only JSON command. No model-callable goal/gate execution tool is installed. */

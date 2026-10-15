@@ -31,14 +31,14 @@ public class BashPluginAutoConfiguration {
 	}
 
 	@Bean
-	com.example.miniagent.core.change.StagingToolInterceptor.Policy stagedShellPolicy(ToolCallback bashTool,
+	com.example.miniagent.core.execution.StagingToolInterceptor.Policy stagedShellPolicy(ToolCallback bashTool,
 			@Value("${agent.changes.shell-cache-roots:}") List<String> managedCaches) {
 		List<Path> caches = managedCaches.stream().filter(s -> !s.isBlank()).map(s -> Path.of(s.strip())).toList();
 		var definition = bashTool.getToolDefinition();
 		return () -> java.util.Map.of(definition.name(),
-				new com.example.miniagent.core.change.StagingToolInterceptor.Declaration(
+				new com.example.miniagent.core.execution.StagingToolInterceptor.Declaration(
 						com.example.miniagent.core.run.SideEffectClass.definitionDigest(definition),
-						com.example.miniagent.core.change.StagingToolInterceptor.Kind.SHELL, List.of(),
+						com.example.miniagent.core.execution.StagingToolInterceptor.Kind.SHELL, List.of(),
 						stage -> BashSandbox.verify(stage, caches)));
 	}
 

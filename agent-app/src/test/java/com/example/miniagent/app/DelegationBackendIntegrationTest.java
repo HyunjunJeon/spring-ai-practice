@@ -20,6 +20,7 @@ import com.example.miniagent.core.approval.*;
 import com.example.miniagent.core.change.*;
 import com.example.miniagent.core.change.command.ApplyCommand;
 import com.example.miniagent.core.delegation.*;
+import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.model.*;
 import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.*;

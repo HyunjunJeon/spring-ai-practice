@@ -1,6 +1,6 @@
 com.example.miniagent.core.AgentAutoConfiguration
-com.example.miniagent.core.run.RunJournalAutoConfiguration
-com.example.miniagent.core.run.RunCommandAutoConfiguration
+com.example.miniagent.core.autoconfigure.RunJournalAutoConfiguration
+com.example.miniagent.core.autoconfigure.RunCommandAutoConfiguration
 com.example.miniagent.core.change.command.ChangeCommandAutoConfiguration
 com.example.miniagent.core.artifact.ArtifactAutoConfiguration
 com.example.miniagent.core.goal.GoalAutoConfiguration

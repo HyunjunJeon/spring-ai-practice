@@ -126,6 +126,7 @@ class ArchitectureTest {
 		coreDependencies("approval", "run").check(CLASSES);
 		coreDependencies("model").check(CLASSES);
 		coreDependencies("model.registry", "model", "run").check(CLASSES);
+		coreDependencies("change", "model", "run", "approval").check(CLASSES);
 	}
 
 	@Test

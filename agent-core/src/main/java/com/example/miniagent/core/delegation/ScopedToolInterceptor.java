@@ -9,7 +9,7 @@ import java.util.Set;
 import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.ToolInterceptor;
 import com.example.miniagent.core.change.StagedWorkspace;
-import com.example.miniagent.core.change.StagingToolInterceptor;
+import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.run.RunContext;
 import com.example.miniagent.core.run.SideEffectClass;
 import org.springframework.core.Ordered;

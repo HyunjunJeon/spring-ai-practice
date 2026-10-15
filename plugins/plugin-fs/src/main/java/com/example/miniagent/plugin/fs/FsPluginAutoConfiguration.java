@@ -30,18 +30,18 @@ import org.springframework.util.unit.DataSize;
 public class FsPluginAutoConfiguration {
 
 	@Bean
-	com.example.miniagent.core.change.StagingToolInterceptor.Policy stagedFilePolicy(
+	com.example.miniagent.core.execution.StagingToolInterceptor.Policy stagedFilePolicy(
 			ToolCallbackProvider fileToolsProvider,
 			@Value("${agent.plugins.fs.allowed-roots:}") List<String> allowedRoots) {
 		var declarations = new java.util.HashMap<String,
-				com.example.miniagent.core.change.StagingToolInterceptor.Declaration>();
+				com.example.miniagent.core.execution.StagingToolInterceptor.Declaration>();
 		var roots = allowedRoots.stream().filter(s -> !s.isBlank()).map(s -> Path.of(s.strip())).toList();
 		for (var callback : fileToolsProvider.getToolCallbacks()) {
 			var tool = callback.getToolDefinition();
 			var kind = java.util.Set.of("write_file", "edit_file").contains(tool.name())
-					? com.example.miniagent.core.change.StagingToolInterceptor.Kind.FILE_WRITE
-					: com.example.miniagent.core.change.StagingToolInterceptor.Kind.READ;
-			declarations.put(tool.name(), new com.example.miniagent.core.change.StagingToolInterceptor.Declaration(
+					? com.example.miniagent.core.execution.StagingToolInterceptor.Kind.FILE_WRITE
+					: com.example.miniagent.core.execution.StagingToolInterceptor.Kind.READ;
+			declarations.put(tool.name(), new com.example.miniagent.core.execution.StagingToolInterceptor.Declaration(
 					com.example.miniagent.core.run.SideEffectClass.definitionDigest(tool), kind, roots));
 		}
 		return () -> java.util.Map.copyOf(declarations);

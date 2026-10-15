@@ -1,4 +1,4 @@
-package com.example.miniagent.core.change;
+package com.example.miniagent.core.execution;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import com.example.miniagent.core.ToolInterceptor;
+import com.example.miniagent.core.change.PathPolicy;
+import com.example.miniagent.core.change.StagedWorkspace;
 import com.example.miniagent.core.run.RunContext;
 import com.example.miniagent.core.run.SideEffectClass;
 import org.springframework.core.Ordered;

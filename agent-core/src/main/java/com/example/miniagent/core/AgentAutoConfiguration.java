@@ -112,9 +112,9 @@ public class AgentAutoConfiguration {
 	}
 
 	@Bean
-	com.example.miniagent.core.change.StagingToolInterceptor stagingToolInterceptor(
-			ObjectProvider<com.example.miniagent.core.change.StagingToolInterceptor.Policy> policies) {
-		return new com.example.miniagent.core.change.StagingToolInterceptor(() -> policies.orderedStream().toList());
+	com.example.miniagent.core.execution.StagingToolInterceptor stagingToolInterceptor(
+			ObjectProvider<com.example.miniagent.core.execution.StagingToolInterceptor.Policy> policies) {
+		return new com.example.miniagent.core.execution.StagingToolInterceptor(() -> policies.orderedStream().toList());
 	}
 
 	private static final String TOOL_CALLING_ADVISOR_ORDER = "spring.ai.chat.client.tool-calling.advisor-order";
@@ -380,13 +380,13 @@ public class AgentAutoConfiguration {
 	}
 
 	@Bean
-	com.example.miniagent.core.change.StagingToolInterceptor.Policy delegationControlPolicy(
+	com.example.miniagent.core.execution.StagingToolInterceptor.Policy delegationControlPolicy(
 			com.example.miniagent.core.delegation.DelegateTool delegate,
 			com.example.miniagent.core.delegation.ApplyStagedTool apply) {
 		return () -> java.util.stream.Stream.of(delegate, apply).collect(java.util.stream.Collectors.toMap(
-				tool -> tool.getToolDefinition().name(), tool -> new com.example.miniagent.core.change.StagingToolInterceptor.Declaration(
+				tool -> tool.getToolDefinition().name(), tool -> new com.example.miniagent.core.execution.StagingToolInterceptor.Declaration(
 						com.example.miniagent.core.run.SideEffectClass.definitionDigest(tool.getToolDefinition()),
-						com.example.miniagent.core.change.StagingToolInterceptor.Kind.CONTROL, List.of())));
+						com.example.miniagent.core.execution.StagingToolInterceptor.Kind.CONTROL, List.of())));
 	}
 
 	@Bean
@@ -411,7 +411,7 @@ public class AgentAutoConfiguration {
 	}
 
 	@Bean
-	com.example.miniagent.core.change.StagingToolInterceptor.Policy delegationVerificationPolicy(
+	com.example.miniagent.core.execution.StagingToolInterceptor.Policy delegationVerificationPolicy(
 			com.example.miniagent.core.delegation.DelegationVerificationTool tool) { return tool.stagingPolicy(); }
 
 	@Bean
@@ -437,7 +437,7 @@ public class AgentAutoConfiguration {
 			ObjectProvider<com.example.miniagent.core.approval.ApprovalBroker> broker,
 			ObjectProvider<ToolCallback> callbacks, ObjectProvider<ToolCallbackProvider> providers,
 			ObjectProvider<ToolInterceptor> interceptors,
-			ObjectProvider<com.example.miniagent.core.change.StagingToolInterceptor.Policy> stagePolicies,
+			ObjectProvider<com.example.miniagent.core.execution.StagingToolInterceptor.Policy> stagePolicies,
 			ObjectProvider<com.example.miniagent.core.run.SideEffectClass.Policy> readPolicies,
 			ObjectProvider<com.example.miniagent.core.delegation.ChildScopeFactory.AdvisorContribution> childAdvisors) {
 		return new com.example.miniagent.core.delegation.ChildScopeFactory(agent, properties.getHome(),

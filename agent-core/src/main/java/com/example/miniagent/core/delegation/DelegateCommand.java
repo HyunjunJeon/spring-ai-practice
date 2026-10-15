@@ -46,7 +46,7 @@ public final class DelegateCommand implements SlashCommand {
 				if (plan.children().size() != 1) throw new IllegalArgumentException("Recover accepts one exact child, not a reconstructed DAG");
 				var result = service.recover(new com.example.miniagent.core.run.RunId(prefix[1]), plan.planId(),
 						plan.children().getFirst(), conversation, DelegationInput.authority(context.agent(), this.cwd),
-						com.example.miniagent.core.run.RunCommand.resumeOptions(prefix, this.operator));
+						com.example.miniagent.core.run.command.RunCommand.resumeOptions(prefix, this.operator));
 				context.console().println("recovered execution run=" + result.record().spec().runId().value()
 						+ " state=" + result.record().state());
 				if (result.reply() != null) context.console().reply(result.reply().text());
@@ -96,7 +96,7 @@ public final class DelegateCommand implements SlashCommand {
 				case "resume" -> {
 					if (parts.length < 3) throw new IllegalArgumentException("Missing child ID");
 					return print(service.resume(conversation, parts[1], parts[2],
-							com.example.miniagent.core.run.RunCommand.resumeOptions(
+							com.example.miniagent.core.run.command.RunCommand.resumeOptions(
 									java.util.Arrays.copyOfRange(parts, 1, parts.length), this.operator)), context);
 				}
 				case "apply" -> {

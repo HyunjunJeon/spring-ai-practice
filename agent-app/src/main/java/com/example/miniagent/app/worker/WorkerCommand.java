@@ -3,7 +3,7 @@ package com.example.miniagent.app.worker;
 import java.time.Duration;
 import java.util.UUID;
 import com.example.miniagent.core.SlashCommand;
-import com.example.miniagent.core.run.RunCommand;
+import com.example.miniagent.core.run.command.RunCommand;
 
 /** Operator process control only; no model-callable worker tools. */
 public final class WorkerCommand implements SlashCommand {

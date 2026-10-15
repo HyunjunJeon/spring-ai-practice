@@ -9,6 +9,7 @@ import com.example.miniagent.core.approval.*;
 import com.example.miniagent.core.model.FileSessionModelStore;
 import com.example.miniagent.core.run.*;
 import com.example.miniagent.core.change.*;
+import com.example.miniagent.core.execution.StagingToolInterceptor;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
