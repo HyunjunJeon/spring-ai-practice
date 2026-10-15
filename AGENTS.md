@@ -17,6 +17,7 @@ spring_ai_test/
 |-- plugins/          Eleven extension modules
 |-- docs/             Learning material
 |-- agent.sh          Launcher; invocation directory is the agent workspace
+|-- scripts/verify.sh Unified verification command (compile, tests, ArchUnit rules)
 |-- reports/
 |   |-- Spring AI 최신 버전 심층 조사.md    Research synthesis
 |   `-- research_notes/                  Topic evidence
@@ -80,7 +81,7 @@ reference centrality is unmeasured, and import counts are not reference counts.
 ## ANTI-PATTERNS (THIS PROJECT)
 - Do not treat research recommendations as application configuration; inspect the POM.
 - Do not conflate milestone capabilities with the application's pinned GA release.
-- Do not treat launcher-triggered builds as evidence that tests passed.
+- Do not treat launcher-triggered builds as evidence that tests passed; the exit code of `scripts/verify.sh` is.
 - Do not implement a second tool loop in Agent or ChatModel.call(), or register two ToolAdvisors.
 - Do not omit ChatMemory.CONVERSATION_ID from per-turn advisor context.
 - Do not swallow one-shot failures; `AgentRepl` maps them to exit code 1.
@@ -92,7 +93,8 @@ reference centrality is unmeasured, and import counts are not reference counts.
 
 ## COMMANDS
 ```bash
-./mvnw test
+bash ./scripts/verify.sh
+bash ./scripts/verify.sh -pl agent-app -am -Dtest=ArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false
 ./mvnw install -DskipTests
 bash ./agent.sh
 bash ./agent.sh "hello"
@@ -102,7 +104,7 @@ AGENT_PROFILE=claude bash ./agent.sh
 ```
 
 ## NOTES
-- JDK 21 is required; set JAVA_HOME when invoking the Maven wrapper directly.
+- JDK 21 is required. `scripts/verify.sh` and `agent.sh` fall back to Homebrew `openjdk@21`; set JAVA_HOME when invoking the Maven wrapper directly. `/usr/libexec/java_home -v 21` does not find the Homebrew JDK.
 - The launcher defaults to profile `default` and TUI; piped input uses REPL.
 - The default model configuration selects `fake/fake-scripted`.
 - The launcher rebuilds a missing or stale JAR with tests skipped.
