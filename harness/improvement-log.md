@@ -2,6 +2,7 @@
 
 코딩 에이전트(Claude Code, Codex 등)가 이 저장소에서 일하다 생긴 실패와, 그 실패를 만든 환경을 고친 기록이다.
 앱 기능인 `/lesson`(agent-forge 가 실행 중에 쓰는 교훈)과는 별개다.
+항목을 남기는 절차는 `.claude/skills/harness-retro/SKILL.md` 에 있다.
 
 ## 규칙
 - 한 번 생긴 일은 `status: candidate` 로만 남긴다. 근거(`evidence`) 없이 규칙으로 올리지 않는다.

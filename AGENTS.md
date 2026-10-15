@@ -37,6 +37,7 @@ spring_ai_test/
 - Learning exercises: `docs/learning-path.md`.
 - Bundled code tour: `.mini-agent/skills/code-tour/SKILL.md`.
 - Coding-agent failures and the harness changes they caused: `harness/improvement-log.md`.
+- Retrospective after an expensive coding-agent failure: `.claude/skills/harness-retro/SKILL.md`.
 - Final research synthesis: `reports/Spring AI 최신 버전 심층 조사.md`.
 - Topic evidence: `reports/research_notes/Spring AI 최신 버전 심층 조사/`.
 - Research topics: `version_status_compatibility.md`, `core_api_features.md`,
