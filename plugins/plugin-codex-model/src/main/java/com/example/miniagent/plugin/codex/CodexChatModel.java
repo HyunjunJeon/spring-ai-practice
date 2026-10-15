@@ -3,7 +3,7 @@ package com.example.miniagent.plugin.codex;
 import java.util.Map;
 import java.util.Optional;
 
-import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ToolContextKeys;
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;

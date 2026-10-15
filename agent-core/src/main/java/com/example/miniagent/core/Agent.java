@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import com.example.miniagent.core.model.ModelBinding;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.model.SessionModelStore;
+import com.example.miniagent.core.model.ToolContextKeys;
 import com.example.miniagent.core.model.TurnContext;
 import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.DriftSource;

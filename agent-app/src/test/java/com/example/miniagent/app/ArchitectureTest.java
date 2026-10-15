@@ -46,7 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 의존이 아니므로 잡히지 않는다.
  *
  * <p>core 의 패키지는 루트 패키지까지 포함해 서로 순환하지 않고, Domain, Engine, Integration, Composition,
- * Features 순서의 계층 방향으로만 의존한다.
+ * Features 순서의 계층 방향으로만 의존한다. javac 는 컴파일 타임 상수({@code static final String})를 사용처에
+ * 인라인하므로 ArchUnit 은 상수를 통한 의존을 보지 못하고, 그래서 낮은 패키지가 높은 패키지의 상수를 읽어서는
+ * 안 된다({@code ToolContextKeys} 가 core.model 에 있는 이유다).
  */
 class ArchitectureTest {
 

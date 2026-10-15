@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ToolContextKeys;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ai.chat.messages.AssistantMessage;

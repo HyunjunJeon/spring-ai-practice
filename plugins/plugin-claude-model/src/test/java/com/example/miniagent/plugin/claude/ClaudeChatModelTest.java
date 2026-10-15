@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.InterceptingToolCallback;
-import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.model.ModelProvider;
 import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ToolContextKeys;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;

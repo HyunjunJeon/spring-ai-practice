@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ToolContextKeys;
 import com.example.miniagent.core.model.TurnContext;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;

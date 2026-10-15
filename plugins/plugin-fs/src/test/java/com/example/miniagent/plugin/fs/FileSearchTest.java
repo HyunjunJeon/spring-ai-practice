@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.example.miniagent.core.AgentProperties;
-import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.change.FileChangeStore;
 import com.example.miniagent.core.change.StagedWorkspace;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.model.ModelBinding;
 import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ToolContextKeys;
 import com.example.miniagent.core.model.TurnContext;
 import com.example.miniagent.core.run.SideEffectClass;
 import org.junit.jupiter.api.Test;

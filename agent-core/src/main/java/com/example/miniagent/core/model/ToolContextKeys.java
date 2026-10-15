@@ -1,4 +1,4 @@
-package com.example.miniagent.core;
+package com.example.miniagent.core.model;
 
 /**
  * 코어가 매 요청 {@code .toolContext(...)} 로 넣어 주는 값의 키.

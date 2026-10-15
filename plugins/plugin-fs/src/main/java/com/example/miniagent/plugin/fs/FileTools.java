@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.change.StagedWorkspace;
+import com.example.miniagent.core.model.ToolContextKeys;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.ai.chat.model.ToolContext;

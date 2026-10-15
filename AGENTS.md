@@ -47,7 +47,7 @@ spring_ai_test/
 Types below live in `agent-core/src/main/java/com/example/miniagent/core/`.
 Paths below are relative to that directory. Local AST extraction supplied the map;
 reference centrality is unmeasured, and import counts are not reference counts.
-- `Agent` (`Agent.java:48`, class): synchronous and streaming turn execution.
+- `Agent` (`Agent.java:49`, class): synchronous and streaming turn execution.
 - `AgentAutoConfiguration` (`autoconfigure/AgentAutoConfiguration.java:79`, class): bean assembly.
 - `AgentPlugin` (`AgentPlugin.java:18`, interface): plugin descriptor.
 - `ToolInterceptor` (`ToolInterceptor.java:16`, interface): tool execution hooks.

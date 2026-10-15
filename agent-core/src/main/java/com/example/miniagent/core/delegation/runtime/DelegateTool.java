@@ -1,7 +1,7 @@
 package com.example.miniagent.core.delegation.runtime;
 
 import java.util.function.Supplier;
-import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ToolContextKeys;
 import com.example.miniagent.core.run.RunContext;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;

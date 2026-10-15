@@ -1,6 +1,6 @@
 package com.example.miniagent.core.artifact;
 
-import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ToolContextKeys;
 import com.example.miniagent.core.model.TurnContext;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.model.ToolContext;
