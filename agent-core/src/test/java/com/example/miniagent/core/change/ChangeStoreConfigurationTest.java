@@ -3,7 +3,7 @@ package com.example.miniagent.core.change;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import com.example.miniagent.core.Agent;
-import com.example.miniagent.core.AgentAutoConfiguration;
+import com.example.miniagent.core.autoconfigure.AgentAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;

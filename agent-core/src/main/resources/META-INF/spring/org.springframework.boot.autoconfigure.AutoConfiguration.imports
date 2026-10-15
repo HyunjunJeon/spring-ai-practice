@@ -1,7 +1,7 @@
-com.example.miniagent.core.AgentAutoConfiguration
+com.example.miniagent.core.autoconfigure.AgentAutoConfiguration
 com.example.miniagent.core.autoconfigure.RunJournalAutoConfiguration
 com.example.miniagent.core.autoconfigure.RunCommandAutoConfiguration
-com.example.miniagent.core.change.command.ChangeCommandAutoConfiguration
+com.example.miniagent.core.autoconfigure.ChangeCommandAutoConfiguration
 com.example.miniagent.core.artifact.ArtifactAutoConfiguration
 com.example.miniagent.core.goal.GoalAutoConfiguration
 com.example.miniagent.core.lesson.LessonAutoConfiguration

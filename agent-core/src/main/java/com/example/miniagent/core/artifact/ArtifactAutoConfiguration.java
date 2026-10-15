@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.example.miniagent.core.AgentAutoConfiguration;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.autoconfigure.AgentAutoConfiguration;
 import com.example.miniagent.core.run.SideEffectClass;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;

@@ -3,7 +3,7 @@ package com.example.miniagent.app;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.example.miniagent.core.AgentAutoConfiguration;
+import com.example.miniagent.core.autoconfigure.AgentAutoConfiguration;
 import com.example.miniagent.core.model.AgentChatClientFactory;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaAccess;
@@ -44,6 +44,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Maven 의존성은 "컴파일 가능 여부"만 막고, 이 테스트는 "누가 무엇을 호출하는가"까지 막는다.
  * 클래스 이름을 문자열로만 적은 참조(예: {@code RunJournalAutoConfiguration} 의 플러그인 이름)는 바이트코드
  * 의존이 아니므로 잡히지 않는다.
+ *
+ * <p>core 의 패키지는 루트 패키지까지 포함해 서로 순환하지 않고, Domain, Engine, Integration, Composition,
+ * Features 순서의 계층 방향으로만 의존한다.
  */
 class ArchitectureTest {
 
@@ -136,15 +139,14 @@ class ArchitectureTest {
 		trustedMailboxRule().check(CLASSES);
 	}
 
-	// 1-5단계 동안만 둔다. 6단계에서 계층 규칙(coreLayerRule)이 두 검사를 대신하므로 지운다.
 	@Test
-	void delegationDoesNotDependOnMessaging() {
-		delegationMessagingGuard().check(CLASSES);
+	void corePackagesAreFreeOfCycles() {
+		coreCycleRule().check(CLASSES);
 	}
 
 	@Test
-	void engineDoesNotDependOnBuiltInFeatures() {
-		engineFeatureGuard().check(CLASSES);
+	void corePackagesFollowTheLayerOrder() {
+		coreLayerRule().check(CLASSES);
 	}
 
 	/** Final rule (step 6): no package cycle anywhere under core, root package included. */
@@ -195,22 +197,6 @@ class ArchitectureTest {
 		return noClasses().that().resideInAPackage(CORE_ROOT + "." + pkg)
 			.should().dependOnClassesThat(resideInAPackage(CORE_ROOT + "..").and(not(resideInAnyPackage(permitted))))
 			.because("Domain 내부 순서: model <- run <- model.registry, approval <- change <- delegation");
-	}
-
-	/** Temporary guard (steps 1-5, superseded by the layer rule in step 6): I6 marker inversion. */
-	static ArchRule delegationMessagingGuard() {
-		return noClasses().that().resideInAPackage(CORE_ROOT + ".delegation..")
-			.should().dependOnClassesThat().resideInAPackage(CORE_ROOT + ".messaging..")
-			.because("delegation 은 TrustedMailboxTool 표지만 보고 messaging.MessageTool 을 모른다");
-	}
-
-	/** Temporary guard (steps 1-5, superseded by the layer rule in step 6): I1 ControlInput inversion. */
-	static ArchRule engineFeatureGuard() {
-		return noClasses().that().resideInAPackage(CORE_ROOT)
-			.and().doNotHaveFullyQualifiedName(CORE_ROOT + ".AgentAutoConfiguration")
-			.should().dependOnClassesThat().resideInAnyPackage(CORE_ROOT + ".goal..", CORE_ROOT + ".lesson..",
-					CORE_ROOT + ".messaging..", CORE_ROOT + ".artifact..")
-			.because("AgentInputHandler 는 ControlInput 으로 제어 명령을 판별한다");
 	}
 
 	/** Permanent rule (step 1): the marker that skips staging/scope checks stays on the mailbox tool only. */

@@ -1,15 +1,18 @@
-package com.example.miniagent.core.change.command;
+package com.example.miniagent.core.autoconfigure;
 
 import java.time.Clock;
 import java.time.Duration;
 
-import com.example.miniagent.core.AgentAutoConfiguration;
 import com.example.miniagent.core.approval.ApprovalBroker;
 import com.example.miniagent.core.change.ApplyEngine;
 import com.example.miniagent.core.change.ChangeStore;
 import com.example.miniagent.core.change.RecoveryScanner;
 import com.example.miniagent.core.change.UndoEngine;
 import com.example.miniagent.core.change.VerificationRunner;
+import com.example.miniagent.core.change.command.ApplyCommand;
+import com.example.miniagent.core.change.command.ChangesCommand;
+import com.example.miniagent.core.change.command.UndoCommand;
+import com.example.miniagent.core.change.command.VerifyCommand;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.convert.DurationStyle;

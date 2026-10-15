@@ -1,4 +1,4 @@
-package com.example.miniagent.core;
+package com.example.miniagent.core.autoconfigure;
 
 import java.time.LocalDate;
 import java.time.Clock;
@@ -6,6 +6,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.miniagent.core.Agent;
+import com.example.miniagent.core.AgentConsole;
+import com.example.miniagent.core.AgentInputHandler;
+import com.example.miniagent.core.AgentPlugin;
+import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.AgentSession;
+import com.example.miniagent.core.InputQueue;
+import com.example.miniagent.core.InterceptingToolCallback;
+import com.example.miniagent.core.InterceptingToolCallbackProvider;
+import com.example.miniagent.core.ProjectInstructions;
+import com.example.miniagent.core.SlashCommand;
+import com.example.miniagent.core.StructuredPlan;
+import com.example.miniagent.core.SystemPromptContributor;
+import com.example.miniagent.core.ToolInterceptor;
 import com.example.miniagent.core.model.FileSessionModelStore;
 import com.example.miniagent.core.model.ModelProvider;
 import com.example.miniagent.core.model.ModelRef;

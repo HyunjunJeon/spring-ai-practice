@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 /** Contributions are collected by AgentAutoConfiguration's existing ordered interceptor chain. */
-@AutoConfiguration(afterName = "com.example.miniagent.core.AgentAutoConfiguration")
+@AutoConfiguration(after = AgentAutoConfiguration.class)
 public class RunJournalAutoConfiguration {
 	@Bean ToolJournalInterceptor toolJournalInterceptor() { return new ToolJournalInterceptor(); }
 

@@ -25,7 +25,7 @@ import org.springframework.context.event.EventListener;
  * <p>트레이스 그래프는 trace 플러그인이 발행하는 {@link TraceEvent} 를 듣고 그린다. 이 플러그인은 trace 플러그인을
  * 직접 알지 못한다(이벤트 타입만 코어에 있다).
  */
-@AutoConfiguration(beforeName = "com.example.miniagent.core.AgentAutoConfiguration")
+@AutoConfiguration(beforeName = "com.example.miniagent.core.autoconfigure.AgentAutoConfiguration")
 @ConditionalOnProperty(name = "agent.ui", havingValue = "tui", matchIfMissing = true)
 public class TuiAutoConfiguration {
 

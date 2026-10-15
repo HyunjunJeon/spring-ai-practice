@@ -2,8 +2,8 @@ package com.example.miniagent.core.messaging;
 
 import java.util.List;
 import java.util.Map;
-import com.example.miniagent.core.AgentAutoConfiguration;
 import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.autoconfigure.AgentAutoConfiguration;
 import com.example.miniagent.core.delegation.runtime.DefaultDelegationRuntime;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.run.SideEffectClass;

@@ -1,7 +1,7 @@
 package com.example.miniagent.core.lesson;
 
-import com.example.miniagent.core.AgentAutoConfiguration;
 import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.autoconfigure.AgentAutoConfiguration;
 import com.example.miniagent.core.change.ChangeStore;
 import com.example.miniagent.core.change.VerificationRunner;
 import com.example.miniagent.core.goal.GoalService;
