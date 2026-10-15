@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.approval.ApprovalDecision;
+import com.example.miniagent.core.delegation.DelegationResult;
 import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.run.RunProperties;
 import com.example.miniagent.core.run.RunState;

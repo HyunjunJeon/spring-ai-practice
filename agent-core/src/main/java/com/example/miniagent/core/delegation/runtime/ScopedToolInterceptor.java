@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -9,6 +9,11 @@ import java.util.Set;
 import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.ToolInterceptor;
 import com.example.miniagent.core.change.StagedWorkspace;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.McpToolSnapshot;
+import com.example.miniagent.core.delegation.RolePolicy;
+import com.example.miniagent.core.delegation.ToolScope;
+import com.example.miniagent.core.delegation.TrustedMailboxTool;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.run.RunContext;
 import com.example.miniagent.core.run.SideEffectClass;

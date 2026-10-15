@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,6 +16,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import com.example.miniagent.core.ToolContextKeys;
 import com.example.miniagent.core.change.*;
+import com.example.miniagent.core.delegation.ChildEvidence;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.RolePolicy;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.run.*;
 import org.springframework.ai.chat.model.ToolContext;

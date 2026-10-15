@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.example.miniagent.core.*;
 import com.example.miniagent.core.approval.ConsoleApprovalBroker;
 import com.example.miniagent.core.delegation.*;
+import com.example.miniagent.core.delegation.runtime.ChildScopeFactory;
 import com.example.miniagent.core.execution.RunBudgetInterceptor;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.execution.ToolJournalInterceptor;

@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -7,6 +7,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.example.miniagent.core.Agent;
+import com.example.miniagent.core.delegation.ChildEvidence;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.ChildSpec;
+import com.example.miniagent.core.delegation.DelegationPlan;
+import com.example.miniagent.core.delegation.ToolScope;
 import com.example.miniagent.core.model.ModelRef;
 import com.example.miniagent.core.run.RunBudget;
 import org.jspecify.annotations.Nullable;

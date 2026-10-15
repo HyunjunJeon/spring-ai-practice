@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,6 +14,12 @@ import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.TraceEvent;
 import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.approval.ApprovalRequest;
+import com.example.miniagent.core.delegation.ChildEvidence;
+import com.example.miniagent.core.delegation.ChildSpec;
+import com.example.miniagent.core.delegation.ChildStatus;
+import com.example.miniagent.core.delegation.DelegationPlan;
+import com.example.miniagent.core.delegation.DelegationResult;
+import com.example.miniagent.core.delegation.ToolScope;
 import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.model.TurnContext;

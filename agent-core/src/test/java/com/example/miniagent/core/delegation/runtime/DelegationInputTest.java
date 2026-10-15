@@ -1,8 +1,9 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.nio.file.Path;
 import java.util.Set;
 import com.example.miniagent.core.AgentInputHandler;
+import com.example.miniagent.core.delegation.RolePolicy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import static org.assertj.core.api.Assertions.assertThat;

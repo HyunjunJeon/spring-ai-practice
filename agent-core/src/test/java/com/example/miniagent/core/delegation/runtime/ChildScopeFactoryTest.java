@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +19,13 @@ import java.util.function.Function;
 import com.example.miniagent.core.*;
 import com.example.miniagent.core.approval.ConsoleApprovalBroker;
 import com.example.miniagent.core.change.StagedWorkspace;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.ChildSpec;
+import com.example.miniagent.core.delegation.DelegationPlan;
+import com.example.miniagent.core.delegation.DelegationProperties;
+import com.example.miniagent.core.delegation.RolePolicy;
+import com.example.miniagent.core.delegation.SessionRunLock;
+import com.example.miniagent.core.delegation.ToolScope;
 import com.example.miniagent.core.execution.RunBudgetInterceptor;
 import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.execution.StagingToolInterceptor;

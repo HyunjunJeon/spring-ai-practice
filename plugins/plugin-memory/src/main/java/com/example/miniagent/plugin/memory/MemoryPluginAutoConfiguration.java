@@ -34,7 +34,7 @@ public class MemoryPluginAutoConfiguration {
 
 	/** Fresh child policies and captured provenance model, never the mutable default model. */
 	@Bean
-	com.example.miniagent.core.delegation.ChildScopeFactory.AdvisorContribution childMemoryContribution(
+	com.example.miniagent.core.delegation.runtime.ChildScopeFactory.AdvisorContribution childMemoryContribution(
 			JsonlChatMemoryRepository repository, AgentConsole console,
 			@Value("${agent.plugins.memory.max-messages:100}") int maxMessages,
 			@Value("${agent.plugins.memory.max-context-chars:200000}") long maxChars,

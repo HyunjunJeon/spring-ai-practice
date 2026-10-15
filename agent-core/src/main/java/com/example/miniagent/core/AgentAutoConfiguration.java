@@ -310,12 +310,12 @@ public class AgentAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	@org.springframework.context.annotation.Lazy
-	com.example.miniagent.core.delegation.StagedApplyService stagedApplyService(
+	com.example.miniagent.core.delegation.runtime.StagedApplyService stagedApplyService(
 			ObjectProvider<com.example.miniagent.core.run.RunStore> runs,
 			ObjectProvider<com.example.miniagent.core.change.ChangeStore> changes,
-			com.example.miniagent.core.delegation.ChildScopeFactory scopes,
+			com.example.miniagent.core.delegation.runtime.ChildScopeFactory scopes,
 			ObjectProvider<com.example.miniagent.core.change.command.ApplyCommand> apply) {
-		return new com.example.miniagent.core.delegation.StagedApplyService(
+		return new com.example.miniagent.core.delegation.runtime.StagedApplyService(
 				runs.getObject(), changes.getObject(), scopes, apply.getObject());
 	}
 
@@ -336,12 +336,12 @@ public class AgentAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	@org.springframework.context.annotation.Lazy
-	com.example.miniagent.core.delegation.DefaultDelegationRuntime delegationRuntime(
-			com.example.miniagent.core.delegation.ChildScopeFactory factory,
+	com.example.miniagent.core.delegation.runtime.DefaultDelegationRuntime delegationRuntime(
+			com.example.miniagent.core.delegation.runtime.ChildScopeFactory factory,
 			com.example.miniagent.core.delegation.DelegationProperties properties,
 			com.example.miniagent.core.delegation.SessionRunLock sessions,
 			com.example.miniagent.core.delegation.DelegationEvidenceCollector evidence) {
-		var runtime = new com.example.miniagent.core.delegation.DefaultDelegationRuntime(factory, properties, sessions);
+		var runtime = new com.example.miniagent.core.delegation.runtime.DefaultDelegationRuntime(factory, properties, sessions);
 		runtime.evidence(evidence);
 		return runtime;
 	}
@@ -354,35 +354,35 @@ public class AgentAutoConfiguration {
 	}
 
 	@Bean @Lazy
-	com.example.miniagent.core.delegation.DelegationController delegationController(
-			com.example.miniagent.core.delegation.DefaultDelegationRuntime runtime,
+	com.example.miniagent.core.delegation.runtime.DelegationController delegationController(
+			com.example.miniagent.core.delegation.runtime.DefaultDelegationRuntime runtime,
 			com.example.miniagent.core.run.RunStore runs,
-			com.example.miniagent.core.delegation.StagedApplyService apply,
+			com.example.miniagent.core.delegation.runtime.StagedApplyService apply,
 			org.springframework.context.ApplicationEventPublisher events) {
-		var controller = new com.example.miniagent.core.delegation.DelegationController(runtime, runs, apply,
-				event -> com.example.miniagent.core.delegation.DelegationEvents.publish(event, events, runs));
+		var controller = new com.example.miniagent.core.delegation.runtime.DelegationController(runtime, runs, apply,
+				event -> com.example.miniagent.core.delegation.runtime.DelegationEvents.publish(event, events, runs));
 		controller.observed(events::publishEvent);
 		return controller;
 	}
 
 	@Bean
-	com.example.miniagent.core.delegation.DelegateTool delegateTool(
-			ObjectProvider<com.example.miniagent.core.delegation.DelegationController> controller) {
-		return new com.example.miniagent.core.delegation.DelegateTool(controller::getObject);
+	com.example.miniagent.core.delegation.runtime.DelegateTool delegateTool(
+			ObjectProvider<com.example.miniagent.core.delegation.runtime.DelegationController> controller) {
+		return new com.example.miniagent.core.delegation.runtime.DelegateTool(controller::getObject);
 	}
 
 	@Bean
-	com.example.miniagent.core.delegation.ApplyStagedTool applyStagedTool(
-			ObjectProvider<com.example.miniagent.core.delegation.DelegationController> controller,
+	com.example.miniagent.core.delegation.runtime.ApplyStagedTool applyStagedTool(
+			ObjectProvider<com.example.miniagent.core.delegation.runtime.DelegationController> controller,
 			ObjectProvider<Agent> agent, AgentSession session, AgentConsole console) {
-		return new com.example.miniagent.core.delegation.ApplyStagedTool(controller::getObject,
+		return new com.example.miniagent.core.delegation.runtime.ApplyStagedTool(controller::getObject,
 				() -> new SlashCommand.CommandContext(agent.getObject(), session, console));
 	}
 
 	@Bean
 	com.example.miniagent.core.execution.StagingToolInterceptor.Policy delegationControlPolicy(
-			com.example.miniagent.core.delegation.DelegateTool delegate,
-			com.example.miniagent.core.delegation.ApplyStagedTool apply) {
+			com.example.miniagent.core.delegation.runtime.DelegateTool delegate,
+			com.example.miniagent.core.delegation.runtime.ApplyStagedTool apply) {
 		return () -> java.util.stream.Stream.of(delegate, apply).collect(java.util.stream.Collectors.toMap(
 				tool -> tool.getToolDefinition().name(), tool -> new com.example.miniagent.core.execution.StagingToolInterceptor.Declaration(
 						com.example.miniagent.core.run.SideEffectClass.definitionDigest(tool.getToolDefinition()),
@@ -391,46 +391,46 @@ public class AgentAutoConfiguration {
 
 	@Bean
 	com.example.miniagent.core.run.SideEffectClass.Policy delegationReadPolicy(
-			com.example.miniagent.core.delegation.DelegateTool delegate) {
+			com.example.miniagent.core.delegation.runtime.DelegateTool delegate) {
 		return () -> java.util.Map.of("delegate",
 				com.example.miniagent.core.run.SideEffectClass.definitionDigest(delegate.getToolDefinition()));
 	}
 
 	@Bean
-	com.example.miniagent.core.delegation.DelegationVerificationTool delegationVerificationTool(
+	com.example.miniagent.core.delegation.runtime.DelegationVerificationTool delegationVerificationTool(
 			@Lazy ChangeStore changes, ObjectProvider<VerificationRunner.LaunchPolicy> policies, ObjectProvider<Clock> clocks) {
-		return new com.example.miniagent.core.delegation.DelegationVerificationTool(changes,
+		return new com.example.miniagent.core.delegation.runtime.DelegationVerificationTool(changes,
 				policies.getIfAvailable(() -> (context, argv) -> {
 					throw new VerificationRunner.Refusal(VerificationRunner.Code.UNSUPPORTED_SANDBOX, null);
 				}), clocks.getIfAvailable(Clock::systemUTC));
 	}
 
 	@Bean
-	ToolCallback delegationVerificationCallback(com.example.miniagent.core.delegation.DelegationVerificationTool tool) {
+	ToolCallback delegationVerificationCallback(com.example.miniagent.core.delegation.runtime.DelegationVerificationTool tool) {
 		return tool.callback();
 	}
 
 	@Bean
 	com.example.miniagent.core.execution.StagingToolInterceptor.Policy delegationVerificationPolicy(
-			com.example.miniagent.core.delegation.DelegationVerificationTool tool) { return tool.stagingPolicy(); }
+			com.example.miniagent.core.delegation.runtime.DelegationVerificationTool tool) { return tool.stagingPolicy(); }
 
 	@Bean
 	com.example.miniagent.core.run.SideEffectClass.Policy delegationVerificationReadPolicy(
-			com.example.miniagent.core.delegation.DelegationVerificationTool tool) { return tool.readPolicy(); }
+			com.example.miniagent.core.delegation.runtime.DelegationVerificationTool tool) { return tool.readPolicy(); }
 
 	@Bean
-	com.example.miniagent.core.delegation.DelegateCommand delegateCommand(
-			ObjectProvider<com.example.miniagent.core.delegation.DelegationController> controller,
+	com.example.miniagent.core.delegation.runtime.DelegateCommand delegateCommand(
+			ObjectProvider<com.example.miniagent.core.delegation.runtime.DelegationController> controller,
 			ObjectProvider<com.example.miniagent.core.execution.RunExecutor> executor,
 			com.example.miniagent.core.run.RunProperties limits, AgentProperties properties) {
-		return new com.example.miniagent.core.delegation.DelegateCommand(controller::getObject, executor::getObject,
+		return new com.example.miniagent.core.delegation.runtime.DelegateCommand(controller::getObject, executor::getObject,
 				limits, properties.getCwd());
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	@org.springframework.context.annotation.Lazy
-	com.example.miniagent.core.delegation.ChildScopeFactory childScopeFactory(Agent agent,
+	com.example.miniagent.core.delegation.runtime.ChildScopeFactory childScopeFactory(Agent agent,
 			AgentProperties properties, ObjectProvider<com.example.miniagent.core.run.RunStore> runs,
 			ObjectProvider<com.example.miniagent.core.run.RunRequestStore> requests,
 			SessionModelStore selections, ObjectProvider<java.time.Clock> clock,
@@ -439,8 +439,8 @@ public class AgentAutoConfiguration {
 			ObjectProvider<ToolInterceptor> interceptors,
 			ObjectProvider<com.example.miniagent.core.execution.StagingToolInterceptor.Policy> stagePolicies,
 			ObjectProvider<com.example.miniagent.core.run.SideEffectClass.Policy> readPolicies,
-			ObjectProvider<com.example.miniagent.core.delegation.ChildScopeFactory.AdvisorContribution> childAdvisors) {
-		return new com.example.miniagent.core.delegation.ChildScopeFactory(agent, properties.getHome(),
+			ObjectProvider<com.example.miniagent.core.delegation.runtime.ChildScopeFactory.AdvisorContribution> childAdvisors) {
+		return new com.example.miniagent.core.delegation.runtime.ChildScopeFactory(agent, properties.getHome(),
 			runs.getObject(), requests.getObject(), selections, clock.getObject(), broker.getObject(),
 			callbacks.orderedStream().toList(), providers.orderedStream().toList(),
 			interceptors.orderedStream().toList(), stagePolicies.orderedStream().toList(),

@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.util.function.Supplier;
 import com.example.miniagent.core.ToolContextKeys;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import com.example.miniagent.core.delegation.DefaultDelegationRuntime;
+import com.example.miniagent.core.delegation.runtime.DefaultDelegationRuntime;
 import com.example.miniagent.core.run.RunContext;
 import com.example.miniagent.core.run.RunState;
 import static com.example.miniagent.core.messaging.MessageStore.*;

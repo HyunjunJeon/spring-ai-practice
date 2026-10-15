@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,6 +13,14 @@ import java.util.function.Supplier;
 import com.example.miniagent.core.*;
 import com.example.miniagent.core.approval.ApprovalBroker;
 import com.example.miniagent.core.change.FileChangeStore;
+import com.example.miniagent.core.delegation.ChildResult;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.ChildSpec;
+import com.example.miniagent.core.delegation.DelegationEvidenceCollector;
+import com.example.miniagent.core.delegation.McpToolSnapshot;
+import com.example.miniagent.core.delegation.RolePolicy;
+import com.example.miniagent.core.delegation.ToolScope;
+import com.example.miniagent.core.delegation.TrustedMailboxTool;
 import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.core.model.*;

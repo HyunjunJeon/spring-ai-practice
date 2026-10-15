@@ -5,7 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import com.example.miniagent.core.delegation.DefaultDelegationRuntime;
+import com.example.miniagent.core.delegation.runtime.DefaultDelegationRuntime;
 import com.example.miniagent.core.run.RunContext;
 import com.example.miniagent.core.run.RunId;
 import org.junit.jupiter.api.Test;

@@ -28,7 +28,7 @@ public class LessonAutoConfiguration {
 	@Bean @ConditionalOnMissingBean
 	LessonAdvisor lessonAdvisor(LessonService lessons) { return new LessonAdvisor(lessons); }
 	@Bean
-	com.example.miniagent.core.delegation.ChildScopeFactory.AdvisorContribution childLessonContribution(
+	com.example.miniagent.core.delegation.runtime.ChildScopeFactory.AdvisorContribution childLessonContribution(
 			LessonService lessons) {
 		// LessonAdvisor derives the actor from the child's captured request. Never borrow console session state.
 		return (model, authority) -> java.util.List.of(new LessonAdvisor(lessons));

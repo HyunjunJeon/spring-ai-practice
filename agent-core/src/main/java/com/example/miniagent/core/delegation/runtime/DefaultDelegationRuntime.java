@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,6 +19,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import com.example.miniagent.core.delegation.BudgetLedger;
+import com.example.miniagent.core.delegation.ChildEvidence;
+import com.example.miniagent.core.delegation.ChildFailure;
+import com.example.miniagent.core.delegation.ChildResult;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.ChildSpec;
+import com.example.miniagent.core.delegation.ChildStatus;
+import com.example.miniagent.core.delegation.DelegationEvidenceCollector;
+import com.example.miniagent.core.delegation.DelegationPlan;
+import com.example.miniagent.core.delegation.DelegationPlanValidator;
+import com.example.miniagent.core.delegation.DelegationProperties;
+import com.example.miniagent.core.delegation.DelegationResult;
+import com.example.miniagent.core.delegation.RolePolicy;
+import com.example.miniagent.core.delegation.SessionRunLock;
+import com.example.miniagent.core.delegation.ToolScope;
 import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.model.TurnContext;
 import com.example.miniagent.core.run.*;

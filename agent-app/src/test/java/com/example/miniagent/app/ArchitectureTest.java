@@ -128,6 +128,7 @@ class ArchitectureTest {
 		coreDependencies("model.registry", "model", "run").check(CLASSES);
 		coreDependencies("change", "model", "run", "approval").check(CLASSES);
 		coreDependencies("run", "model").check(CLASSES);
+		coreDependencies("delegation", "model", "run", "change").check(CLASSES);
 	}
 
 	@Test

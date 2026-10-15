@@ -1,4 +1,4 @@
-package com.example.miniagent.core.delegation;
+package com.example.miniagent.core.delegation.runtime;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -9,6 +9,9 @@ import com.example.miniagent.core.change.ChangeSet;
 import com.example.miniagent.core.change.ChangeStatus;
 import com.example.miniagent.core.change.ChangeStore;
 import com.example.miniagent.core.change.command.ApplyCommand;
+import com.example.miniagent.core.delegation.ChildRole;
+import com.example.miniagent.core.delegation.ChildSpec;
+import com.example.miniagent.core.delegation.ToolScope;
 import com.example.miniagent.core.model.TurnContext;
 import com.example.miniagent.core.run.RunId;
 import com.example.miniagent.core.run.RunState;
