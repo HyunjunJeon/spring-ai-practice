@@ -12,7 +12,7 @@ import com.example.miniagent.core.model.ModelRef;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.model.SessionModelStore;
 import com.example.miniagent.core.model.registry.ModelRegistry;
-import com.example.miniagent.core.run.RunBudgetInterceptor;
+import com.example.miniagent.core.execution.RunBudgetInterceptor;
 import com.example.miniagent.core.approval.ApprovalBroker;
 import com.example.miniagent.core.approval.ConsoleApprovalBroker;
 import com.example.miniagent.core.model.command.ModelCommand;
@@ -421,7 +421,7 @@ public class AgentAutoConfiguration {
 	@Bean
 	com.example.miniagent.core.delegation.DelegateCommand delegateCommand(
 			ObjectProvider<com.example.miniagent.core.delegation.DelegationController> controller,
-			ObjectProvider<com.example.miniagent.core.run.RunExecutor> executor,
+			ObjectProvider<com.example.miniagent.core.execution.RunExecutor> executor,
 			com.example.miniagent.core.run.RunProperties limits, AgentProperties properties) {
 		return new com.example.miniagent.core.delegation.DelegateCommand(controller::getObject, executor::getObject,
 				limits, properties.getCwd());

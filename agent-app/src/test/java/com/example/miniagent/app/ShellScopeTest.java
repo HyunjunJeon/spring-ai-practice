@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.change.ChangeStore;
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.run.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

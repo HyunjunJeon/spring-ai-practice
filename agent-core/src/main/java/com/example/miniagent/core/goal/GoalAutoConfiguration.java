@@ -5,7 +5,7 @@ import com.example.miniagent.core.AgentAutoConfiguration;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.change.ChangeStore;
 import com.example.miniagent.core.change.VerificationRunner;
-import com.example.miniagent.core.run.RunExecutor;
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.run.RunProperties;
 import com.example.miniagent.core.run.RunStore;
 import org.springframework.beans.factory.ObjectProvider;

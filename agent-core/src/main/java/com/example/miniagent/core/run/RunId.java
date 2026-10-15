@@ -11,7 +11,8 @@ public record RunId(String value) {
 		return new RunId(UUID.randomUUID().toString());
 	}
 
-	static void requireSafe(String id) {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public static void requireSafe(String id) {
 		if (id == null || !id.matches("[A-Za-z0-9][A-Za-z0-9_-]{0,127}")) {
 			throw new IllegalArgumentException("Unsafe execution ID");
 		}

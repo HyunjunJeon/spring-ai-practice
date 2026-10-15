@@ -191,7 +191,8 @@ public final class RunContext {
 		}
 	}
 
-	synchronized boolean roundsRecorded() { return this.roundsRecorded; }
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public synchronized boolean roundsRecorded() { return this.roundsRecorded; }
 	synchronized boolean activeTimeRecorded() { return this.activeTimeRecorded; }
 
 	public static Optional<RunContext> current() {

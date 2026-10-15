@@ -1,6 +1,7 @@
-package com.example.miniagent.core.run;
+package com.example.miniagent.core.execution;
 
 import com.example.miniagent.core.ToolInterceptor;
+import com.example.miniagent.core.run.RunContext;
 import org.springframework.core.Ordered;
 
 /** Gate before permission requests; no change to ordinary un-managed turns. */

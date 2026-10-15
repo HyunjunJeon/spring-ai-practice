@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.approval.ApprovalDecision;
-import com.example.miniagent.core.run.RunExecutor;
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.run.RunProperties;
 import com.example.miniagent.core.run.RunState;
 

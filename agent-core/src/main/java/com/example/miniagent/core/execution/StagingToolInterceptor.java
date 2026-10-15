@@ -56,7 +56,7 @@ public final class StagingToolInterceptor implements ToolInterceptor {
 		if (declaration == null) {
 			// Trusted read-only contributions (for example load_skill) are authorized by
 			// the actual attempt snapshot, never an unclassified tool name.
-			if (com.example.miniagent.core.run.ToolJournalInterceptor.declaredRead(
+			if (ToolJournalInterceptor.declaredRead(
 					RunContext.fromToolContext(invocation.context()).orElseThrow(), invocation.definition()))
 				return chain.proceed(invocation);
 			throw new Refusal(Code.UNKNOWN_TOOL);
@@ -69,7 +69,7 @@ public final class StagingToolInterceptor implements ToolInterceptor {
 				throw new com.example.miniagent.core.delegation.RolePolicy.Denied(
 					com.example.miniagent.core.delegation.RolePolicy.Code.PARENT_ONLY, invocation.toolName());
 			if (invocation.toolName().equals("apply_staged")
-					&& com.example.miniagent.core.run.ToolJournalInterceptor.declaredRead(owner, invocation.definition()))
+					&& ToolJournalInterceptor.declaredRead(owner, invocation.definition()))
 				throw new Refusal(Code.DEFINITION_DRIFT);
 		}
 		try {

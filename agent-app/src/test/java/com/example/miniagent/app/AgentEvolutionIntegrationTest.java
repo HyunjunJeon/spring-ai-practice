@@ -13,6 +13,7 @@ import com.example.miniagent.core.*;
 import com.example.miniagent.core.approval.*;
 import com.example.miniagent.core.change.*;
 import com.example.miniagent.core.delegation.*;
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.run.*;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.io.TempDir;

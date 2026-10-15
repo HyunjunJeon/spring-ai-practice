@@ -6,10 +6,10 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.goal.GoalRecord;
 import com.example.miniagent.core.goal.GoalService;
 import com.example.miniagent.core.goal.GoalStore;
-import com.example.miniagent.core.run.RunExecutor;
 
 /** One OS worker, one bounded goal at a time, using GoalService's existing managed tool loop. */
 public final class WorkerRuntime {

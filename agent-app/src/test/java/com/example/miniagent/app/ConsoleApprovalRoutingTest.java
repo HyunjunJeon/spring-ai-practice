@@ -17,6 +17,7 @@ import com.example.miniagent.core.approval.*;
 import com.example.miniagent.core.model.*;
 import com.example.miniagent.core.run.*;
 import com.example.miniagent.core.change.*;
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.execution.StagingToolInterceptor;
 import com.example.miniagent.plugin.fakemodel.ScriptedChatModel;
 import org.junit.jupiter.api.AfterEach;

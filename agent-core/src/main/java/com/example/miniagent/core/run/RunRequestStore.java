@@ -161,7 +161,8 @@ public final class RunRequestStore {
 		}
 	}
 
-	static void validateGoal(String goal) throws IOException {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public static void validateGoal(String goal) throws IOException {
 		if (goal == null || goal.isBlank() || goal.getBytes(UTF_8).length > MAX_BYTES / 2
 				|| goal.indexOf('\0') >= 0
 				|| !UTF_8.newEncoder().canEncode(goal)) {
@@ -176,7 +177,8 @@ public final class RunRequestStore {
 		}
 	}
 
-	static String digest(byte[] bytes) {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public static String digest(byte[] bytes) {
 		try {
 			return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
 		}

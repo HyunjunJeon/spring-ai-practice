@@ -37,7 +37,7 @@ class MessageServiceTest {
 		for (int i = 0; i < responses.length; i++) {
 			String full = responses[i], id = "response-" + i;
 			when(runtime.followUp(actor, "plan", "child", id)).thenReturn(
-				new com.example.miniagent.core.run.RunExecutor.Result(record,
+				new com.example.miniagent.core.execution.RunExecutor.Result(record,
 					full == null ? null : new com.example.miniagent.core.Agent.AgentReply(full, null)));
 			var receipt = service.send(actor, "plan", "child", id, i * 2L, id);
 			boolean truncated = full != null && full.length() > MAX_BODY;

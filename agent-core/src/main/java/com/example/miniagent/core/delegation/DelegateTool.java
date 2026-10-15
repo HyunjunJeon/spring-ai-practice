@@ -24,7 +24,7 @@ public final class DelegateTool implements ToolCallback {
 		var cwd = parent.turnContext().cwd();
 		return DelegationInput.outcome(this.controller.get().execute(parent.turnContext(),
 				DelegationInput.parse(input).plan(cwd), DelegationInput.authority(
-						com.example.miniagent.core.run.ToolJournalInterceptor.capturedTools(parent), cwd),
+						com.example.miniagent.core.execution.ToolJournalInterceptor.capturedTools(parent), cwd),
 				parent.spec().budget(), parent::usage));
 	}
 	static RunContext parent(ToolContext tools) {

@@ -16,6 +16,7 @@ import com.example.miniagent.core.change.Fingerprinter;
 import com.example.miniagent.core.change.StagedWorkspace;
 import com.example.miniagent.core.change.VerificationRunner;
 import com.example.miniagent.core.change.VerificationTarget;
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.run.*;
 import static com.example.miniagent.core.goal.GoalRecord.*;

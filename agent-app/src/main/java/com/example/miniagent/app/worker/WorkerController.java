@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 
+import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.goal.GoalRecord;
 import com.example.miniagent.core.goal.GoalStore;
-import com.example.miniagent.core.run.RunExecutor;
 
 /** Lazy controller; construction and command registration do not create files or processes. */
 public final class WorkerController {

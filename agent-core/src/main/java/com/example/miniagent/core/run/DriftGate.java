@@ -20,7 +20,8 @@ public final class DriftGate {
 		this.policies = List.copyOf(policies);
 		this.configuration = Objects.requireNonNull(configuration);
 	}
-	Path home() { return this.evidence.home(); }
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public Path home() { return this.evidence.home(); }
 
 	public void stagingConfiguration(Supplier<String> configuration) {
 		this.stagingConfiguration = Objects.requireNonNull(configuration);
@@ -51,7 +52,8 @@ public final class DriftGate {
 		}
 	}
 
-	Snapshot capture(DriftSource agent, RunSpec spec) throws IOException {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public Snapshot capture(DriftSource agent, RunSpec spec) throws IOException {
 		Map<String, String> trusted = new HashMap<>();
 		for (var policy : this.policies) trusted.putAll(policy.readOnlyDefinitions());
 		Map<String, Definition> tools = new TreeMap<>();
@@ -68,7 +70,8 @@ public final class DriftGate {
 				this.evidence.home()), tools, RunRequestStore.digest(config.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 	}
 
-	Snapshot load(String digest, RunSpec spec) throws IOException {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public Snapshot load(String digest, RunSpec spec) throws IOException {
 		Snapshot snapshot = this.evidence.get(digest, Snapshot.class);
 		if (!snapshot.specDigest().equals(specDigest(spec)) || !snapshot.workspace().cwd().equals(spec.cwd()))
 			throw new IOException("Snapshot identity mismatch");
@@ -94,11 +97,13 @@ public final class DriftGate {
 		return latest;
 	}
 
-	Difference inspect(DriftSource agent, RunStore runs, RunRecord record, String baseline) throws IOException {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public Difference inspect(DriftSource agent, RunStore runs, RunRecord record, String baseline) throws IOException {
 		return new Difference(latest(runs, record, baseline), this.evidence.put(capture(agent, record.spec())));
 	}
 
-	void require(Difference difference, Acknowledgement acknowledgement) throws IOException {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public void require(Difference difference, Acknowledgement acknowledgement) throws IOException {
 		if (!difference.changed()) {
 			if (acknowledgement != null) throw new IOException("Stale drift acknowledgement");
 			return;
@@ -108,7 +113,8 @@ public final class DriftGate {
 			throw new IOException("Exact source/tool/config drift acknowledgement required");
 	}
 
-	boolean authoritativeRead(RunEvent.ToolStarted tool, RunSpec spec) throws IOException {
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public boolean authoritativeRead(RunEvent.ToolStarted tool, RunSpec spec) throws IOException {
 		if (tool.snapshotDigest() == null || tool.effect() != RunEvent.Effect.READ_ONLY) return false;
 		Definition definition = load(tool.snapshotDigest(), spec).tools().get(tool.toolName());
 		return definition != null && definition.effect() == SideEffectClass.READ_ONLY;
@@ -116,7 +122,8 @@ public final class DriftGate {
 
 	static String specDigest(RunSpec spec) { return RunRequestStore.digest(ToolEvidenceStore.JSON.writeValueAsBytes(spec)); }
 
-	static void validateResult(ToolEvidenceStore.ResultEvidence result, RunSpec spec,
+	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
+	public static void validateResult(ToolEvidenceStore.ResultEvidence result, RunSpec spec,
 			RunEvent.ToolFinished finished) throws IOException {
 		if (result.schemaVersion() != 1 || !result.runId().equals(spec.runId().value())
 				|| !result.attemptId().equals(finished.attemptId()) || !result.toolCallKey().equals(finished.toolCallKey())
