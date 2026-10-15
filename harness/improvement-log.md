@@ -64,10 +64,16 @@ root_cause: >
 evidence: >
   agent-core/.../lesson/LessonAdvisor.java:88 getOrder() = HIGHEST_PRECEDENCE + 150.
   AGENTS.md:72 순서표에 lesson 항목 없음.
-fix: (아직 없음)
+fix: AGENTS.md 순서표에 lesson +150 을 넣었다. memory +200, tool loop +300, round trace +400 은 실제와 같았다.
 recurrence_risk: medium
 proposed_harness_change: >
   Spring 컨텍스트를 띄워 실제 advisor 빈과 도구 루프 순서를 읽고 순서표와 맞는지 단언하는 테스트.
 preferred_enforcement: Regression Test
-status: candidate
+applied_in: agent-app/src/test/java/com/example/miniagent/app/AdvisorPlacementTest.java, AGENTS.md (CONVENTIONS)
+status: applied
+notes: >
+  테스트는 숫자를 자체로 들고 있지 않고 AGENTS.md 의 그 줄을 읽어 비교한다. 코드만 바꾸거나 문서만 바꾸면 깨진다.
+  red check 두 번: (1) 고치기 전 AGENTS.md 로 실행 → "actual size 5, expected size 4" 로 실패.
+  (2) LessonAdvisor 를 +250 으로 바꿔 실행 → "lesson"=250 이 기대값과 달라 실패. 둘 다 되돌린 뒤 통과.
+  기본 설정(agent.plugins.memory.inside-loop=false)만 본다. inside-loop=true 이면 memory 는 tool loop +50 이다.
 ```

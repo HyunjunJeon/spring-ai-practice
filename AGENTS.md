@@ -72,7 +72,7 @@ reference centrality is unmeasured, and import counts are not reference counts.
 - Core gathers ordered providers, callbacks, advisors, commands, and prompt contributors.
 - Attach plugin tools as ChatClient defaults; resolution fallback is disabled.
 - Wrap dynamic ToolCallbackProviders without eagerly expanding their tool lists.
-- Advisor placement matters: turn trace +100, memory +200, tool loop +300, round trace +400 relative to HIGHEST.
+- Advisor placement matters: turn trace +100, lesson +150, memory +200, tool loop +300, round trace +400 relative to HIGHEST. `AdvisorPlacementTest` reads this line and compares it with the assembled advisors.
 - Trace and TUI communicate through core TraceEvent types, not each other's implementations.
 - Tests use synthetic models, temporary cwd/home, local HTTP fixtures and observable durable state.
 - Claude OAuth and Messages tests use Java local HTTP servers and synthetic credentials.
