@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.run.RunContext;
 import com.example.miniagent.core.run.RunEvent;
 import com.example.miniagent.core.run.RunId;
@@ -20,7 +19,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 /** One queue and one question, shared by all run/child/change producers. */
 public final class ConsoleApprovalBroker implements ApprovalBroker {
-	private final AgentConsole console;
+	private final OperatorConsole console;
 	private final Map<UUID, Entry> pending = new LinkedHashMap<>();
 	private final Set<UUID> used = new HashSet<>();
 	private final ArrayDeque<Entry> queue = new ArrayDeque<>();
@@ -29,7 +28,7 @@ public final class ConsoleApprovalBroker implements ApprovalBroker {
 	private final Set<RunId> cancelled = new HashSet<>();
 	private Entry displayed;
 
-	public ConsoleApprovalBroker(AgentConsole console) {
+	public ConsoleApprovalBroker(OperatorConsole console) {
 		this.console = console;
 	}
 

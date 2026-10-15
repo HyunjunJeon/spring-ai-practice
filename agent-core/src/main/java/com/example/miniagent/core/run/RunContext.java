@@ -135,7 +135,7 @@ public final class RunContext {
 		}
 		String identity = child.runId().value() + "\n" + delta.attemptId() + "\n"
 				+ delta.kind() + "\n" + delta.callId();
-		String key = "child-" + com.example.miniagent.core.change.Fingerprinter.sha256(
+		String key = "child-" + RunRequestStore.digest(
 				identity.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 		if (!this.childChargesLoaded) {
 			for (RunEvent event : FileRunStore.events(runs, this.spec.runId())) {
@@ -170,7 +170,7 @@ public final class RunContext {
 			RunRecord child = runs.read(id);
 			if (!this.spec.runId().equals(child.spec().parentRunId())) continue;
 			if (child.state() == RunState.RUNNING || child.state() == RunState.WAITING_APPROVAL) {
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED,
+				throw new Stop(Stop.Kind.INTERRUPTED,
 						"Active child must stop before parent recovery");
 			}
 			for (RunEvent event : FileRunStore.events(runs, id)) {

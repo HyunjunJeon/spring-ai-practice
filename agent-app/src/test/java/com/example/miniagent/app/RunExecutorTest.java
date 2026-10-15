@@ -132,7 +132,7 @@ class RunExecutorTest {
 	}
 
 	private RunExecutor.Result interrupt() throws IOException {
-		this.onCall = prompt -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); };
+		this.onCall = prompt -> { throw new Stop(Stop.Kind.INTERRUPTED); };
 		RunExecutor.Result result = start("Finish the original goal");
 		this.onCall = prompt -> {};
 		return result;
@@ -268,7 +268,7 @@ class RunExecutorTest {
 			catch (RunStoreException ex) {
 				throw new java.io.UncheckedIOException(ex);
 			}
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+			throw new Stop(Stop.Kind.INTERRUPTED);
 		};
 		RunRecord first = start("goal").record();
 		String before = this.runs.export(first.spec().runId()).eventsLog();
@@ -410,7 +410,7 @@ class RunExecutorTest {
 
 	@Test
 	void deferredAndBudgetSignalsAreNotUserCancellation() throws Exception {
-		this.onCall = prompt -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.DEFERRED); };
+		this.onCall = prompt -> { throw new Stop(Stop.Kind.DEFERRED); };
 		RunRecord waiting = start("goal").record();
 		try {
 			assertThat(this.runs.read(waiting.spec().runId()).state()).isEqualTo(RunState.WAITING_APPROVAL);
@@ -420,7 +420,7 @@ class RunExecutorTest {
 		finally {
 			assertThat(this.executor.cancel(waiting.spec().runId()).state()).isEqualTo(RunState.CANCELLED);
 		}
-		this.onCall = prompt -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED); };
+		this.onCall = prompt -> { throw new Stop(Stop.Kind.BUDGET_EXHAUSTED); };
 		RunRecord budget = start("goal").record();
 		assertThat(budget.state()).isEqualTo(RunState.INTERRUPTED);
 		assertThat(budget.reason()).isEqualTo(RunEvent.Reason.BUDGET_EXHAUSTED);

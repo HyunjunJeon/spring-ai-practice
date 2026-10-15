@@ -54,7 +54,7 @@ public final class ScopedToolInterceptor implements ToolInterceptor {
 			throw new RolePolicy.Denied(RolePolicy.Code.PATH_DENIED, "Foreign owner stage");
 		}
 		// Trusted Java mailbox callback validates exact managed lineage itself; it has no filesystem path.
-		if (entry.callback() instanceof com.example.miniagent.core.messaging.MessageTool) return chain.proceed(invocation);
+		if (entry.callback() instanceof TrustedMailboxTool) return chain.proceed(invocation);
 		var declaration = this.declarations.get(invocation.toolName());
 		if (declaration != null && declaration.kind() == StagingToolInterceptor.Kind.CONTROL)
 			throw new RolePolicy.Denied(RolePolicy.Code.PARENT_ONLY, invocation.toolName());

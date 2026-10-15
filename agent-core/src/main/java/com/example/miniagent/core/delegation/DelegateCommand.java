@@ -2,9 +2,9 @@ package com.example.miniagent.core.delegation;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
+import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.run.RunExecutor;
@@ -30,11 +30,7 @@ public final class DelegateCommand implements SlashCommand {
 				+ " | resume <plan> <child> [run resume options] | apply <plan> <child> <proposal UUID>"
 				+ " | recover <child run> [run resume options] -- <one-child plan JSON>";
 	}
-	public static boolean isControlInput(String input) {
-		var parts = input.strip().split("\\s+");
-		return parts.length > 1 && parts[0].equals("/delegate")
-				&& List.of("list", "show", "cancel", "approve", "reject", "defer").contains(parts[1]);
-	}
+	public static boolean isControlInput(String input) { return ControlInput.isDelegateControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
 	@Override public boolean executeWithStatus(String args, CommandContext context) {
 		var parts = args.strip().split("\\s+");

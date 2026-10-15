@@ -16,7 +16,7 @@ class RunBudgetTest {
 	void unknownUsageWithTokenCapInterrupts() {
 		var meter = meter(new RunBudget(Duration.ofMinutes(1), 100L, 50));
 		assertThat(meter.model(new EmptyUsage()).tokensUnknown()).isTrue();
-		assertThatThrownBy(meter::beforeModel).isInstanceOf(RunExecutor.Stop.class)
+		assertThatThrownBy(meter::beforeModel).isInstanceOf(Stop.class)
 			.hasMessageContaining("unknown");
 	}
 
@@ -24,7 +24,7 @@ class RunBudgetTest {
 	void noToolStartsAfterCap() {
 		var meter = meter(new RunBudget(Duration.ofMinutes(1), null, 1));
 		assertThat(meter.toolAttempt().toolCalls()).isEqualTo(1);
-		assertThatThrownBy(meter::toolAttempt).isInstanceOf(RunExecutor.Stop.class);
+		assertThatThrownBy(meter::toolAttempt).isInstanceOf(Stop.class);
 		assertThat(meter.total().toolCalls()).isEqualTo(1);
 	}
 
@@ -34,7 +34,7 @@ class RunBudgetTest {
 		meter.beforeModel();
 		assertThat(meter.model(new DefaultUsage(7, 8)).overshootTokens()).isEqualTo(5);
 		assertThat(meter.total().knownTokens()).isEqualTo(15);
-		assertThatThrownBy(meter::beforeModel).isInstanceOf(RunExecutor.Stop.class);
+		assertThatThrownBy(meter::beforeModel).isInstanceOf(Stop.class);
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class RunBudgetTest {
 		assertThat(meter.activeDelta().activeMillis()).isEqualTo(5000);
 		assertThat(meter.activeDelta().activeMillis()).isZero();
 		clock.set(Instant.EPOCH.plusSeconds(108));
-		assertThatThrownBy(meter::beforeModel).isInstanceOf(RunExecutor.Stop.class)
+		assertThatThrownBy(meter::beforeModel).isInstanceOf(Stop.class)
 			.hasMessageContaining("time");
 	}
 
@@ -69,15 +69,15 @@ class RunBudgetTest {
 	void resumedRunSharesPreviouslyConsumedLimits() {
 		var meter = new UsageRecorder(new RunBudget(Duration.ofSeconds(10), 10L, 1),
 				() -> Instant.EPOCH, new RunUsage(10, false, 1, 10000, 0));
-		assertThatThrownBy(meter::beforeModel).isInstanceOf(RunExecutor.Stop.class);
-		assertThatThrownBy(meter::toolAttempt).isInstanceOf(RunExecutor.Stop.class);
+		assertThatThrownBy(meter::beforeModel).isInstanceOf(Stop.class);
+		assertThatThrownBy(meter::toolAttempt).isInstanceOf(Stop.class);
 		assertThat(meter.total().activeMillis()).isEqualTo(10000);
 	}
 
 	@Test
 	void zeroCapAllowsNoModelAndMeasuredZeroIsNotUnknown() {
 		assertThatThrownBy(meter(new RunBudget(Duration.ofMinutes(1), 0L, 50))::beforeModel)
-			.isInstanceOf(RunExecutor.Stop.class);
+			.isInstanceOf(Stop.class);
 		assertThat(meter(RunBudget.defaults()).model(new DefaultUsage(0, 0)).tokensUnknown()).isFalse();
 	}
 

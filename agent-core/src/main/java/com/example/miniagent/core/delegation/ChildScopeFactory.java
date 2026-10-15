@@ -168,7 +168,7 @@ public final class ChildScopeFactory {
 					try { return recovery.call(); }
 					catch (Exception ex) {
 						failure.set(ex);
-						throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+						throw new Stop(Stop.Kind.INTERRUPTED);
 					}
 				});
 		if (failure.get() instanceof IOException ex) throw ex;
@@ -272,7 +272,7 @@ public final class ChildScopeFactory {
 								parentOwner.requireActiveParent();
 								parentOwner.beforeModel();
 								if (parentOwner.usage().toolCalls() >= parentOwner.spec().budget().toolCallCap())
-									throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED);
+									throw new Stop(Stop.Kind.BUDGET_EXHAUSTED);
 							}
 							try {
 								long before = runContext().writer().record().sequence();
@@ -289,7 +289,7 @@ public final class ChildScopeFactory {
 										return output;
 									}
 								};
-								var invocationInterceptors = entry.callback() instanceof com.example.miniagent.core.messaging.MessageTool
+								var invocationInterceptors = entry.callback() instanceof TrustedMailboxTool
 									? localInterceptors.stream().filter(i -> !(i instanceof StagingToolInterceptor)).toList()
 									: localInterceptors;
 								String output = InterceptingToolCallback.wrap(recording, invocationInterceptors)
@@ -446,7 +446,7 @@ public final class ChildScopeFactory {
 			requireOpen();
 			if (!this.started.compareAndSet(false, true)) throw new IllegalStateException("Scope already called");
 			this.dispatch = Thread.currentThread();
-			if (this.cancellation.get()) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+			if (this.cancellation.get()) throw new Stop(Stop.Kind.CANCELLED);
 			RunRecord stored = runs.read(id);
 			RunSpec spec = stored.spec();
 			if (this.parentOwner == null && spec.parentRunId() != null && storedParent(spec.parentRunId()).isPresent())
@@ -481,7 +481,7 @@ public final class ChildScopeFactory {
 			requireOpen();
 			if (!this.started.compareAndSet(false, true)) throw new IllegalStateException("Scope already called");
 			this.dispatch = Thread.currentThread();
-			if (this.cancellation.get()) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+			if (this.cancellation.get()) throw new Stop(Stop.Kind.CANCELLED);
 			try {
 				return this.executor.start(this.child.task(), this.metadata.parentConversationId(),
 					this.metadata.parentRunId() == null ? null : new RunId(this.metadata.parentRunId()),

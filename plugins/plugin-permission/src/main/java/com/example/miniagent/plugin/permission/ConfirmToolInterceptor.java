@@ -12,7 +12,7 @@ import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.approval.ApprovalRequest;
 import com.example.miniagent.core.approval.ConsoleApprovalBroker;
 import com.example.miniagent.core.run.RunContext;
-import com.example.miniagent.core.run.RunExecutor;
+import com.example.miniagent.core.run.Stop;
 
 import org.springframework.core.Ordered;
 
@@ -70,14 +70,14 @@ public class ConfirmToolInterceptor implements ToolInterceptor {
 				return switch (decision) {
 					case APPROVED -> chain.proceed(invocation);
 					case REJECTED -> denied(tool, "the user rejected it");
-					case DEFERRED -> throw new RunExecutor.Stop(RunExecutor.Stop.Kind.DEFERRED);
-					case CANCELLED -> throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+					case DEFERRED -> throw new Stop(Stop.Kind.DEFERRED);
+					case CANCELLED -> throw new Stop(Stop.Kind.CANCELLED);
 				};
 			}
 			catch (InterruptedException ex) {
 				this.approvals.cancelRun(context.spec().runId());
 				Thread.currentThread().interrupt();
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+				throw new Stop(Stop.Kind.CANCELLED);
 			}
 			catch (java.util.concurrent.ExecutionException ex) {
 				throw new java.util.concurrent.CompletionException(ex.getCause());

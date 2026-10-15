@@ -1,6 +1,7 @@
 package com.example.miniagent.app;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.example.miniagent.core.AgentAutoConfiguration;
 import com.example.miniagent.core.model.AgentChatClientFactory;
@@ -11,8 +12,11 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import com.tngtech.archunit.library.dependencies.SliceAssignment;
+import com.tngtech.archunit.library.dependencies.SliceIdentifier;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
@@ -24,8 +28,12 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.annotation.ImportCandidates;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +52,8 @@ class ArchitectureTest {
 	private static final String PLUGINS = "com.example.miniagent.plugin..";
 
 	private static final String APP = "com.example.miniagent.app..";
+
+	private static final String CORE_ROOT = "com.example.miniagent.core";
 
 	/** 테스트 픽스처를 빼고 운영 코드만 읽는다. 가져오기는 비싸므로 한 번만 한다. */
 	private static final JavaClasses CLASSES = new ClassFileImporter()
@@ -109,6 +119,100 @@ class ArchitectureTest {
 			.should(beListedIn(registered))
 			.because("등록하지 않은 자동 구성은 조용히 로드되지 않는다")
 			.check(CLASSES);
+	}
+
+	@Test
+	void domainPackagesKeepTheirInternalOrder() {
+		coreDependencies("approval", "run").check(CLASSES);
+	}
+
+	@Test
+	void onlyTheMailboxToolIsTrusted() {
+		trustedMailboxRule().check(CLASSES);
+	}
+
+	// 1-5단계 동안만 둔다. 6단계에서 계층 규칙(coreLayerRule)이 두 검사를 대신하므로 지운다.
+	@Test
+	void delegationDoesNotDependOnMessaging() {
+		delegationMessagingGuard().check(CLASSES);
+	}
+
+	@Test
+	void engineDoesNotDependOnBuiltInFeatures() {
+		engineFeatureGuard().check(CLASSES);
+	}
+
+	/** Final rule (step 6): no package cycle anywhere under core, root package included. */
+	static ArchRule coreCycleRule() {
+		return slices().assignedFrom(corePackages())
+			.should().beFreeOfCycles()
+			.because("core 의 패키지는 core 루트까지 포함해 한 방향으로만 의존한다 (패키지 단위 순환 금지)");
+	}
+
+	private static SliceAssignment corePackages() {
+		return new SliceAssignment() {
+			@Override
+			public SliceIdentifier getIdentifierOf(JavaClass javaClass) {
+				String pkg = javaClass.getPackageName();
+				return (pkg.equals(CORE_ROOT) || pkg.startsWith(CORE_ROOT + "."))
+						? SliceIdentifier.of(pkg) : SliceIdentifier.ignore();
+			}
+
+			@Override
+			public String getDescription() {
+				return "each package under " + CORE_ROOT + ", the root package included";
+			}
+		};
+	}
+
+	/** Final rule (step 6): coarse layers; the cycle rule and the domain rules fix the order inside a layer. */
+	static ArchRule coreLayerRule() {
+		return layeredArchitecture().consideringOnlyDependenciesInLayers()
+			.layer("Domain").definedBy(CORE_ROOT + ".model", CORE_ROOT + ".run", CORE_ROOT + ".model.registry",
+					CORE_ROOT + ".approval", CORE_ROOT + ".change", CORE_ROOT + ".delegation")
+			.layer("Engine").definedBy(CORE_ROOT)
+			.layer("Integration").definedBy(CORE_ROOT + ".execution", CORE_ROOT + ".run.command",
+					CORE_ROOT + ".change.command", CORE_ROOT + ".model.command", CORE_ROOT + ".delegation.runtime")
+			.layer("Composition").definedBy(CORE_ROOT + ".autoconfigure")
+			.layer("Features").definedBy(CORE_ROOT + ".artifact", CORE_ROOT + ".messaging", CORE_ROOT + ".goal",
+					CORE_ROOT + ".lesson")
+			.whereLayer("Features").mayNotBeAccessedByAnyLayer()
+			.whereLayer("Composition").mayOnlyBeAccessedByLayers("Features")
+			.whereLayer("Integration").mayOnlyBeAccessedByLayers("Composition", "Features")
+			.whereLayer("Engine").mayOnlyBeAccessedByLayers("Integration", "Composition", "Features")
+			.because("값과 저장소(Domain) <- SPI 와 Agent(Engine) <- 실행·명령(Integration) <- 조립(Composition) <- 내장 기능(Features)");
+	}
+
+	/** Domain order guard: classes in {@code pkg} may use only {@code pkg} and {@code allowed} inside core. */
+	static ArchRule coreDependencies(String pkg, String... allowed) {
+		String[] permitted = Stream.concat(Stream.of(pkg), Stream.of(allowed))
+			.map(p -> CORE_ROOT + "." + p).toArray(String[]::new);
+		return noClasses().that().resideInAPackage(CORE_ROOT + "." + pkg)
+			.should().dependOnClassesThat(resideInAPackage(CORE_ROOT + "..").and(not(resideInAnyPackage(permitted))))
+			.because("Domain 내부 순서: model <- run <- model.registry, approval <- change <- delegation");
+	}
+
+	/** Temporary guard (steps 1-5, superseded by the layer rule in step 6): I6 marker inversion. */
+	static ArchRule delegationMessagingGuard() {
+		return noClasses().that().resideInAPackage(CORE_ROOT + ".delegation..")
+			.should().dependOnClassesThat().resideInAPackage(CORE_ROOT + ".messaging..")
+			.because("delegation 은 TrustedMailboxTool 표지만 보고 messaging.MessageTool 을 모른다");
+	}
+
+	/** Temporary guard (steps 1-5, superseded by the layer rule in step 6): I1 ControlInput inversion. */
+	static ArchRule engineFeatureGuard() {
+		return noClasses().that().resideInAPackage(CORE_ROOT)
+			.and().doNotHaveFullyQualifiedName(CORE_ROOT + ".AgentAutoConfiguration")
+			.should().dependOnClassesThat().resideInAnyPackage(CORE_ROOT + ".goal..", CORE_ROOT + ".lesson..",
+					CORE_ROOT + ".messaging..", CORE_ROOT + ".artifact..")
+			.because("AgentInputHandler 는 ControlInput 으로 제어 명령을 판별한다");
+	}
+
+	/** Permanent rule (step 1): the marker that skips staging/scope checks stays on the mailbox tool only. */
+	static ArchRule trustedMailboxRule() {
+		return classes().that().implement(CORE_ROOT + ".delegation.TrustedMailboxTool")
+			.should().haveFullyQualifiedName(CORE_ROOT + ".messaging.MessageTool")
+			.because("TrustedMailboxTool 은 staging·scope 검사를 건너뛰는 표지다. 계보를 스스로 검증하는 MessageTool 만 붙인다");
 	}
 
 	private static DescribedPredicate<JavaAccess<?>> toolLoopBuilder() {

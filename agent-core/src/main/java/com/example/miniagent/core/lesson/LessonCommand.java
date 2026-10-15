@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.model.TurnContext;
 import tools.jackson.databind.node.ObjectNode;
@@ -23,12 +24,7 @@ public final class LessonCommand implements SlashCommand {
 	@Override public String description() {
 		return "list | show/inspect/history <id> | lookup <text> | refine <goal-id> | propose/accept/promote/update/rollback <JSON>";
 	}
-	public static boolean isControlInput(String input) {
-		String[] parts = input.strip().split("\\s+", 3);
-		if (parts.length < 2 || !parts[0].equals("/lesson")) return false;
-		return parts[1].equals("list") && parts.length == 2
-				|| List.of("show", "inspect", "history", "lookup").contains(parts[1]) && parts.length == 3;
-	}
+	public static boolean isControlInput(String input) { return ControlInput.isLessonControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
 	@Override public boolean executeWithStatus(String args, CommandContext context) {
 		try {

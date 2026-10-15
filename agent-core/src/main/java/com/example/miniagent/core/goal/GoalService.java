@@ -198,8 +198,8 @@ public final class GoalService {
 					// publishes the terminal goal checkpoint with interrupts cleared.
 					boolean cancelling = cancellation.isDone() || Thread.currentThread().isInterrupted();
 					for (Throwable cause = ex; !cancelling && cause != null; cause = cause.getCause()) {
-						cancelling = cause instanceof RunExecutor.Stop stop
-								&& stop.kind() == RunExecutor.Stop.Kind.CANCELLED
+						cancelling = cause instanceof Stop stop
+								&& stop.kind() == Stop.Kind.CANCELLED
 								|| cause instanceof java.util.concurrent.CancellationException;
 					}
 					if (cancelling) throw ex;
@@ -225,7 +225,7 @@ public final class GoalService {
 					context.beforeModel();
 					var gate = record.spec().request().gates().get(i);
 					long remaining = context.spec().budget().wall().toMillis() - context.usage().activeMillis();
-					if (remaining <= 0) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED);
+					if (remaining <= 0) throw new Stop(Stop.Kind.BUDGET_EXHAUSTED);
 					int gateIndex = i;
 					var expected = new java.util.concurrent.atomic.AtomicReference<VerificationRunner.Binding>();
 					var prior = record.results();
@@ -242,7 +242,7 @@ public final class GoalService {
 								});
 						var binding = expected.get();
 						if (context.usage().activeMillis() >= context.spec().budget().wall().toMillis())
-							throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED);
+							throw new Stop(Stop.Kind.BUDGET_EXHAUSTED);
 						// Refusals without process launch cannot produce acceptable evidence.
 						if (binding == null) {
 							block(holder, Reason.EVIDENCE_STALE, "Gate refused: " + result.result().code());
@@ -259,7 +259,7 @@ public final class GoalService {
 						if (!accepted(record, target, observation)) {
 							success = false;
 							if (result.result().code() == VerificationRunner.Code.CANCELLED)
-								throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+								throw new Stop(Stop.Kind.CANCELLED);
 							if (result.result().code() != VerificationRunner.Code.NON_ZERO_EXIT)
 								block(holder, Reason.GATE_FAILED, feedback);
 							break;
@@ -282,22 +282,22 @@ public final class GoalService {
 			}
 			update(holder, record.checkpoint(State.FAILED, Reason.STEP_LIMIT, record.steps(), Phase.READY,
 					record.target(), record.results(), false, record.feedback()));
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+			throw new Stop(Stop.Kind.INTERRUPTED);
 		}
 		catch (IOException ex) { throw new UncheckedIOException(ex); }
 	}
 	private static final class Unchanged extends RuntimeException {}
 	private void checkCancel(GoalRecord record, CompletableFuture<Void> cancellation) throws IOException {
-		if (cancellation.isCompletedExceptionally()) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+		if (cancellation.isCompletedExceptionally()) throw new Stop(Stop.Kind.INTERRUPTED);
 		if (cancellation.isDone() || goals.cancelled(record.id()))
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
-		if (Thread.currentThread().isInterrupted()) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+			throw new Stop(Stop.Kind.CANCELLED);
+		if (Thread.currentThread().isInterrupted()) throw new Stop(Stop.Kind.INTERRUPTED);
 	}
 	private void block(GoalRecord[] holder, Reason reason, String feedback) throws IOException {
 		var r = holder[0];
 		update(holder, r.checkpoint(State.BLOCKED, reason, r.steps(), Phase.READY, r.target(), r.results(), false,
 				feedback.substring(0, Math.min(feedback.length(), 8192))));
-		throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+		throw new Stop(Stop.Kind.INTERRUPTED);
 	}
 	private GoalRecord update(GoalRecord[] holder, GoalRecord record) throws IOException {
 		holder[0] = save(record);

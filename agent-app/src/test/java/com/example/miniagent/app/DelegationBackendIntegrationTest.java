@@ -405,7 +405,7 @@ class DelegationBackendIntegrationTest {
 				var request = ApprovalRequest.tool(context, "test", "{}");
 				var answer = broker.request(request, context);
 				assertThat(answer.join()).isEqualTo(ApprovalDecision.DEFERRED);
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.DEFERRED);
+				throw new Stop(Stop.Kind.DEFERRED);
 			}
 			if (round > 0) {
 				if (child.equals("verify")) {

@@ -323,7 +323,7 @@ class DelegationCancelTest {
 					"one", "0".repeat(64), RunEvent.Effect.MUTATING));
 			}
 			catch (IOException ex) { throw new UncheckedIOException(ex); }
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+			throw new Stop(Stop.Kind.INTERRUPTED);
 		};
 		RunId id;
 		try (var scope = f.factory.create(f.parent, f.child("a", Set.of()), f.authority)) {
@@ -506,8 +506,8 @@ class DelegationCancelTest {
 			afterRequest.accept(request);
 			try {
 				var decision = future.get(10, TimeUnit.SECONDS);
-				if (decision == ApprovalDecision.DEFERRED) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.DEFERRED);
-				if (decision == ApprovalDecision.CANCELLED) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+				if (decision == ApprovalDecision.DEFERRED) throw new Stop(Stop.Kind.DEFERRED);
+				if (decision == ApprovalDecision.CANCELLED) throw new Stop(Stop.Kind.CANCELLED);
 				return answer();
 			}
 			catch (InterruptedException ex) { Thread.currentThread().interrupt(); throw new IllegalStateException(ex); }

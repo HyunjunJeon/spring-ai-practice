@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import com.example.miniagent.core.AgentConsole;
+import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.TraceEvent;
 import com.example.miniagent.core.approval.ApprovalBroker;
@@ -40,11 +41,7 @@ public final class RunCommand implements SlashCommand {
 	}
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
 
-	public static boolean isControlInput(String input) {
-		String[] parts = input.strip().split("\\s+");
-		return parts[0].equals("/runs") || parts.length > 1 && parts[0].equals("/run")
-				&& List.of("show", "status", "cancel", "approve", "reject", "defer", "inspect-drift").contains(parts[1]);
-	}
+	public static boolean isControlInput(String input) { return ControlInput.isRunControl(input); }
 
 	@Override public boolean executeWithStatus(String args, CommandContext context) {
 		String[] parts = args.strip().split("\\s+");

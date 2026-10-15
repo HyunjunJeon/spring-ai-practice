@@ -188,7 +188,7 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 			parent.requireActiveParent();
 			parent.beforeModel();
 			if (parent.usage().toolCalls() >= parent.spec().budget().toolCallCap())
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED);
+				throw new Stop(Stop.Kind.BUDGET_EXHAUSTED);
 			plan.ledger.continueChild(childId);
 			plan.busy = true;
 		}
@@ -669,8 +669,8 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 					try {
 						synchronized (this) {
 							child.scope = scope;
-							if (this.cancelled) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
-							if (this.abandoned) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+							if (this.cancelled) throw new Stop(Stop.Kind.CANCELLED);
+							if (this.abandoned) throw new Stop(Stop.Kind.INTERRUPTED);
 						}
 						try {
 							RunExecutor.Result result = child.resumeId == null ? scope.call()
@@ -761,9 +761,9 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 						capture(child, context);
 						if (cancelled) {
 							cancelBound(child);
-							throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+							throw new Stop(Stop.Kind.CANCELLED);
 						}
-						if (abandoned) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+						if (abandoned) throw new Stop(Stop.Kind.INTERRUPTED);
 						if (tool) ledger.beforeTool(child.spec.childId());
 						else ledger.beforeModel(child.spec.childId());
 					}
@@ -817,7 +817,7 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 			if (cause instanceof RolePolicy.Denied denied)
 				return failure(denied.code() == RolePolicy.Code.UNKNOWN_EFFECT
 						? ChildFailure.Code.UNKNOWN_EFFECT : ChildFailure.Code.SCOPE_DENIED);
-			if (cause instanceof RunExecutor.Stop stop)
+			if (cause instanceof Stop stop)
 				return failure(switch (stop.kind()) {
 					case CANCELLED -> ChildFailure.Code.CANCELLED;
 					case BUDGET_EXHAUSTED -> ChildFailure.Code.BUDGET_EXHAUSTED;

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.approval.ApprovalDecision;
+import com.example.miniagent.core.approval.OperatorConsole;
 
 /** Approved source publication under a lease and a separate console capability. */
 public final class ApplyEngine {
@@ -65,7 +65,7 @@ public final class ApplyEngine {
 		if (!store.workspace().equals(policy.root())) throw new IllegalArgumentException("Workspace policy mismatch");
 	}
 
-	public OwnershipProof confirmExclusiveOwnership(AgentConsole console, UUID id, ChangeOwner owner,
+	public OwnershipProof confirmExclusiveOwnership(OperatorConsole console, UUID id, ChangeOwner owner,
 			String digest) throws IOException {
 		EngineMutation.interrupted();
 		ChangeStore.Lease lease = this.store.acquire();

@@ -69,7 +69,7 @@ class SafeResumeTest {
 			return this.executor.start("Read or change fixture", "parent", this.selected, this.cwd, RunBudget.defaults()).record();
 		}
 		RunRecord interrupted() throws Exception {
-			this.action.set(p -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); });
+			this.action.set(p -> { throw new Stop(Stop.Kind.INTERRUPTED); });
 			RunRecord record = start();
 			this.action.set(p -> {});
 			return record;
@@ -83,7 +83,7 @@ class SafeResumeTest {
 
 	@Test void unknownMutatingRefusedWithoutFlag() throws Exception {
 		var f = new Fixture(this.temp, false);
-		f.action.set(p -> f.invoke(i -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); }));
+		f.action.set(p -> f.invoke(i -> { throw new Stop(Stop.Kind.INTERRUPTED); }));
 		RunRecord record = f.start();
 		String before = f.runs.export(record.spec().runId()).eventsLog();
 		assertThatThrownBy(() -> f.executor.resume(record.spec().runId(), f.selected, f.cwd))
@@ -94,7 +94,7 @@ class SafeResumeTest {
 
 	@Test void trustedReadOnlyAutomaticallyResolvesWithoutFakeFinish() throws Exception {
 		var f = new Fixture(this.temp, true);
-		f.action.set(p -> f.invoke(i -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); }));
+		f.action.set(p -> f.invoke(i -> { throw new Stop(Stop.Kind.INTERRUPTED); }));
 		RunRecord record = f.start();
 		f.action.set(p -> {});
 		var result = f.executor.resume(record.spec().runId(), f.selected, f.cwd);

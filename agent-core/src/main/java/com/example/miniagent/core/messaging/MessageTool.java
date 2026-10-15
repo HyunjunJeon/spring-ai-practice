@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.function.Supplier;
 import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.delegation.TrustedMailboxTool;
 import com.example.miniagent.core.run.RunContext;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
 
 /** Trusted mailbox capability. Model arguments never contain sender or parent identities. */
-public final class MessageTool implements ToolCallback {
+public final class MessageTool implements ToolCallback, TrustedMailboxTool {
 	private final Supplier<MessageService> service;
 	private final boolean send;
 	public MessageTool(Supplier<MessageService> service, boolean send) { this.service = service; this.send = send; }

@@ -211,14 +211,14 @@ class RunCommandTest {
 							var last = prompt.getInstructions().getLast();
 							if (last instanceof UserMessage user) {
 								String input = user.getText();
-								if (input.equals("!interrupt")) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+								if (input.equals("!interrupt")) throw new Stop(Stop.Kind.INTERRUPTED);
 								if (input.equals("!unknown")) {
 									RunContext run = RunContext.current().orElseThrow();
 									var definition = ToolDefinition.builder().name("fixture")
 											.description("UNKNOWN fixture").inputSchema("{\"type\":\"object\"}").build();
 									new ToolJournalInterceptor().intercept(new ToolInterceptor.ToolInvocation(definition,
 											"{}", new ToolContext(Map.of(RunContext.TOOL_CONTEXT_KEY, run))),
-											invocation -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); });
+											invocation -> { throw new Stop(Stop.Kind.INTERRUPTED); });
 								}
 								if (input.startsWith("Explicitly resume")) {
 									int index = input.indexOf("!tool");

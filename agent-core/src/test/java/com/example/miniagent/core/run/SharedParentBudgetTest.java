@@ -81,8 +81,8 @@ class SharedParentBudgetTest {
 			assertThat(writer.record().sequence()).isEqualTo(sequence);
 			assertThat(context.usage()).isEqualTo(new RunUsage(10, false, 2, 70, 0));
 			assertThat(writer.record().usage()).isEqualTo(context.usage());
-			assertThatThrownBy(context::beforeModel).isInstanceOf(RunExecutor.Stop.class);
-			assertThatThrownBy(context::toolAttempt).isInstanceOf(RunExecutor.Stop.class);
+			assertThatThrownBy(context::beforeModel).isInstanceOf(Stop.class);
+			assertThatThrownBy(context::toolAttempt).isInstanceOf(Stop.class);
 			var secondPlan = new BudgetLedger(parent.budget(), context::usage, true);
 			assertThatThrownBy(() -> secondPlan.reserve(java.util.Map.of("next",
 					new RunBudget(Duration.ofMillis(1), 1L, 1)))).isInstanceOf(BudgetLedger.Refusal.class);
@@ -108,8 +108,8 @@ class SharedParentBudgetTest {
 			context.chargeChildUsage(runs, child, overshoot);
 			assertThat(context.usage()).isEqualTo(new RunUsage(13, true, 0, 0, 3));
 			assertThat(writer.record().usage()).isEqualTo(context.usage());
-			assertThatThrownBy(context::beforeModel).isInstanceOf(RunExecutor.Stop.class);
-			assertThatThrownBy(context::toolAttempt).isInstanceOf(RunExecutor.Stop.class);
+			assertThatThrownBy(context::beforeModel).isInstanceOf(Stop.class);
+			assertThatThrownBy(context::toolAttempt).isInstanceOf(Stop.class);
 		}
 	}
 
@@ -227,7 +227,7 @@ class SharedParentBudgetTest {
 			assertThatThrownBy(() -> context.chargeChildUsage(runs, child,
 					new RunEvent.UsageRecorded(AT, "child-attempt", delta.kind(), delta.callId(), new RunUsage(4, false, 0, 0, 0))))
 					.isInstanceOf(IllegalArgumentException.class);
-			assertThatThrownBy(() -> context.reconcileChildUsage(runs)).isInstanceOf(RunExecutor.Stop.class);
+			assertThatThrownBy(() -> context.reconcileChildUsage(runs)).isInstanceOf(Stop.class);
 			assertThat(context.usage()).isEqualTo(RunUsage.empty());
 			context.finishActiveTime();
 			writer.append(new RunEvent.AttemptEnded(AT, "parent-attempt"));

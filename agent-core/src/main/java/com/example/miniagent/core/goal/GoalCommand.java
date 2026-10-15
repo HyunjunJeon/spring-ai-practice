@@ -2,7 +2,7 @@ package com.example.miniagent.core.goal;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
+import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.run.RunBudget;
 import com.example.miniagent.core.run.RunCommand;
@@ -21,11 +21,7 @@ public final class GoalCommand implements SlashCommand {
 	@Override public String description() {
 		return "start <JSON> | submit <JSON> | show <id> | list | resume <id> [run resume options] | cancel <id>";
 	}
-	public static boolean isControlInput(String input) {
-		String[] parts = input.strip().split("\\s+");
-		return parts.length >= 2 && parts[0].equals("/goal")
-				&& List.of("show", "list", "cancel").contains(parts[1]);
-	}
+	public static boolean isControlInput(String input) { return ControlInput.isGoalControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
 	@Override public boolean executeWithStatus(String args, CommandContext context) {
 		try {

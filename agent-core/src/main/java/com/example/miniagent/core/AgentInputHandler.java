@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import com.example.miniagent.core.run.RunCommand;
 
 import org.springframework.ai.chat.metadata.Usage;
 
@@ -156,12 +155,12 @@ public class AgentInputHandler {
 	}
 
 	public static boolean isControlInput(String input) {
-		return RunCommand.isControlInput(input)
-				|| com.example.miniagent.core.goal.GoalCommand.isControlInput(input)
-				|| com.example.miniagent.core.lesson.LessonCommand.isControlInput(input)
+		return ControlInput.isRunControl(input)
+				|| ControlInput.isGoalControl(input)
+				|| ControlInput.isLessonControl(input)
 				|| input.strip().matches("/worker\\s+status")
 				|| input.strip().matches("/message\\s+(read|archive)\\s+.+")
-				|| com.example.miniagent.core.delegation.DelegateCommand.isControlInput(input)
+				|| ControlInput.isDelegateControl(input)
 				|| input.strip().split("\\s+", 2)[0].equals("/changes");
 	}
 

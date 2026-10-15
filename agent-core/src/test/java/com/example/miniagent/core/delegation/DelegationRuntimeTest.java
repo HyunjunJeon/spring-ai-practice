@@ -68,7 +68,7 @@ class DelegationRuntimeTest {
 		f.parentBudget = new RunBudget(Duration.ofSeconds(10), null, 10);
 		var child = new ChildSpec("pending", "pending task", ChildRole.RESEARCH, f.ref, Set.of(),
 				f.childScope, new RunBudget(Duration.ofMillis(100), null, 1), 1, true);
-		f.script = prompt -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.DEFERRED); };
+		f.script = prompt -> { throw new Stop(Stop.Kind.DEFERRED); };
 		var executor = new RunExecutor(f.agent, f.agent.modelRegistry(), new FileSessionModelStore(f.home),
 				f.runs, new RunRequestStore(f.home), Clock.fixed(Instant.EPOCH, ZoneOffset.UTC), List.of());
 		RunRecord parent;
@@ -438,7 +438,7 @@ class DelegationRuntimeTest {
 			catch (InterruptedException ex) {
 				interrupted.countDown();
 				Thread.currentThread().interrupt();
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+				throw new Stop(Stop.Kind.CANCELLED);
 			}
 		};
 		try (var runtime = f.runtime()) {
@@ -488,7 +488,7 @@ class DelegationRuntimeTest {
 			catch (InterruptedException ex) {
 				siblingStopped.countDown();
 				Thread.currentThread().interrupt();
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+				throw new Stop(Stop.Kind.CANCELLED);
 			}
 		};
 		try (var runtime = f.runtime()) {
@@ -520,7 +520,7 @@ class DelegationRuntimeTest {
 		}
 		catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.CANCELLED);
+			throw new Stop(Stop.Kind.CANCELLED);
 		}
 	}
 

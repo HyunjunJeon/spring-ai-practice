@@ -42,14 +42,14 @@ public final class ToolJournalInterceptor implements ToolInterceptor {
 		RunContext context = RunContext.fromToolContext(invocation.context()).orElse(null);
 		if (context == null) return chain.proceed(invocation);
 		Binding binding = BINDINGS.get(context);
-		if (binding == null) throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "Missing captured journal owner");
+		if (binding == null) throw new Stop(Stop.Kind.INTERRUPTED, "Missing captured journal owner");
 		synchronized (binding) {
 			try {
 				if (Thread.currentThread().isInterrupted() || context.writer().record().state() != RunState.RUNNING)
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+					throw new Stop(Stop.Kind.INTERRUPTED);
 				DriftGate.Definition declaration = binding.snapshot().tools().get(invocation.toolName());
 				if (declaration == null || !declaration.digest().equals(SideEffectClass.definitionDigest(invocation.definition())))
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "Tool outside attempt snapshot");
+					throw new Stop(Stop.Kind.INTERRUPTED, "Tool outside attempt snapshot");
 				var events = FileRunStore.events(binding.runs(), context.spec().runId());
 				String expected = binding.snapshotDigest();
 				Map<String, RunEvent.ToolStarted> started = new HashMap<>();
@@ -59,7 +59,7 @@ public final class ToolJournalInterceptor implements ToolInterceptor {
 					if (event instanceof RunEvent.ToolResolution resolution && resolution.decision() == RunEvent.Resolution.SKIP) {
 						var skipped = started.get(resolution.oldAttemptId() + ":" + resolution.toolCallKey());
 						if (skipped != null && skipped.toolName().equals(invocation.toolName()) && skipped.argsDigest().equals(args))
-							throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "Operator skipped this UNKNOWN effect");
+							throw new Stop(Stop.Kind.INTERRUPTED, "Operator skipped this UNKNOWN effect");
 					}
 					if (event instanceof RunEvent.ToolFinished finish) {
 						var result = binding.evidence().get(finish.resultDigest(), ToolEvidenceStore.ResultEvidence.class);
@@ -68,13 +68,13 @@ public final class ToolJournalInterceptor implements ToolInterceptor {
 						var start = started.get(finish.attemptId() + ":" + finish.toolCallKey());
 						if (start != null && start.effect() == RunEvent.Effect.MUTATING
 								&& start.toolName().equals(invocation.toolName()) && start.argsDigest().equals(args))
-							throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "Verified mutation must not be automatically repeated");
+							throw new Stop(Stop.Kind.INTERRUPTED, "Verified mutation must not be automatically repeated");
 					}
 				}
 				var baseline = binding.gate().load(expected, context.spec());
 				var before = WorkspaceFingerprint.capture(Path.of(context.spec().cwd()), binding.evidence().home());
 				if (!baseline.workspace().equals(before))
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "Workspace drift before effect");
+					throw new Stop(Stop.Kind.INTERRUPTED, "Workspace drift before effect");
 				String key = UUID.randomUUID().toString();
 				RunEvent.Effect effect = declaration.effect() == SideEffectClass.READ_ONLY
 						? RunEvent.Effect.READ_ONLY : RunEvent.Effect.MUTATING;
@@ -82,18 +82,18 @@ public final class ToolJournalInterceptor implements ToolInterceptor {
 						invocation.toolName(), args, effect, binding.snapshotDigest()));
 				// Append acknowledgement above is the durable force boundary.
 				if (Thread.currentThread().isInterrupted() || context.writer().record().state() != RunState.RUNNING)
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+					throw new Stop(Stop.Kind.INTERRUPTED);
 				String result = chain.proceed(invocation);
 				if (result == null || Thread.currentThread().isInterrupted()
 						|| context.writer().record().state() != RunState.RUNNING)
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "No verified result");
+					throw new Stop(Stop.Kind.INTERRUPTED, "No verified result");
 				var after = new DriftGate.Snapshot(1, baseline.specDigest(),
 						WorkspaceFingerprint.capture(Path.of(context.spec().cwd()), binding.evidence().home()),
 						binding.snapshot().tools(), binding.snapshot().configurationDigest());
 				String digest = binding.evidence().put(new ToolEvidenceStore.ResultEvidence(1,
 						context.spec().runId().value(), context.attemptId(), key, invocation.toolName(), args, result, after));
 				if (Thread.currentThread().isInterrupted() || context.writer().record().state() != RunState.RUNNING)
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED, "Cancelled before result commit");
+					throw new Stop(Stop.Kind.INTERRUPTED, "Cancelled before result commit");
 				context.writer().append(new RunEvent.ToolFinished(context.now(), context.attemptId(), key, digest));
 				return result;
 			}

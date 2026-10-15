@@ -132,6 +132,6 @@ public final class UsageRecorder {
 	}
 
 	private static void exhausted(String reason) {
-		throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED, reason);
+		throw new Stop(Stop.Kind.BUDGET_EXHAUSTED, reason);
 	}
 }

@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import com.example.miniagent.core.approval.ApprovalAnswer;
 import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.approval.ApprovalRequest;
+import com.example.miniagent.core.approval.OperatorConsole;
 
 import org.jspecify.annotations.Nullable;
 
@@ -24,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  * <p>TUI 같은 다른 화면은 이 클래스를 상속해 출력/입력 메서드를 바꾼다. 플러그인은 화면이 무엇이든
  * 이 API 만 쓴다.
  */
-public class AgentConsole {
+public class AgentConsole implements OperatorConsole {
 
 	private static final String DIM = "\u001B[2m";
 

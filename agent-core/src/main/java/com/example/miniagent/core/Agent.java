@@ -21,6 +21,7 @@ import com.example.miniagent.core.model.ModelRegistry;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.model.SessionModelStore;
 import com.example.miniagent.core.model.TurnContext;
+import com.example.miniagent.core.run.DriftSource;
 import com.example.miniagent.core.run.RunContext;
 import org.jspecify.annotations.Nullable;
 
@@ -44,7 +45,7 @@ import org.springframework.ai.tool.definition.ToolDefinition;
  * 관리 실행과 자식 실행은 {@link #run} 의 {@code call()} 에 남긴다.
  * 2.0.x 는 스트리밍과 도구 호출이 겹치는 경로가 가장 불안정하므로 두 경로의 최종 답을 비교할 수 있게 둔다.
  */
-public class Agent {
+public class Agent implements DriftSource {
 
 	private final @Nullable ChatClient chatClient;
 

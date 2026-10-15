@@ -225,7 +225,7 @@ class ChildScopeFactoryTest {
 				assertThat(context.turnContext().sessionId()).isNotEqualTo(metadata.parentConversationId());
 			}
 			@Override public void beforeTool(ChildScopeFactory.Metadata metadata, RunContext context) {
-				throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED);
+				throw new Stop(Stop.Kind.BUDGET_EXHAUSTED);
 			}
 			@Override public void observed(ChildScopeFactory.Metadata metadata, RunContext context) {
 				observations.add(context.writer().record().usage());
@@ -338,11 +338,11 @@ class ChildScopeFactoryTest {
 					assertThat(runs.read(owner.spec().runId()).usage().knownTokens()).isEqualTo(6);
 					owner.reconcileChildUsage(runs);
 					assertThat(owner.usage().knownTokens()).isEqualTo(6);
-					assertThatThrownBy(owner::beforeModel).isInstanceOf(RunExecutor.Stop.class);
+					assertThatThrownBy(owner::beforeModel).isInstanceOf(Stop.class);
 					assertThatThrownBy(() -> runtime.execute(owner.turnContext(),
 						new DelegationPlan("another", List.of(child), 1), authority, budget, owner::usage,
 						"a".repeat(64), "b".repeat(64))).isInstanceOf(IllegalArgumentException.class);
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.BUDGET_EXHAUSTED);
+					throw new Stop(Stop.Kind.BUDGET_EXHAUSTED);
 				}
 				catch (IOException ex) { throw new java.io.UncheckedIOException(ex); }
 			});
@@ -353,7 +353,7 @@ class ChildScopeFactoryTest {
 					assertThat(owner.usage().knownTokens()).isEqualTo(6);
 					assertThat(runtime.messageTarget(owner, "thread", "child").sender()).isEqualTo("parent");
 					assertThatThrownBy(() -> runtime.followUp(owner, "thread", "child", "no budget"))
-						.isInstanceOf(RunExecutor.Stop.class);
+						.isInstanceOf(Stop.class);
 					assertThat(owner.usage().knownTokens()).isEqualTo(6);
 					return true;
 				});

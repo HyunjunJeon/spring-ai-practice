@@ -162,24 +162,6 @@ public final class RunExecutor {
 		public List<RunEvent.ToolStarted> uncertainTools() { return this.uncertainTools; }
 	}
 
-	/** Explicit future broker/budget signal, distinct from user cancellation and process loss. */
-	public static final class Stop extends RuntimeException {
-		public enum Kind { INTERRUPTED, BUDGET_EXHAUSTED, DEFERRED, CANCELLED }
-		private final Kind kind;
-
-		public Stop(Kind kind) {
-			super(Objects.requireNonNull(kind).name());
-			this.kind = kind;
-		}
-
-		public Stop(Kind kind, String message) {
-			super(Objects.requireNonNull(message));
-			this.kind = Objects.requireNonNull(kind);
-		}
-
-		public Kind kind() { return this.kind; }
-	}
-
 	public Result start(String goal, String parentConversationId, ModelSelection selection, Path cwd,
 			RunBudget budget) throws IOException {
 		return start(goal, parentConversationId, null, null, selection, cwd, budget);

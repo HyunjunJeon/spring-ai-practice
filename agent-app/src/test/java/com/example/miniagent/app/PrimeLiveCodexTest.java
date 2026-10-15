@@ -57,6 +57,7 @@ import com.example.miniagent.core.run.RunId;
 import com.example.miniagent.core.run.RunExecutor;
 import com.example.miniagent.core.run.RunState;
 import com.example.miniagent.core.run.RunStore;
+import com.example.miniagent.core.run.Stop;
 import com.example.miniagent.plugin.codex.CodexAuth;
 import com.example.miniagent.plugin.codex.CodexCredentials;
 import org.junit.jupiter.api.BeforeEach;
@@ -633,7 +634,7 @@ class PrimeLiveCodexTest {
 					assertThat(this.runs.list()).hasSize(count);
 					assertThat(this.messages.read(context, planId, childId, 0).entries()).hasSize(2);
 					originalChildTokens[0] = childTokens;
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+					throw new Stop(Stop.Kind.INTERRUPTED);
 					}
 					catch (IOException ex) { throw new java.io.UncheckedIOException(ex); }
 				});
@@ -709,7 +710,7 @@ class PrimeLiveCodexTest {
 			if (event instanceof TraceEvent.ModelBound binding && binding.runId() != null) {
 				int call = this.managedCalls.incrementAndGet();
 				if (this.pauseOnManagedCall.compareAndSet(call, 0)) {
-					throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+					throw new Stop(Stop.Kind.INTERRUPTED);
 				}
 			}
 		}

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
-import com.example.miniagent.core.Agent;
 import org.springframework.ai.tool.definition.ToolDefinition;
 
 /** Exact source/tool/config acknowledgement; identity incompatibilities remain executor refusals. */
@@ -52,7 +51,7 @@ public final class DriftGate {
 		}
 	}
 
-	Snapshot capture(Agent agent, RunSpec spec) throws IOException {
+	Snapshot capture(DriftSource agent, RunSpec spec) throws IOException {
 		Map<String, String> trusted = new HashMap<>();
 		for (var policy : this.policies) trusted.putAll(policy.readOnlyDefinitions());
 		Map<String, Definition> tools = new TreeMap<>();
@@ -95,7 +94,7 @@ public final class DriftGate {
 		return latest;
 	}
 
-	Difference inspect(Agent agent, RunStore runs, RunRecord record, String baseline) throws IOException {
+	Difference inspect(DriftSource agent, RunStore runs, RunRecord record, String baseline) throws IOException {
 		return new Difference(latest(runs, record, baseline), this.evidence.put(capture(agent, record.spec())));
 	}
 

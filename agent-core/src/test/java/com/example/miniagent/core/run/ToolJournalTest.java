@@ -123,7 +123,7 @@ class ToolJournalTest {
 				assertThat(thread.isAlive()).isFalse();
 			}
 			catch (Exception ex) { throw new RuntimeException(ex); }
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+			throw new Stop(Stop.Kind.INTERRUPTED);
 		});
 		var record = f.start();
 		String summary = new JournalResumeContributor(f.runs, f.requests.evidence()).verifiedEvidence(record, "goal");
@@ -158,7 +158,7 @@ class ToolJournalTest {
 				try { Files.writeString(file, "once", StandardOpenOption.CREATE_NEW); return Files.readString(file); }
 				catch (java.io.IOException ex) { throw new UncheckedIOException(ex); }
 			});
-			throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED);
+			throw new Stop(Stop.Kind.INTERRUPTED);
 		});
 		var record = f.start();
 		assertThat(record.uncertainTools()).isEmpty();
@@ -171,7 +171,7 @@ class ToolJournalTest {
 		f.action.set(p -> { f.invoke(i -> {
 			try { return Files.readString(Files.writeString(f.cwd.resolve("result"), "actual")); }
 			catch (java.io.IOException ex) { throw new UncheckedIOException(ex); }
-		}); throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); });
+		}); throw new Stop(Stop.Kind.INTERRUPTED); });
 		var record = f.start();
 		var finish = FileRunStore.events(f.runs, record.spec().runId()).stream().filter(RunEvent.ToolFinished.class::isInstance)
 				.map(RunEvent.ToolFinished.class::cast).findFirst().orElseThrow();
@@ -188,7 +188,7 @@ class ToolJournalTest {
 		f.action.set(p -> f.journal.intercept(new com.example.miniagent.core.ToolInterceptor.ToolInvocation(f.tool,
 				"{\"effect\":\"READ_ONLY\"}", new org.springframework.ai.chat.model.ToolContext(Map.of(
 						RunContext.TOOL_CONTEXT_KEY, RunContext.current().orElseThrow()))),
-				i -> { throw new RunExecutor.Stop(RunExecutor.Stop.Kind.INTERRUPTED); }));
+				i -> { throw new Stop(Stop.Kind.INTERRUPTED); }));
 		var record = f.start();
 		assertThat(record.uncertainTools().getFirst().effect()).isEqualTo(RunEvent.Effect.MUTATING);
 		f.action.set(p -> {});
