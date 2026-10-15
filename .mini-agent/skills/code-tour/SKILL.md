@@ -10,7 +10,7 @@ Answer by pointing to concrete files. Read the file with read_file before explai
 | Concept | File |
 |---|---|
 | Agent prototype (one ChatClient call) | agent-core/src/main/java/com/example/miniagent/core/Agent.java |
-| Plugin wiring (collects beans into ChatClient) | agent-core/src/main/java/com/example/miniagent/core/AgentAutoConfiguration.java |
+| Plugin wiring (collects beans into ChatClient) | agent-core/src/main/java/com/example/miniagent/core/autoconfigure/AgentAutoConfiguration.java |
 | Tool hook (tool_call / tool_result) | agent-core/src/main/java/com/example/miniagent/core/ToolInterceptor.java |
 | ChatModel SPI | plugins/plugin-fake-model/src/main/java/com/example/miniagent/plugin/fakemodel/ScriptedChatModel.java |
 | Real provider via Responses API (ChatGPT/Codex OAuth) | plugins/plugin-codex-model/src/main/java/com/example/miniagent/plugin/codex/CodexResponses.java, CodexChatModel.java |

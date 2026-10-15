@@ -47,14 +47,14 @@ spring_ai_test/
 Types below live in `agent-core/src/main/java/com/example/miniagent/core/`.
 Paths below are relative to that directory. Local AST extraction supplied the map;
 reference centrality is unmeasured, and import counts are not reference counts.
-- `Agent` (`Agent.java:47`, class): synchronous and streaming turn execution.
-- `AgentAutoConfiguration` (`AgentAutoConfiguration.java:65`, class): bean assembly.
+- `Agent` (`Agent.java:48`, class): synchronous and streaming turn execution.
+- `AgentAutoConfiguration` (`autoconfigure/AgentAutoConfiguration.java:79`, class): bean assembly.
 - `AgentPlugin` (`AgentPlugin.java:18`, interface): plugin descriptor.
 - `ToolInterceptor` (`ToolInterceptor.java:16`, interface): tool execution hooks.
 - `SlashCommand` (`SlashCommand.java:10`, interface): operator command extension.
 - `TraceEvent` (`TraceEvent.java:19`, sealed interface): shared execution events.
-- `RunExecutor` (`run/RunExecutor.java:30`, class): run lifecycle and accounting.
-- `DefaultDelegationRuntime` (`delegation/DefaultDelegationRuntime.java:29`, class):
+- `RunExecutor` (`execution/RunExecutor.java:47`, class): run lifecycle and accounting.
+- `DefaultDelegationRuntime` (`delegation/runtime/DefaultDelegationRuntime.java:45`, class):
   bounded child dependency execution.
 
 ## CONVENTIONS
@@ -71,6 +71,7 @@ reference centrality is unmeasured, and import counts are not reference counts.
 - Register auto-configuration in `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`.
 - New plugins require root modules/dependencyManagement entries and an `agent-app` dependency.
 - Core gathers ordered providers, callbacks, advisors, commands, and prompt contributors.
+- agent-core packages follow the layer order Domain (model, run, model.registry, approval, change, delegation) <- Engine (core root: SPI and Agent) <- Integration (execution, run.command, change.command, model.command, delegation.runtime) <- Composition (autoconfigure) <- Features (artifact, messaging, goal, lesson); a layer depends only on itself and the layers to its left, and `ArchitectureTest` forbids package cycles.
 - Attach plugin tools as ChatClient defaults; resolution fallback is disabled.
 - Wrap dynamic ToolCallbackProviders without eagerly expanding their tool lists.
 - Advisor placement matters: turn trace +100, lesson +150, memory +200, tool loop +300, round trace +400 relative to HIGHEST. `AdvisorPlacementTest` reads this line and compares it with the assembled advisors.
