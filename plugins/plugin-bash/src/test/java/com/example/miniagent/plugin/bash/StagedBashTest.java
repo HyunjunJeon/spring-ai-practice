@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 import com.example.miniagent.core.change.*;
 import com.example.miniagent.core.model.*;
-import com.example.miniagent.core.model.ToolContextKeys;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.ai.chat.client.ChatClient;

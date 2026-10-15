@@ -55,6 +55,7 @@ public class AgentConsole implements OperatorConsole {
 	}
 
 	/** 출력 모드(한 번 실행하고 종료)에서는 false. 사용자에게 물어볼 수 없다는 뜻이다. */
+	@Override
 	public boolean isInteractive() {
 		return this.interactive;
 	}
@@ -63,6 +64,7 @@ public class AgentConsole implements OperatorConsole {
 		this.interactive = interactive;
 	}
 
+	@Override
 	public synchronized @Nullable String readLine(String prompt) {
 		this.out.print(prompt);
 		this.out.flush();
@@ -75,6 +77,7 @@ public class AgentConsole implements OperatorConsole {
 	}
 
 	/** One asynchronous transport reader; all plain REPL readers share readLine's monitor. */
+	@Override
 	public void requestApproval(ApprovalRequest request, Consumer<ApprovalAnswer> response) {
 		this.approvalId = request.requestId();
 		Thread.startVirtualThread(() -> {
@@ -93,6 +96,7 @@ public class AgentConsole implements OperatorConsole {
 		});
 	}
 
+	@Override
 	public void dismissApproval(UUID requestId) {
 		if (requestId.equals(this.approvalId)) this.approvalId = null;
 	}

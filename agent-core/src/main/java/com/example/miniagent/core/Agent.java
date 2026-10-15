@@ -314,6 +314,7 @@ public class Agent implements DriftSource {
 	}
 
 	/** 지금 모델에게 노출되는 도구 목록. Provider 는 매번 다시 펼친다(MCP 처럼 바뀔 수 있으므로). */
+	@Override
 	public List<ToolDefinition> toolDefinitions() {
 		List<ToolDefinition> definitions = new ArrayList<>();
 		this.toolCallbacks.forEach(callback -> definitions.add(callback.getToolDefinition()));
@@ -368,10 +369,12 @@ public class Agent implements DriftSource {
 		}
 	}
 
+	@Override
 	public String systemPrompt() {
 		return this.systemPrompt;
 	}
 
+	@Override
 	public List<Advisor> advisors() {
 		return this.advisors;
 	}
@@ -380,6 +383,7 @@ public class Agent implements DriftSource {
 		return this.plugins;
 	}
 
+	@Override
 	public int toolCallingAdvisorOrder() {
 		return this.toolCallingAdvisorOrder;
 	}
