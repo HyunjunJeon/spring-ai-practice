@@ -1,4 +1,4 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.registry;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -7,6 +7,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import com.example.miniagent.core.model.AgentChatClientFactory;
+import com.example.miniagent.core.model.ModelBinding;
+import com.example.miniagent.core.model.ModelEntry;
+import com.example.miniagent.core.model.ModelProvider;
+import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ModelSelection;
+import com.example.miniagent.core.model.ModelUnavailableException;
 
 import org.springframework.ai.chat.model.ChatModel;
 

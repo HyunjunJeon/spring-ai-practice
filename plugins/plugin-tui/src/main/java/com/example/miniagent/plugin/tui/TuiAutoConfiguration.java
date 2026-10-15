@@ -2,8 +2,8 @@ package com.example.miniagent.plugin.tui;
 
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.Agent;
-import com.example.miniagent.core.model.ModelDisplay;
 import com.example.miniagent.core.model.TurnContext;
+import com.example.miniagent.core.model.command.ModelDisplay;
 import com.example.miniagent.core.AgentInputHandler;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;

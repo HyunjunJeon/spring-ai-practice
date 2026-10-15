@@ -2,8 +2,8 @@ package com.example.miniagent.plugin.trace;
 
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.TraceEvent;
-import com.example.miniagent.core.model.ModelDisplay;
 import com.example.miniagent.core.model.TurnContext;
+import com.example.miniagent.core.model.command.ModelDisplay;
 
 import org.springframework.context.event.EventListener;
 

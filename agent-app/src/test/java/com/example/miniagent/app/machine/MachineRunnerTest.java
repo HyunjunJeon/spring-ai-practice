@@ -24,6 +24,7 @@ import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.approval.ApprovalRequest;
 import com.example.miniagent.core.approval.ConsoleApprovalBroker;
 import com.example.miniagent.core.model.*;
+import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.RunId;
 import com.example.miniagent.plugin.fakemodel.ScriptedChatModel;
 import org.junit.jupiter.api.Test;

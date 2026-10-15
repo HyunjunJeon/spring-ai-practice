@@ -10,12 +10,12 @@ import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.SlashCommand;
-import com.example.miniagent.core.model.AuthCommand;
 import com.example.miniagent.core.model.ModelEntry;
 import com.example.miniagent.core.model.ModelProvider;
 import com.example.miniagent.core.model.ModelRef;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.model.ProviderAuth;
+import com.example.miniagent.core.model.command.AuthCommand;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.json.JsonMapper;
 

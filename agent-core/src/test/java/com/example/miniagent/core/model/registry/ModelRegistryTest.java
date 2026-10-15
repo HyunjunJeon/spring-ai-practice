@@ -1,4 +1,4 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.registry;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,6 +10,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.example.miniagent.core.model.ModelBinding;
+import com.example.miniagent.core.model.ModelEntry;
+import com.example.miniagent.core.model.ModelProvider;
+import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ModelSelection;
+import com.example.miniagent.core.model.ModelUnavailableException;
+import com.example.miniagent.core.model.ProviderAuth;
+import com.example.miniagent.core.model.TurnContext;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ai.chat.client.ChatClient;

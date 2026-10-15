@@ -26,6 +26,7 @@ import com.example.miniagent.core.change.*;
 import com.example.miniagent.core.change.command.ApplyCommand;
 import com.example.miniagent.core.delegation.*;
 import com.example.miniagent.core.model.*;
+import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.*;
 import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
 import org.springframework.ai.chat.messages.AssistantMessage;

@@ -1,6 +1,8 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.command;
 
 import com.example.miniagent.core.SlashCommand;
+import com.example.miniagent.core.model.ModelEntry;
+import com.example.miniagent.core.model.ModelSelection;
 
 public final class ModelsCommand implements SlashCommand {
 

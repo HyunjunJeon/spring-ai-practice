@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.SlashCommand;
-import com.example.miniagent.core.model.AuthCommand;
+import com.example.miniagent.core.model.command.AuthCommand;
 
 /** Claude OAuth 로그인과 자체 저장소 로그아웃 명령. */
 public class ClaudeAuthCommands implements AuthCommand.ProviderCommands {

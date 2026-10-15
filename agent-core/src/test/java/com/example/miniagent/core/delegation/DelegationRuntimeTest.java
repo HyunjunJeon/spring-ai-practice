@@ -25,6 +25,7 @@ import com.example.miniagent.core.*;
 import com.example.miniagent.core.approval.ConsoleApprovalBroker;
 import com.example.miniagent.core.change.StagingToolInterceptor;
 import com.example.miniagent.core.model.*;
+import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

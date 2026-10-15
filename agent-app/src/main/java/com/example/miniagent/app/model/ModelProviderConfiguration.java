@@ -3,9 +3,9 @@ package com.example.miniagent.app.model;
 import java.util.Map;
 
 import com.example.miniagent.core.SlashCommand;
-import com.example.miniagent.core.model.AuthCommand;
 import com.example.miniagent.core.model.ModelProvider;
 import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.command.AuthCommand;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.ai.chat.model.ChatModel;

@@ -1,4 +1,4 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.registry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.TurnContext;
 
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;

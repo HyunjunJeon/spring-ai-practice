@@ -1,4 +1,4 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.command;
 
 import java.util.List;
 

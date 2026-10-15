@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.miniagent.core.TraceEvent;
-import com.example.miniagent.core.model.ModelDisplay;
+import com.example.miniagent.core.model.command.ModelDisplay;
 import dev.tamboui.text.CharWidth;
 import org.jspecify.annotations.Nullable;
 

@@ -16,11 +16,11 @@ import com.example.miniagent.core.approval.ApprovalBroker;
 import com.example.miniagent.core.approval.ApprovalRequest;
 import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.model.ModelBinding;
-import com.example.miniagent.core.model.ModelRegistry;
 import com.example.miniagent.core.model.ModelSelection;
 import com.example.miniagent.core.model.ModelUnavailableException;
 import com.example.miniagent.core.model.SessionModelStore;
 import com.example.miniagent.core.model.TurnContext;
+import com.example.miniagent.core.model.registry.ModelRegistry;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.metadata.EmptyUsage;
 

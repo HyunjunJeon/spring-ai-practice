@@ -1,10 +1,11 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.registry;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ModelRef;
 import com.example.miniagent.core.run.RunContext;
 import reactor.core.publisher.Flux;
 

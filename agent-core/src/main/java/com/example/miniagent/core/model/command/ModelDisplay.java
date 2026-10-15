@@ -1,6 +1,10 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.command;
 
 import com.example.miniagent.core.Agent;
+import com.example.miniagent.core.model.ModelBinding;
+import com.example.miniagent.core.model.ModelEntry;
+import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ModelSelection;
 
 /** Display reads selection and captured context, never a mutable global ChatModel. */
 public final class ModelDisplay {

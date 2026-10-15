@@ -1,9 +1,11 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.command;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.example.miniagent.core.SlashCommand;
+import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.ModelSelection;
 
 public final class ModelCommand implements SlashCommand {
 

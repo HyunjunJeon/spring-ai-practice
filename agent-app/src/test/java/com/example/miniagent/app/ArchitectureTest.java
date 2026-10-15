@@ -124,6 +124,8 @@ class ArchitectureTest {
 	@Test
 	void domainPackagesKeepTheirInternalOrder() {
 		coreDependencies("approval", "run").check(CLASSES);
+		coreDependencies("model").check(CLASSES);
+		coreDependencies("model.registry", "model", "run").check(CLASSES);
 	}
 
 	@Test

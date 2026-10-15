@@ -1,4 +1,4 @@
-package com.example.miniagent.core.model;
+package com.example.miniagent.core.model.registry;
 
 import java.util.List;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.example.miniagent.core.ToolContextKeys;
+import com.example.miniagent.core.model.ModelRef;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ai.chat.messages.AssistantMessage;

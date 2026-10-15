@@ -15,6 +15,7 @@ import com.example.miniagent.core.approval.ApprovalBroker;
 import com.example.miniagent.core.change.FileChangeStore;
 import com.example.miniagent.core.change.StagingToolInterceptor;
 import com.example.miniagent.core.model.*;
+import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.*;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.ChatClient;

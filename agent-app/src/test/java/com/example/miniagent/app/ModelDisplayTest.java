@@ -11,6 +11,7 @@ import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.AgentSession;
 import com.example.miniagent.core.TraceEvent;
 import com.example.miniagent.core.model.*;
+import com.example.miniagent.core.model.command.ModelDisplay;
 import com.example.miniagent.plugin.fakemodel.ScriptedChatModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

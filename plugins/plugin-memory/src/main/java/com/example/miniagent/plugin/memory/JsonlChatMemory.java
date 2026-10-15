@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import com.example.miniagent.plugin.memory.JsonlChatMemoryRepository.History;
 import com.example.miniagent.plugin.memory.JsonlChatMemoryRepository.Summary;
-import com.example.miniagent.core.model.ProviderPrivateFieldFilter;
+import com.example.miniagent.core.model.registry.ProviderPrivateFieldFilter;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.ai.chat.memory.ChatMemory;

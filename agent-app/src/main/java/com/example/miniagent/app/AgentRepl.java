@@ -8,7 +8,7 @@ import com.example.miniagent.core.AgentInputHandler;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentSession;
 import com.example.miniagent.core.InteractiveFrontEnd;
-import com.example.miniagent.core.model.ModelDisplay;
+import com.example.miniagent.core.model.command.ModelDisplay;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.ApplicationArguments;

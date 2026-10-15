@@ -15,11 +15,11 @@ import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.AgentSession;
 import com.example.miniagent.core.SlashCommand;
-import com.example.miniagent.core.model.AuthCommand;
 import com.example.miniagent.core.model.FileSessionModelStore;
 import com.example.miniagent.core.model.ModelRef;
-import com.example.miniagent.core.model.ModelRegistry;
 import com.example.miniagent.core.model.ModelSelection;
+import com.example.miniagent.core.model.command.AuthCommand;
+import com.example.miniagent.core.model.registry.ModelRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
