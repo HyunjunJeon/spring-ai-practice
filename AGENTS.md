@@ -18,6 +18,7 @@ spring_ai_test/
 |-- docs/             Learning material
 |-- agent.sh          Launcher; invocation directory is the agent workspace
 |-- scripts/verify.sh Unified verification command (compile, tests, ArchUnit rules)
+|-- harness/          Improvement log for coding-agent harness failures and fixes
 |-- reports/
 |   |-- Spring AI 최신 버전 심층 조사.md    Research synthesis
 |   `-- research_notes/                  Topic evidence
@@ -35,6 +36,7 @@ spring_ai_test/
 - Launch and provider selection: `agent.sh`.
 - Learning exercises: `docs/learning-path.md`.
 - Bundled code tour: `.mini-agent/skills/code-tour/SKILL.md`.
+- Coding-agent failures and the harness changes they caused: `harness/improvement-log.md`.
 - Final research synthesis: `reports/Spring AI 최신 버전 심층 조사.md`.
 - Topic evidence: `reports/research_notes/Spring AI 최신 버전 심층 조사/`.
 - Research topics: `version_status_compatibility.md`, `core_api_features.md`,
