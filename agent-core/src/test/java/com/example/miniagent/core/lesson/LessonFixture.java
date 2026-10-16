@@ -6,10 +6,12 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.LongSupplier;
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.AgentSession;
 import com.example.miniagent.core.SlashCommand;
@@ -67,8 +69,11 @@ final class LessonFixture {
 		}, () -> runs);
 	}
 	Content content(String value) { return new Content("Parser lesson", value, List.of("parser")); }
-	LessonCommand command() {
-		return new LessonCommand(service, new LessonSkillExport(service, home), Path.of(actor.workspace()));
+	LessonCommand command() { return command(Clock.systemUTC(), () -> 0); }
+	/** The command of this fixture's home, reporting at {@code clock} and with the given in-process record failures. */
+	LessonCommand command(Clock clock, LongSupplier recordFailures) {
+		var report = new SkillUsageReport(service, new SkillUsageStore(home, clock), home, clock, recordFailures);
+		return new LessonCommand(service, new LessonSkillExport(service, home), report, Path.of(actor.workspace()));
 	}
 	/** The operator console of this fixture's session; output lands in {@code out}. */
 	SlashCommand.CommandContext console(ByteArrayOutputStream out) {

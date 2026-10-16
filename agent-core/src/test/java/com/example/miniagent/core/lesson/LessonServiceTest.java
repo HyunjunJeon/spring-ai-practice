@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.change.VerificationRunner;
 import com.example.miniagent.core.goal.GoalRecord;
 import com.example.miniagent.core.model.ModelBinding;
@@ -271,5 +272,14 @@ class LessonServiceTest {
 		String json = "{\"id\":\"id\",\"expectedVersion\":1}";
 		assertThat(LessonCommand.parseAcceptance(json, true).scope()).isEqualTo(Scope.SESSION);
 		assertThatThrownBy(() -> LessonCommand.parseAcceptance(json, false)).isInstanceOf(Exception.class);
+	}
+
+	@Test void lessonSkillsIsAReadOnlyControlOfExactlyTwoWords() {
+		for (String input : List.of("/lesson skills", "  /lesson   skills  "))
+			assertThat(ControlInput.isLessonControl(input)).isTrue();
+		for (String input : List.of("/lesson skills extra", "/lesson skills {}", "/lesson skill", "/lessons skills",
+				"/lesson unexport {}", "/lesson reinstate {}"))
+			assertThat(ControlInput.isLessonControl(input)).isFalse();
+		assertThat(LessonCommand.isControlInput("/lesson skills")).isTrue();
 	}
 }

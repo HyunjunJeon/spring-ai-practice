@@ -26,7 +26,7 @@ public final class ControlInput {
 	public static boolean isLessonControl(String input) {
 		String[] parts = input.strip().split("\\s+", 3);
 		if (parts.length < 2 || !parts[0].equals("/lesson")) return false;
-		return parts[1].equals("list") && parts.length == 2
+		return List.of("list", "skills").contains(parts[1]) && parts.length == 2
 				|| List.of("show", "inspect", "history", "lookup").contains(parts[1]) && parts.length == 3;
 	}
 

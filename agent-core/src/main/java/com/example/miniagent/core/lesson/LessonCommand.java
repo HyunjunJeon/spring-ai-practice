@@ -18,9 +18,10 @@ public final class LessonCommand implements SlashCommand {
 			+ "ground new lessons; run a new goal to verify again.";
 	private final LessonService lessons;
 	private final LessonSkillExport export;
+	private final SkillUsageReport skills;
 	private final Path workspace;
-	public LessonCommand(LessonService lessons, LessonSkillExport export, Path workspace) {
-		this.lessons = lessons; this.export = export; this.workspace = workspace;
+	public LessonCommand(LessonService lessons, LessonSkillExport export, SkillUsageReport skills, Path workspace) {
+		this.lessons = lessons; this.export = export; this.skills = skills; this.workspace = workspace;
 	}
 	public record Proposal(String goalId, String title, String content, List<String> tags) {}
 	public record Acceptance(String id, int expectedVersion, Scope scope) {}
@@ -32,7 +33,7 @@ public final class LessonCommand implements SlashCommand {
 
 	@Override public String name() { return "lesson"; }
 	@Override public String description() {
-		return "list | show/inspect/history <id> | lookup <text> | refine <goal-id>"
+		return "list | skills | show/inspect/history <id> | lookup <text> | refine <goal-id>"
 				+ " | propose/accept/promote/update/rollback/retire/export <JSON>";
 	}
 	public static boolean isControlInput(String input) { return ControlInput.isLessonControl(input); }
@@ -44,6 +45,9 @@ public final class LessonCommand implements SlashCommand {
 			String[] parts = args.strip().split("\\s+", 2);
 			if (parts[0].equals("list") && parts.length == 1) {
 				print(lessons.list(actor), context); return true;
+			}
+			if (parts[0].equals("skills") && parts.length == 1) {
+				print(skills.report(actor), context); return true;
 			}
 			if (parts.length != 2) throw new IOException("Expected lesson arguments");
 			String arg = parts[1];

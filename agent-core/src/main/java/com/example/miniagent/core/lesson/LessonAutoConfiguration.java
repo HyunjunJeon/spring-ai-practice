@@ -55,7 +55,16 @@ public class LessonAutoConfiguration {
 				com.example.miniagent.core.StatePaths.home(properties.getHome()));
 	}
 	@Bean @ConditionalOnMissingBean
-	LessonCommand lessonCommand(LessonService lessons, LessonSkillExport export, AgentProperties properties) {
-		return new LessonCommand(lessons, export, properties.getCwd());
+	SkillUsageReport skillUsageReport(LessonService lessons, SkillUsageStore usage,
+			ObjectProvider<SkillUseListener> listener, AgentProperties properties) throws java.io.IOException {
+		// Only the recorder this configuration wires counts failures; another listener has nothing to report.
+		return new SkillUsageReport(lessons, usage, com.example.miniagent.core.StatePaths.home(properties.getHome()),
+				Clock.systemUTC(),
+				() -> listener.getIfUnique() instanceof SkillUsageRecorder recorder ? recorder.failures() : 0);
+	}
+	@Bean @ConditionalOnMissingBean
+	LessonCommand lessonCommand(LessonService lessons, LessonSkillExport export, SkillUsageReport report,
+			AgentProperties properties) {
+		return new LessonCommand(lessons, export, report, properties.getCwd());
 	}
 }
