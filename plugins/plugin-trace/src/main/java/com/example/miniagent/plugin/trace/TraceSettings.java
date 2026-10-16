@@ -24,11 +24,14 @@ public class TraceSettings {
 		/** 라운드마다 모델 호출/응답과 도구 실행을 트리로 보여준다. 에이전트 루프를 공부할 때. */
 		DETAIL;
 
+		/** 알 수 없는 값은 summary 로 바꿔 받지 않고 거부한다. 오타가 조용히 수준을 바꾸면 안 된다. */
 		static Level parse(String value) {
 			return switch (value.strip().toLowerCase(Locale.ROOT)) {
 				case "off", "false" -> OFF;
+				case "summary" -> SUMMARY;
 				case "detail", "details", "verbose" -> DETAIL;
-				default -> SUMMARY;
+				default -> throw new IllegalArgumentException(
+						"Unknown trace level '" + value.strip() + "': use off, summary or detail");
 			};
 		}
 
