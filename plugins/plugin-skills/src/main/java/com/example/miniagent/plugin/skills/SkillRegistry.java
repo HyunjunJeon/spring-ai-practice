@@ -70,7 +70,8 @@ public class SkillRegistry {
 					: Optional.of(new Skill(name, description, file.getParent(), body));
 		}
 		catch (IOException ex) {
-			throw new UncheckedIOException(ex);
+			// 읽을 수 없거나 UTF-8 이 아닌 SKILL.md 하나가 다른 스킬과 에이전트 시작을 막지 않도록 건너뛴다.
+			return Optional.empty();
 		}
 	}
 
