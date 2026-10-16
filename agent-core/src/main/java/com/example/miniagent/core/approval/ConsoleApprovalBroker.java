@@ -215,7 +215,10 @@ public final class ConsoleApprovalBroker implements ApprovalBroker {
 		Map<String, Scope> requests = new HashMap<>();
 		Set<String> deferred = new HashSet<>();
 		var json = JsonMapper.builder().build();
-		for (String line : events.lines().toList()) {
+		// An append still in flight or torn by a crash has no final newline, and FileRunStore ignores it
+		// too; trailing blank lines carry no frame either.
+		String complete = events.substring(0, events.lastIndexOf('\n') + 1).stripTrailing();
+		for (String line : complete.lines().toList()) {
 			var frame = json.readTree(line.split("\\t", 4)[3]);
 			var payload = frame.path("payload");
 			switch (frame.path("type").asString()) {
