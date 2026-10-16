@@ -38,7 +38,11 @@ public class LessonAutoConfiguration {
 		return new LessonRefinementAdvisor.EffectGuard();
 	}
 	@Bean @ConditionalOnMissingBean
-	LessonCommand lessonCommand(LessonService lessons, AgentProperties properties) {
-		return new LessonCommand(lessons, properties.getCwd());
+	LessonSkillExport lessonSkillExport(LessonService lessons, AgentProperties properties) throws java.io.IOException {
+		return new LessonSkillExport(lessons, com.example.miniagent.core.StatePaths.home(properties.getHome()));
+	}
+	@Bean @ConditionalOnMissingBean
+	LessonCommand lessonCommand(LessonService lessons, LessonSkillExport export, AgentProperties properties) {
+		return new LessonCommand(lessons, export, properties.getCwd());
 	}
 }

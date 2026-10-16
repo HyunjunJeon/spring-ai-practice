@@ -13,18 +13,23 @@ import static com.example.miniagent.core.lesson.LessonRecord.*;
 /** Operator-only /lesson; mutating operations take strict bounded JSON with compare-version fields. */
 public final class LessonCommand implements SlashCommand {
 	private final LessonService lessons;
+	private final LessonSkillExport export;
 	private final Path workspace;
-	public LessonCommand(LessonService lessons, Path workspace) { this.lessons = lessons; this.workspace = workspace; }
+	public LessonCommand(LessonService lessons, LessonSkillExport export, Path workspace) {
+		this.lessons = lessons; this.export = export; this.workspace = workspace;
+	}
 	public record Proposal(String goalId, String title, String content, List<String> tags) {}
 	public record Acceptance(String id, int expectedVersion, Scope scope) {}
 	public record Edit(String id, int expectedVersion, String goalId, String title, String content, List<String> tags) {}
 	public record Rollback(String id, int expectedVersion, int toVersion) {}
 	public record Retirement(String id, int expectedVersion) {}
+	public record Export(String id, int expectedVersion, String name) {}
+	public record Exported(String skill, String path, String loads) {}
 
 	@Override public String name() { return "lesson"; }
 	@Override public String description() {
 		return "list | show/inspect/history <id> | lookup <text> | refine <goal-id>"
-				+ " | propose/accept/promote/update/rollback/retire <JSON>";
+				+ " | propose/accept/promote/update/rollback/retire/export <JSON>";
 	}
 	public static boolean isControlInput(String input) { return ControlInput.isLessonControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
@@ -71,6 +76,11 @@ public final class LessonCommand implements SlashCommand {
 				case "retire" -> {
 					var r = parse(arg, Retirement.class);
 					yield lessons.retire(r.id(), r.expectedVersion(), actor);
+				}
+				case "export" -> {
+					var e = parse(arg, Export.class);
+					var file = export.export(e.id(), e.expectedVersion(), e.name(), actor);
+					yield new Exported(e.name(), file.toString(), "next start");
 				}
 				default -> throw new IOException("Unknown lesson operation");
 			};

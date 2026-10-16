@@ -1,11 +1,18 @@
 package com.example.miniagent.core.lesson;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import com.example.miniagent.core.AgentConsole;
+import com.example.miniagent.core.AgentSession;
+import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.change.ChangeOwner;
 import com.example.miniagent.core.change.Fingerprinter;
 import com.example.miniagent.core.change.VerificationEvidence;
@@ -23,6 +30,7 @@ import static com.example.miniagent.core.lesson.LessonRecord.*;
 final class LessonFixture {
 	static final String HASH = "a".repeat(64);
 	final Actor actor;
+	final Path home;
 	final LessonStore store;
 	final LessonService service;
 	final AtomicReference<GoalRecord> goal;
@@ -32,7 +40,8 @@ final class LessonFixture {
 		root = root.toRealPath();
 		var workspace = Files.createDirectory(root.resolve("workspace")).toRealPath();
 		actor = Actor.capture("operator-session", workspace);
-		store = new LessonStore(root.resolve("home"));
+		home = root.resolve("home");
+		store = new LessonStore(home);
 		var selection = new ModelSelection(new ModelRef("codex", "gpt-6.1-sol"), java.util.Map.of("effort", "high"));
 		var runId = RunId.random();
 		var request = new GoalRequest("repair parser", List.of(
@@ -58,6 +67,16 @@ final class LessonFixture {
 		}, () -> runs);
 	}
 	Content content(String value) { return new Content("Parser lesson", value, List.of("parser")); }
+	LessonCommand command() {
+		return new LessonCommand(service, new LessonSkillExport(service, home), Path.of(actor.workspace()));
+	}
+	/** The operator console of this fixture's session; output lands in {@code out}. */
+	SlashCommand.CommandContext console(ByteArrayOutputStream out) {
+		var session = new AgentSession();
+		session.switchTo(actor.session());
+		return new SlashCommand.CommandContext(null, session,
+				new AgentConsole(new BufferedReader(new StringReader("")), new PrintStream(out, true), false));
+	}
 	LessonRecord accepted(String text) throws Exception {
 		var candidate = service.propose(goal.get().id(), content(text), actor);
 		return service.accept(candidate.id(), 1, Scope.SESSION, actor);

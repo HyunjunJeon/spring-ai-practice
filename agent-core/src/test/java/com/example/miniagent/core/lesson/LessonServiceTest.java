@@ -1,17 +1,11 @@
 package com.example.miniagent.core.lesson;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import com.example.miniagent.core.AgentConsole;
-import com.example.miniagent.core.AgentSession;
-import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.change.VerificationRunner;
 import com.example.miniagent.core.goal.GoalRecord;
 import com.example.miniagent.core.model.ModelBinding;
@@ -129,19 +123,12 @@ class LessonServiceTest {
 				.containsExactly(State.CANDIDATE, State.ACCEPTED, State.RETIRED, State.ACCEPTED);
 	}
 
-	private static SlashCommand.CommandContext console(LessonFixture f, ByteArrayOutputStream out) {
-		var session = new AgentSession();
-		session.switchTo(f.actor.session());
-		return new SlashCommand.CommandContext(null, session,
-				new AgentConsole(new BufferedReader(new StringReader("")), new PrintStream(out, true), false));
-	}
-
 	@Test void retireCommandTakesStrictCompareVersionJson() throws Exception {
 		var f = new LessonFixture(root);
 		var accepted = f.accepted("parser command lesson");
 		var out = new ByteArrayOutputStream();
-		var context = console(f, out);
-		var command = new LessonCommand(f.service, Path.of(f.actor.workspace()));
+		var context = f.console(out);
+		var command = f.command();
 		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id() + "\"}", context)).isFalse();
 		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id()
 				+ "\",\"expectedVersion\":2,\"scope\":\"GLOBAL\"}", context)).isFalse();
@@ -165,9 +152,8 @@ class LessonServiceTest {
 		f.service.accept(candidate.id(), 1, Scope.SESSION, f.actor);
 		assertThat(f.service.lookup(f.actor, "parser")).extracting(LessonRecord::id).containsExactly(candidate.id());
 		var out = new ByteArrayOutputStream();
-		assertThat(new LessonCommand(f.service, Path.of(f.actor.workspace())).executeWithStatus("propose {\"goalId\":"
-				+ "\"verified-goal\",\"title\":\"Parser lesson\",\"content\":\"parser pitfall\",\"tags\":[]}", console(f, out)))
-				.isTrue();
+		assertThat(f.command().executeWithStatus("propose {\"goalId\":\"verified-goal\",\"title\":\"Parser lesson\","
+				+ "\"content\":\"parser pitfall\",\"tags\":[]}", f.console(out))).isTrue();
 		assertThat(out.toString()).contains("이전 작업 실패에서 배운 주의점");
 	}
 
@@ -280,7 +266,7 @@ class LessonServiceTest {
 		for (String input : List.of("/lesson list", "/lesson show id", "/lesson inspect id", "/lesson history id", "/lesson lookup parser"))
 			assertThat(LessonCommand.isControlInput(input)).isTrue();
 		for (String input : List.of("/lesson refine goal", "/lesson propose {}", "/lesson accept {}", "/lesson promote {}",
-				"/lesson update {}", "/lesson rollback {}", "/lesson retire {}", "/lesson list extra"))
+				"/lesson update {}", "/lesson rollback {}", "/lesson retire {}", "/lesson export {}", "/lesson list extra"))
 			assertThat(LessonCommand.isControlInput(input)).isFalse();
 		String json = "{\"id\":\"id\",\"expectedVersion\":1}";
 		assertThat(LessonCommand.parseAcceptance(json, true).scope()).isEqualTo(Scope.SESSION);

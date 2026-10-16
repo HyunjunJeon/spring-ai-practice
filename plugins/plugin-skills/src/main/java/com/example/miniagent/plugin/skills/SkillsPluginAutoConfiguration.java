@@ -8,6 +8,7 @@ import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.SlashCommand;
+import com.example.miniagent.core.StatePaths;
 import com.example.miniagent.core.SystemPromptContributor;
 
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -26,8 +27,8 @@ public class SkillsPluginAutoConfiguration {
 
 	@Bean
 	SkillRegistry skillRegistry(AgentProperties properties) {
-		Path projectSkills = properties.getCwd().resolve(".mini-agent").resolve("skills");
-		Path userSkills = properties.getHome().resolve("skills");
+		Path projectSkills = StatePaths.projectSkills(properties.getCwd());
+		Path userSkills = StatePaths.userSkills(properties.getHome());
 		return new SkillRegistry(List.of(projectSkills, userSkills));
 	}
 

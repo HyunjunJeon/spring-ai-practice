@@ -16,4 +16,14 @@ public final class StatePaths {
 		while (!Files.exists(ancestor, LinkOption.NOFOLLOW_LINKS)) ancestor = ancestor.getParent();
 		return ancestor.toRealPath().resolve(ancestor.relativize(absolute));
 	}
+
+	/** Project skill root. The skills plugin reads it and {@code /lesson export} writes PROJECT lessons there. */
+	public static Path projectSkills(Path cwd) {
+		return cwd.resolve(".mini-agent").resolve("skills");
+	}
+
+	/** User skill root under the agent home. {@code /lesson export} writes GLOBAL lessons there. */
+	public static Path userSkills(Path home) {
+		return home.resolve("skills");
+	}
 }
