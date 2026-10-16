@@ -13,8 +13,14 @@ import java.util.HexFormat;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
+import com.example.miniagent.core.change.AtomicFiles;
+import com.example.miniagent.core.change.ChangeStore;
 import static com.example.miniagent.core.lesson.LessonRecord.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 
 class LessonSkillExportTest {
 	private static final Instant NOW = Instant.parse("2026-10-01T09:30:00Z");
@@ -156,6 +162,26 @@ class LessonSkillExportTest {
 		assertThatThrownBy(() -> linking(f).export(lesson.id(), 3, "parser-offsets", f.actor))
 				.isInstanceOf(IOException.class).hasMessage("Skill usage storage recovery required");
 		assertThat(Path.of(f.actor.workspace(), ".mini-agent", "skills", "parser-offsets")).doesNotExist();
+	}
+
+	@Test void anExportWhoseSkillFileCannotBeWrittenLeavesNoLink() throws Exception {
+		var f = new LessonFixture(root);
+		var lesson = promoted(f, Scope.PROJECT);
+		var folder = Path.of(f.actor.workspace(), ".mini-agent", "skills", "parser-offsets");
+		// No file system state fails a write into the folder the export has just created, so that one write is made to throw.
+		try (var files = Mockito.mockStatic(AtomicFiles.class, Mockito.CALLS_REAL_METHODS)) {
+			files.when(() -> AtomicFiles.write(argThat(path -> path != null && path.endsWith("SKILL.md")), any(), anyInt()))
+					.thenThrow(new ChangeStore.Failure(ChangeStore.Code.IO, "SKILL.md write failed"));
+			assertThatThrownBy(() -> linking(f).export(lesson.id(), 3, "parser-offsets", f.actor))
+					.isInstanceOf(ChangeStore.Failure.class).hasMessage("SKILL.md write failed")
+					.hasNoSuppressedExceptions();
+		}
+		assertThat(links(f)).isEmpty();
+		assertThat(folder).doesNotExist();
+		// The name is free again: the same export now succeeds and is linked.
+		var file = linking(f).export(lesson.id(), 3, "parser-offsets", f.actor);
+		assertThat(file).isEqualTo(folder.resolve("SKILL.md")).isRegularFile();
+		assertThat(links(f)).extracting(SkillUsage::lessonId).containsExactly(lesson.id());
 	}
 
 	@Test void onlyAProjectExportWarnsThatVerifiedGoalsLoseTheirEvidence() throws Exception {
