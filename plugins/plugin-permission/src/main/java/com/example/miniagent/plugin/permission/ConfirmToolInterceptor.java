@@ -98,7 +98,7 @@ public class ConfirmToolInterceptor implements ToolInterceptor {
 		String answer = this.console.readLine("  허용할까요? [y]es / [n]o / [a]lways(%s): "
 			.formatted(exact ? "이 세션 동안 같은 입력만" : "이 세션 동안"));
 		answer = (answer != null) ? answer.strip().toLowerCase() : "n";
-		if (answer.startsWith("a")) {
+		if (answer.equals("a") || answer.equals("always")) {
 			this.alwaysAllowed.add(alwaysKey);
 			return chain.proceed(invocation);
 		}
