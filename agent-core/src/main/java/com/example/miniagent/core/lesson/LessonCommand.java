@@ -19,10 +19,12 @@ public final class LessonCommand implements SlashCommand {
 	public record Acceptance(String id, int expectedVersion, Scope scope) {}
 	public record Edit(String id, int expectedVersion, String goalId, String title, String content, List<String> tags) {}
 	public record Rollback(String id, int expectedVersion, int toVersion) {}
+	public record Retirement(String id, int expectedVersion) {}
 
 	@Override public String name() { return "lesson"; }
 	@Override public String description() {
-		return "list | show/inspect/history <id> | lookup <text> | refine <goal-id> | propose/accept/promote/update/rollback <JSON>";
+		return "list | show/inspect/history <id> | lookup <text> | refine <goal-id>"
+				+ " | propose/accept/promote/update/rollback/retire <JSON>";
 	}
 	public static boolean isControlInput(String input) { return ControlInput.isLessonControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
@@ -65,6 +67,10 @@ public final class LessonCommand implements SlashCommand {
 				case "rollback" -> {
 					var r = parse(arg, Rollback.class);
 					yield lessons.rollback(r.id(), r.expectedVersion(), r.toVersion(), actor);
+				}
+				case "retire" -> {
+					var r = parse(arg, Retirement.class);
+					yield lessons.retire(r.id(), r.expectedVersion(), actor);
 				}
 				default -> throw new IOException("Unknown lesson operation");
 			};

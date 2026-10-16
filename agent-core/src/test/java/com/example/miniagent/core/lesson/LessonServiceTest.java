@@ -1,8 +1,15 @@
 package com.example.miniagent.core.lesson;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.List;
+import com.example.miniagent.core.AgentConsole;
+import com.example.miniagent.core.AgentSession;
+import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.run.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -71,6 +78,62 @@ class LessonServiceTest {
 		assertThatThrownBy(() -> f.service.rollback(accepted.id(), 4, 1, f.actor)).isInstanceOf(IOException.class);
 	}
 
+	@Test void retirementStopsInjectionKeepsHistoryAndRollbackRestores() throws Exception {
+		var f = new LessonFixture(root);
+		var accepted = f.accepted("parser outdated advice");
+		var candidate = f.service.propose("verified-goal", f.content("parser candidate"), f.actor);
+		assertThatThrownBy(() -> f.service.retire(candidate.id(), 1, f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("Accepted lesson required");
+		var child = new Actor("child-session", f.actor.workspace());
+		assertThatThrownBy(() -> f.service.retire(accepted.id(), 2, child))
+				.isInstanceOf(IOException.class).hasMessageContaining("not visible");
+		assertThatThrownBy(() -> f.service.retire(accepted.id(), 1, f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("expectedVersion");
+		// Retirement needs no fresh proof: it exists to remove lessons whose source no longer verifies.
+		f.failGoal();
+		var retired = f.service.retire(accepted.id(), 2, f.actor);
+		assertThat(retired.state()).isEqualTo(State.RETIRED);
+		assertThat(retired.version()).isEqualTo(3);
+		assertThat(retired.operation()).isEqualTo("retire");
+		assertThat(retired.content()).isEqualTo(accepted.content());
+		assertThat(retired.scope()).isEqualTo(Scope.SESSION);
+		assertThat(f.service.lookup(f.actor, "parser")).isEmpty();
+		assertThat(f.service.lookup(accepted.id(), f.actor).state()).isEqualTo(State.RETIRED);
+		assertThat(f.service.list(f.actor)).extracting(LessonRecord::id).contains(accepted.id());
+		assertThatThrownBy(() -> f.service.retire(accepted.id(), 3, f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("Accepted lesson required");
+		assertThatThrownBy(() -> f.service.promote(accepted.id(), 3, Scope.PROJECT, f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("Accepted lesson required");
+		assertThatThrownBy(() -> f.service.update(accepted.id(), 3, "verified-goal", f.content("parser revived"), f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("Accepted lesson required");
+		var restored = f.service.rollback(accepted.id(), 3, 2, f.actor);
+		assertThat(restored.state()).isEqualTo(State.ACCEPTED);
+		assertThat(restored.rollbackOf()).isEqualTo(2);
+		assertThat(restored.content()).isEqualTo(accepted.content());
+		assertThat(f.service.lookup(f.actor, "parser")).extracting(LessonRecord::id).containsExactly(accepted.id());
+		assertThat(f.service.history(accepted.id(), f.actor)).extracting(LessonRecord::state)
+				.containsExactly(State.CANDIDATE, State.ACCEPTED, State.RETIRED, State.ACCEPTED);
+	}
+
+	@Test void retireCommandTakesStrictCompareVersionJson() throws Exception {
+		var f = new LessonFixture(root);
+		var accepted = f.accepted("parser command lesson");
+		var out = new ByteArrayOutputStream();
+		var console = new AgentConsole(new BufferedReader(new StringReader("")), new PrintStream(out, true), false);
+		var session = new AgentSession();
+		session.switchTo(f.actor.session());
+		var context = new SlashCommand.CommandContext(null, session, console);
+		var command = new LessonCommand(f.service, Path.of(f.actor.workspace()));
+		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id() + "\"}", context)).isFalse();
+		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id()
+				+ "\",\"expectedVersion\":2,\"scope\":\"GLOBAL\"}", context)).isFalse();
+		assertThat(f.service.lookup(accepted.id(), f.actor).state()).isEqualTo(State.ACCEPTED);
+		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id() + "\",\"expectedVersion\":2}", context))
+				.isTrue();
+		assertThat(f.service.lookup(accepted.id(), f.actor).state()).isEqualTo(State.RETIRED);
+		assertThat(out.toString()).contains("\"state\":\"RETIRED\"");
+	}
+
 	@Test void successfulLabelCannotSubstituteForMatchingGateEvidence() throws Exception {
 		var f = new LessonFixture(root);
 		var g = f.goal.get();
@@ -102,7 +165,7 @@ class LessonServiceTest {
 		for (String input : List.of("/lesson list", "/lesson show id", "/lesson inspect id", "/lesson history id", "/lesson lookup parser"))
 			assertThat(LessonCommand.isControlInput(input)).isTrue();
 		for (String input : List.of("/lesson refine goal", "/lesson propose {}", "/lesson accept {}", "/lesson promote {}",
-				"/lesson update {}", "/lesson rollback {}", "/lesson list extra"))
+				"/lesson update {}", "/lesson rollback {}", "/lesson retire {}", "/lesson list extra"))
 			assertThat(LessonCommand.isControlInput(input)).isFalse();
 		String json = "{\"id\":\"id\",\"expectedVersion\":1}";
 		assertThat(LessonCommand.parseAcceptance(json, true).scope()).isEqualTo(Scope.SESSION);

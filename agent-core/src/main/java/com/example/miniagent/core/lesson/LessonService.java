@@ -158,9 +158,18 @@ public final class LessonService {
 					actor, "update", null, null);
 		});
 	}
-	public LessonRecord rollback(String id, int expectedVersion, int toVersion, Actor actor) throws IOException {
+	/** Stops injection without fresh proof, so lessons whose source no longer verifies can still be removed. */
+	public LessonRecord retire(String id, int expectedVersion, Actor actor) throws IOException {
 		return change(id, expectedVersion, actor, (current, history) -> {
 			accepted(current);
+			return next(current, State.RETIRED, current.scope(), current.content(), current.proof(), actor,
+					"retire", null, current.generation());
+		});
+	}
+	public LessonRecord rollback(String id, int expectedVersion, int toVersion, Actor actor) throws IOException {
+		return change(id, expectedVersion, actor, (current, history) -> {
+			// A retired lesson returns only as an earlier accepted revision.
+			if (current.state() == State.CANDIDATE) throw new IOException("Accepted or retired lesson required");
 			if (toVersion < 1 || toVersion >= current.version()) throw new IOException("Unknown rollback version");
 			var old = history.get(toVersion - 1);
 			accepted(old);

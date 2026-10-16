@@ -9,7 +9,7 @@ import java.util.Objects;
 public record LessonRecord(String id, int version, State state, Scope scope, String session,
 		String workspace, Content content, Proof proof, Actor creator, Actor operator,
 		String operation, Integer rollbackOf, Generation generation, Instant createdAt) {
-	public enum State { CANDIDATE, ACCEPTED }
+	public enum State { CANDIDATE, ACCEPTED, RETIRED }
 	public enum Scope { SESSION, PROJECT, GLOBAL }
 	public record Actor(String session, String workspace) {
 		public Actor { text(session, 128); canonical(workspace); }
