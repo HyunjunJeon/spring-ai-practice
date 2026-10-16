@@ -102,12 +102,18 @@ public class FileTools {
 		catch (IOException ex) {
 			throw new UncheckedIOException("Cannot read " + file + ": " + ex.getMessage(), ex);
 		}
-		int to = Math.min(total, from - 1 + count);
+		if (page.isEmpty()) {
+			// 비어 있는 페이지는 빈 파일이거나 offset 이 마지막 줄을 넘은 경우뿐이다. 끝을 넘은 offset 을 "빈 파일"로 알리면 모델이 파일을 덮어쓸 수 있다.
+			return (total == 0) ? "(empty file)"
+					: "Offset %d is out of range: %s has %d lines".formatted(from, file, total);
+		}
+		// from - 1 + count 는 int 를 넘을 수 있어 long 으로 계산한다. total 이 int 이므로 min 결과는 int 에 들어간다.
+		int to = Math.toIntExact(Math.min(total, (long) from - 1 + count));
 		String body = String.join("\n", page);
 		if (to < total) {
 			body += "\n... (%d more lines, call again with offset=%d)".formatted(total - to, to + 1);
 		}
-		return body.isEmpty() ? "(empty file)" : body;
+		return body;
 	}
 
 	@Tool(name = "write_file", description = "Create a file or overwrite it completely with the given content. "
