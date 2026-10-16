@@ -42,10 +42,15 @@ public class ModelProviderConfiguration {
 	@Bean
 	@ConditionalOnExpression("!'${agent.models.default:fake/fake-scripted}'.startsWith('fake/')")
 	@Nullable ChatModel selectedDefaultChatModel(Environment environment, ObjectProvider<ModelProvider> providers) {
-		String[] parts = environment.getRequiredProperty("agent.models.default").split("/", 2);
+		String configured = environment.getRequiredProperty("agent.models.default");
+		String[] parts = configured.split("/", 2);
+		if (parts.length != 2) {
+			throw new IllegalArgumentException("agent.models.default must be provider/model: " + configured);
+		}
 		ModelRef ref = new ModelRef(parts[0], parts[1]);
 		ModelProvider provider = providers.stream().filter(p -> p.providerId().equals(ref.provider()))
-			.findFirst().orElseThrow();
+			.findFirst().orElseThrow(() -> new IllegalArgumentException(
+					"agent.models.default names an unknown model provider: " + ref.provider()));
 		// NullBean is not a ChatModel: missing authentication never creates a fallback.
 		return provider.auth().available() ? provider.create(ref, Map.of()) : null;
 	}
