@@ -128,7 +128,11 @@ public final class WorkerRuntime {
 	private GoalRecord readReady(String id) throws IOException {
 		if (!Files.exists(files.home.resolve("goals").resolve(id).resolve("state.json"), LinkOption.NOFOLLOW_LINKS))
 			return null; // Publication is still in progress; registered directory supplies the next event.
-		return store.read(id);
+		try { return store.read(id); }
+		catch (IOException | RuntimeException ex) {
+			// Same refusal as an unreadable explicit resume: skip this goal and keep serving healthy ones.
+			error = "GOAL_REFUSED"; publish(); return null;
+		}
 	}
 	private boolean own(GoalRecord record) {
 		// Goal creation already records canonical paths. Do not resolve a foreign goal into this workspace.
@@ -154,7 +158,12 @@ public final class WorkerRuntime {
 		}
 		catch (IOException | RuntimeException ex) {
 			// Never serialize provider exception text, prompts, tokens, or HTTP response bodies.
-			lastGoal = id; lastState = store.read(id).state().name(); error = "GOAL_REFUSED";
+			lastGoal = id; error = "GOAL_REFUSED";
+			try { lastState = store.read(id).state().name(); }
+			catch (IOException | RuntimeException storage) {
+				// The goal state is unknown; report the store, not the goal, and keep the worker alive.
+				lastState = ""; error = "STORAGE_FAILURE";
+			}
 		}
 		finally {
 			// Goal cancellation can leave its calling thread interrupted after its own durable drain.
