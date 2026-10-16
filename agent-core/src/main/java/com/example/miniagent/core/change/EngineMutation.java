@@ -88,9 +88,11 @@ final class EngineMutation {
 			throw new PathPolicy.Violation(PathPolicy.Code.CHANGED, relative);
 		PathPolicy.Observation observation = policy.observe(relative);
 		Path temp = null;
+		Set<PosixFilePermission> parentMode = null;
 		try {
 			if (to.kind() == EntryKind.MISSING) {
 				policy.revalidate(observation);
+				parentMode = grantOwnerWrite(target.getParent());
 				Files.delete(target); // Never recursively remove human/excluded children.
 			}
 			else if (to.kind() == EntryKind.DIRECTORY && from.kind() == EntryKind.DIRECTORY) {
@@ -99,6 +101,7 @@ final class EngineMutation {
 				forceBoundary(target);
 			}
 			else {
+				parentMode = grantOwnerWrite(target.getParent());
 				if (to.kind() == EntryKind.DIRECTORY) {
 					temp = Files.createTempDirectory(target.getParent(), ".change-publish-",
 							PosixFilePermissions.asFileAttribute(permissions(to.posixMode())));
@@ -136,15 +139,38 @@ final class EngineMutation {
 			throw new PathPolicy.Violation(PathPolicy.Code.UNSUPPORTED_FILESYSTEM, relative);
 		}
 		finally {
-			if (temp != null) {
-				boolean interrupted = Thread.interrupted();
-				try {
-					Files.delete(temp);
-					AtomicFiles.forceDirectory(target.getParent());
+			try {
+				if (temp != null) {
+					boolean interrupted = Thread.interrupted();
+					try {
+						Files.delete(temp);
+						AtomicFiles.forceDirectory(target.getParent());
+					}
+					finally { if (interrupted) Thread.currentThread().interrupt(); }
 				}
-				finally { if (interrupted) Thread.currentThread().interrupt(); }
+			}
+			finally {
+				if (parentMode != null) {
+					Files.setPosixFilePermissions(target.getParent(), parentMode);
+					forceBoundary(target.getParent());
+				}
 			}
 		}
+	}
+
+	/**
+	 * A reviewed directory mode without owner write (mkdir x, write x/f, chmod 500 x) would block publishing
+	 * or removing its entries. Grant owner write for this one entry only; the caller restores the returned
+	 * exact mode, so the directory's own checkpoint still observes its reviewed mode.
+	 */
+	private static Set<PosixFilePermission> grantOwnerWrite(Path directory) throws IOException {
+		Set<PosixFilePermission> mode = Files.getPosixFilePermissions(directory, LinkOption.NOFOLLOW_LINKS);
+		if (mode.contains(PosixFilePermission.OWNER_WRITE)) return null;
+		var writable = EnumSet.noneOf(PosixFilePermission.class);
+		writable.addAll(mode);
+		writable.add(PosixFilePermission.OWNER_WRITE);
+		Files.setPosixFilePermissions(directory, writable);
+		return mode;
 	}
 
 	/** Once publication has happened, finish its force even if cancellation arrived. */
