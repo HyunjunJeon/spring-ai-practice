@@ -9,6 +9,7 @@ import com.example.miniagent.core.run.RunContext;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
+import tools.jackson.databind.JsonNode;
 
 /** Trusted mailbox capability. Model arguments never contain sender or parent identities. */
 public final class MessageTool implements ToolCallback, TrustedMailboxTool {
@@ -40,13 +41,19 @@ public final class MessageTool implements ToolCallback, TrustedMailboxTool {
 			throw new IllegalArgumentException("Exact captured message actor required");
 		try {
 			var args = MessageStore.JSON.readTree(input);
-			String plan = args.get("plan").asString(), child = args.get("child").asString();
+			String plan = required(args, "plan").asString(), child = required(args, "child").asString();
 			Object result = send
-				? service.get().send(actor, plan, child, args.get("id").asString(), args.get("version").asLong(),
-					args.get("body").asString())
-				: service.get().read(actor, plan, child, args.get("offset").asInt());
+				? service.get().send(actor, plan, child, required(args, "id").asString(),
+					required(args, "version").asLong(), required(args, "body").asString())
+				: service.get().read(actor, plan, child, required(args, "offset").asInt());
 			return MessageStore.JSON.writeValueAsString(result);
 		}
 		catch (IOException ex) { throw new UncheckedIOException(ex); }
+	}
+	/** Tool arguments are not schema-validated before this call; name the absent key, never echo input. */
+	private static JsonNode required(JsonNode args, String key) {
+		JsonNode value = args.get(key);
+		if (value == null) throw new IllegalArgumentException("Missing message argument: " + key);
+		return value;
 	}
 }
