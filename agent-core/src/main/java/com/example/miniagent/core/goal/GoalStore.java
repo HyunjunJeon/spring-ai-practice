@@ -82,7 +82,9 @@ public final class GoalStore {
 			try (var entries = Files.list(directory)) {
 				for (Path entry : entries.limit(1025).toList()) {
 					if (ids.size() >= 1024) throw new IOException("Goal quota exceeded");
-					GoalRecord.safe(entry.getFileName().toString());
+					// An entry this store did not write (.DS_Store, an editor backup) is a storage fault, not a bug.
+					try { GoalRecord.safe(entry.getFileName().toString()); }
+					catch (IllegalArgumentException ex) { throw new IOException("Goal storage recovery required", ex); }
 					directory(entry);
 					ids.add(entry.getFileName().toString());
 				}
