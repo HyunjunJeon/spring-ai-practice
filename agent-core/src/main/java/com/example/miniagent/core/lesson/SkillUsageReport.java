@@ -61,14 +61,19 @@ public final class SkillUsageReport {
 				rows.add(row(entry, latest.get(entry.lessonId()), snapshot.trackingSince(), now));
 		return new Report(snapshot.trackingSince(), UNUSED_DAYS, recordFailures.getAsLong(), List.copyOf(rows));
 	}
-	/** {@code lesson} is the latest revision the actor can see, or null. */
+	/**
+	 * {@code lesson} is the latest revision the actor can see, or null. MISSING and MODIFIED are judged against
+	 * {@link #skillFile}: the live file, or for a retired skill its retired copy. A retired row repeats no digest,
+	 * because an unexport refuses an entry that is already retired.
+	 */
 	private Row row(SkillUsage entry, LessonRecord lesson, Instant trackingSince, Instant now) throws IOException {
+		boolean retired = entry.retiredAt() != null;
 		Path file = skillFile(entry);
 		String digest = digest(file);
 		var reasons = EnumSet.noneOf(Reason.class);
 		var flags = EnumSet.noneOf(Flag.class);
 		// A skill that is already retired has nothing left to retire, so it gets no reasons.
-		if (entry.retiredAt() == null) {
+		if (!retired) {
 			if (lesson != null && lesson.state() == State.RETIRED) reasons.add(Reason.SOURCE_RETIRED);
 			if (unused(entry, trackingSince, now)) reasons.add(Reason.UNUSED);
 		}
@@ -81,7 +86,7 @@ public final class SkillUsageReport {
 				lesson == null ? UNKNOWN_LESSON : lesson.state().name(), lesson == null ? null : lesson.version(),
 				entry.exportedAt(), entry.lastLoadedAt(), entry.restoredAt(), entry.retiredAt(), entry.retiredReason(),
 				entry.chosenLoads(), entry.forcedLoads(), List.copyOf(reasons), List.copyOf(flags), candidate,
-				entry.chosenLoads() + entry.forcedLoads(), digest);
+				entry.chosenLoads() + entry.forcedLoads(), retired ? null : digest);
 	}
 	/**
 	 * Nothing is unused before the usage has been tracked for the whole period: loads earlier than trackingSince were
@@ -92,10 +97,19 @@ public final class SkillUsageReport {
 				.filter(Objects::nonNull).max(Comparator.naturalOrder()).orElseThrow();
 		return !trackingSince.plus(UNUSED_AFTER).isAfter(now) && !lastSign.plus(UNUSED_AFTER).isAfter(now);
 	}
-	/** The SKILL.md the skills plugin reads for this link: in the workspace for PROJECT, in the home for GLOBAL. */
+	/**
+	 * The SKILL.md a row is judged against. A live skill is the file the skills plugin reads: in the workspace for
+	 * PROJECT, in the home for GLOBAL. A retired skill has no live file by design, so it is its copy under the retired
+	 * root next to that one.
+	 */
 	private Path skillFile(SkillUsage entry) {
-		Path root = entry.scope() == Scope.PROJECT
-				? StatePaths.projectSkills(Path.of(entry.workspace())) : StatePaths.userSkills(home);
+		boolean retired = entry.retiredAt() != null;
+		Path root;
+		if (entry.scope() == Scope.PROJECT) {
+			Path workspace = Path.of(entry.workspace());
+			root = retired ? StatePaths.projectRetiredSkills(workspace) : StatePaths.projectSkills(workspace);
+		}
+		else root = retired ? StatePaths.userRetiredSkills(home) : StatePaths.userSkills(home);
 		return root.resolve(entry.name()).resolve("SKILL.md");
 	}
 	/** SHA-256 of a regular file, or null when there is none. A link is not followed. */

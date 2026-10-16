@@ -77,6 +77,16 @@ class SkillUsageReportTest {
 				e.exportDigest(), e.chosenLoads(), e.forcedLoads(), e.lastLoadedAt(), at, reason, e.restoredAt());
 	}
 	private List<Row> rows() throws Exception { return report.report(f.actor).skills(); }
+	private Path projectRetiredFile(String name) {
+		return Path.of(f.actor.workspace(), ".mini-agent", "skills-retired", name, "SKILL.md");
+	}
+	private Path globalRetiredFile(String name) { return f.home.resolve("skills-retired").resolve(name).resolve("SKILL.md"); }
+	/** Retires an exported skill the way an operator does, from the values its report row printed. */
+	private void unexport(String name, LessonRecord.Scope scope) throws Exception {
+		var row = row(name);
+		new LessonSkillExport(f.service, f.home, store, clock)
+				.unexport(name, scope, row.expectedLoads(), row.expectedDigest(), "OPERATOR", f.actor);
+	}
 	private Row row(String name) throws Exception {
 		return rows().stream().filter(r -> r.name().equals(name)).findFirst().orElseThrow();
 	}
@@ -283,6 +293,44 @@ class SkillUsageReportTest {
 		assertThat(row.retiredReason()).isEqualTo("SOURCE_RETIRED,UNUSED");
 		assertThat(row.reasons()).isEmpty();
 		assertThat(row.candidate()).isFalse();
+	}
+
+	@Test void aHealthyRetiredSkillHasNoFlagsAndNoDigestToRepeat() throws Exception {
+		export(PROJECT, "parser-offsets");
+		unexport("parser-offsets", PROJECT);
+		assertThat(projectFile("parser-offsets")).doesNotExist();
+		var row = row("parser-offsets");
+		assertThat(row.retiredAt()).isEqualTo(NOW);
+		assertThat(row.flags()).isEmpty();
+		assertThat(row.expectedDigest()).isNull();
+	}
+
+	@Test void aRetiredSkillWhoseRetiredCopyWasDeletedIsMissing() throws Exception {
+		export(PROJECT, "parser-offsets");
+		unexport("parser-offsets", PROJECT);
+		Files.delete(projectRetiredFile("parser-offsets"));
+		Files.delete(projectRetiredFile("parser-offsets").getParent());
+		var row = row("parser-offsets");
+		assertThat(row.flags()).containsExactly(SkillUsageReport.Flag.MISSING);
+		assertThat(row.expectedDigest()).isNull();
+	}
+
+	@Test void aRetiredSkillWhoseRetiredCopyWasEditedIsModified() throws Exception {
+		export(PROJECT, "parser-offsets");
+		unexport("parser-offsets", PROJECT);
+		Files.writeString(projectRetiredFile("parser-offsets"), "\nAn operator note.\n", StandardOpenOption.APPEND);
+		var row = row("parser-offsets");
+		assertThat(row.flags()).containsExactly(SkillUsageReport.Flag.MODIFIED);
+		assertThat(row.expectedDigest()).isNull();
+	}
+
+	@Test void aGlobalRetiredSkillIsJudgedAgainstTheHomesRetiredRoot() throws Exception {
+		export(GLOBAL, "shared-tips");
+		unexport("shared-tips", GLOBAL);
+		assertThat(globalFile("shared-tips")).doesNotExist();
+		assertThat(row("shared-tips").flags()).isEmpty();
+		Files.writeString(globalRetiredFile("shared-tips"), "\nAn operator note.\n", StandardOpenOption.APPEND);
+		assertThat(row("shared-tips").flags()).containsExactly(SkillUsageReport.Flag.MODIFIED);
 	}
 
 	@Test void skillsPrintsOneJsonObjectWithTheTrackingDateTheRecordFailuresAndEveryRow() throws Exception {
