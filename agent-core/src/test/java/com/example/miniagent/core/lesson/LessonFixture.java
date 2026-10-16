@@ -67,4 +67,25 @@ final class LessonFixture {
 		goal.set(new GoalRecord(1, g.id(), g.spec(), GoalRecord.State.FAILED, GoalRecord.Reason.EVIDENCE_STALE,
 				g.steps(), g.phase(), g.target(), g.results(), false, ""));
 	}
+	String rejectGoal() throws Exception {
+		return rejectGoal(GoalRecord.State.BLOCKED, GoalRecord.Reason.GATE_FAILED, VerificationRunner.Code.NON_ZERO_EXIT,
+				true, false);
+	}
+	/** The last gate ran and rejected the target. A fresh capture keeps the revision but gives the target a new ID. */
+	String rejectGoal(GoalRecord.State state, GoalRecord.Reason reason, VerificationRunner.Code code, boolean readOnly,
+			boolean freshCapture) throws Exception {
+		var g = goal.get();
+		var owner = g.target().owner();
+		var captured = UUID.randomUUID();
+		var target = new VerificationTarget(freshCapture ? UUID.randomUUID() : captured, owner, HASH, HASH, readOnly);
+		boolean cancelled = code != VerificationRunner.Code.NON_ZERO_EXIT;
+		var evidence = new VerificationEvidence(UUID.randomUUID(), captured, owner, List.of("operator-gate"),
+				g.spec().workspace(), g.spec().workspace(), HASH, HASH, Fingerprinter.sha256(new byte[0]),
+				cancelled ? null : 1, cancelled, Instant.EPOCH, Instant.EPOCH);
+		goal.set(new GoalRecord(1, g.id(), g.spec(), state, reason, g.steps(), GoalRecord.Phase.READY, target,
+				List.of(new GoalRecord.GateResult(0, HASH, HASH, code, evidence, "")), false, "Gate 0 " + code));
+		when(runs.read(completed.spec().runId())).thenReturn(new RunRecord(completed.spec(), completed.sequence(),
+				RunState.INTERRUPTED, completed.reason(), completed.attempts(), completed.usage(), completed.uncertainTools()));
+		return evidence.evidenceId().toString();
+	}
 }

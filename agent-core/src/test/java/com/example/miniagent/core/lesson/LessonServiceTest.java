@@ -6,13 +6,27 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.AgentSession;
 import com.example.miniagent.core.SlashCommand;
+import com.example.miniagent.core.change.VerificationRunner;
+import com.example.miniagent.core.goal.GoalRecord;
+import com.example.miniagent.core.model.ModelBinding;
+import com.example.miniagent.core.model.ModelRef;
+import com.example.miniagent.core.model.TurnContext;
 import com.example.miniagent.core.run.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import static com.example.miniagent.core.lesson.LessonRecord.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -115,14 +129,18 @@ class LessonServiceTest {
 				.containsExactly(State.CANDIDATE, State.ACCEPTED, State.RETIRED, State.ACCEPTED);
 	}
 
+	private static SlashCommand.CommandContext console(LessonFixture f, ByteArrayOutputStream out) {
+		var session = new AgentSession();
+		session.switchTo(f.actor.session());
+		return new SlashCommand.CommandContext(null, session,
+				new AgentConsole(new BufferedReader(new StringReader("")), new PrintStream(out, true), false));
+	}
+
 	@Test void retireCommandTakesStrictCompareVersionJson() throws Exception {
 		var f = new LessonFixture(root);
 		var accepted = f.accepted("parser command lesson");
 		var out = new ByteArrayOutputStream();
-		var console = new AgentConsole(new BufferedReader(new StringReader("")), new PrintStream(out, true), false);
-		var session = new AgentSession();
-		session.switchTo(f.actor.session());
-		var context = new SlashCommand.CommandContext(null, session, console);
+		var context = console(f, out);
 		var command = new LessonCommand(f.service, Path.of(f.actor.workspace()));
 		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id() + "\"}", context)).isFalse();
 		assertThat(command.executeWithStatus("retire {\"id\":\"" + accepted.id()
@@ -132,6 +150,103 @@ class LessonServiceTest {
 				.isTrue();
 		assertThat(f.service.lookup(accepted.id(), f.actor).state()).isEqualTo(State.RETIRED);
 		assertThat(out.toString()).contains("\"state\":\"RETIRED\"");
+	}
+
+	@Test void gateRejectionGroundsAMarkedPitfallThatAcceptsAndInjects() throws Exception {
+		var f = new LessonFixture(root);
+		var evidence = f.rejectGoal();
+		var candidate = f.service.propose("verified-goal", f.content("parser rejects trailing commas"), f.actor);
+		assertThat(candidate.proof().evidenceIds()).containsExactly(evidence);
+		assertThat(candidate.content().content()).isEqualTo(LessonService.FAILURE_MARKER
+				+ " gate 0 `operator-gate` 종료 코드 1 (목표 중단 사유: GATE_FAILED)\n\nparser rejects trailing commas");
+		assertThat(f.service.propose("verified-goal", candidate.content(), f.actor).content()).isEqualTo(candidate.content());
+		assertThatThrownBy(() -> f.service.propose("verified-goal", f.content("x".repeat(4000)), f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("exceeds bound");
+		f.service.accept(candidate.id(), 1, Scope.SESSION, f.actor);
+		assertThat(f.service.lookup(f.actor, "parser")).extracting(LessonRecord::id).containsExactly(candidate.id());
+		var out = new ByteArrayOutputStream();
+		assertThat(new LessonCommand(f.service, Path.of(f.actor.workspace())).executeWithStatus("propose {\"goalId\":"
+				+ "\"verified-goal\",\"title\":\"Parser lesson\",\"content\":\"parser pitfall\",\"tags\":[]}", console(f, out)))
+				.isTrue();
+		assertThat(out.toString()).contains("이전 작업 실패에서 배운 주의점");
+	}
+
+	@Test void onlyAGateThatRanAndRejectedTheTargetGroundsAFailureLesson() throws Exception {
+		var f = new LessonFixture(root);
+		// The last gate passed but the goal still failed: neither a verified success nor a gate rejection.
+		f.failGoal();
+		assertThatThrownBy(() -> f.service.propose("verified-goal", f.content("parser"), f.actor)).isInstanceOf(IOException.class);
+		for (var code : List.of(VerificationRunner.Code.STALE, VerificationRunner.Code.IO, VerificationRunner.Code.CANCELLED)) {
+			f.rejectGoal(GoalRecord.State.BLOCKED, GoalRecord.Reason.GATE_FAILED, code, true, false);
+			assertThatThrownBy(() -> f.service.propose("verified-goal", f.content("parser"), f.actor))
+					.isInstanceOf(IOException.class);
+		}
+		f.rejectGoal(GoalRecord.State.RUNNING, GoalRecord.Reason.GATE_FAILED, VerificationRunner.Code.NON_ZERO_EXIT, true, false);
+		assertThatThrownBy(() -> f.service.propose("verified-goal", f.content("parser"), f.actor)).isInstanceOf(IOException.class);
+		f.rejectGoal();
+		when(f.runs.read(f.completed.spec().runId())).thenReturn(f.completed);
+		assertThatThrownBy(() -> f.service.propose("verified-goal", f.content("parser"), f.actor)).isInstanceOf(IOException.class);
+		// A proposal's evidence must belong to the proposal the goal holds now.
+		f.rejectGoal(GoalRecord.State.BLOCKED, GoalRecord.Reason.GATE_FAILED, VerificationRunner.Code.NON_ZERO_EXIT, false, true);
+		assertThatThrownBy(() -> f.service.propose("verified-goal", f.content("parser"), f.actor)).isInstanceOf(IOException.class);
+		assertThat(f.service.list(f.actor)).isEmpty();
+		// Read-only captures get a fresh ID per step, so an unchanged rejection still binds by revision.
+		f.rejectGoal(GoalRecord.State.BLOCKED, GoalRecord.Reason.NO_PROGRESS, VerificationRunner.Code.NON_ZERO_EXIT, true, true);
+		assertThat(f.service.propose("verified-goal", f.content("parser"), f.actor).content().content())
+				.contains("NO_PROGRESS");
+		f.rejectGoal(GoalRecord.State.FAILED, GoalRecord.Reason.STEP_LIMIT, VerificationRunner.Code.TIMED_OUT, true, false);
+		assertThat(f.service.propose("verified-goal", f.content("parser"), f.actor).content().content())
+				.contains("시간 초과").contains("STEP_LIMIT");
+	}
+
+	@Test void resumingTheRejectedGoalInvalidatesItsCandidate() throws Exception {
+		var f = new LessonFixture(root);
+		var succeeded = f.goal.get();
+		f.rejectGoal();
+		var candidate = f.service.propose("verified-goal", f.content("parser pitfall"), f.actor);
+		f.goal.set(succeeded);
+		when(f.runs.read(succeeded.spec().runId())).thenReturn(f.completed);
+		assertThatThrownBy(() -> f.service.accept(candidate.id(), 1, Scope.SESSION, f.actor))
+				.isInstanceOf(IOException.class).hasMessageContaining("proof changed");
+	}
+
+	@Test void updateReplacesTheFailureMarkerAndLeavesVerifiedGroundsAsWritten() throws Exception {
+		var f = new LessonFixture(root);
+		var accepted = f.accepted("parser verified advice");
+		var succeeded = f.goal.get();
+		f.rejectGoal();
+		var pitfall = f.service.update(accepted.id(), 2, "verified-goal", f.content("parser pitfall"), f.actor);
+		assertThat(pitfall.content().content()).startsWith(LessonService.FAILURE_MARKER).endsWith("\n\nparser pitfall");
+		f.rejectGoal(GoalRecord.State.BLOCKED, GoalRecord.Reason.NO_PROGRESS, VerificationRunner.Code.NON_ZERO_EXIT, true, true);
+		var replaced = f.service.update(accepted.id(), 3, "verified-goal", pitfall.content(), f.actor);
+		assertThat(replaced.content().content()).contains("NO_PROGRESS").doesNotContain("GATE_FAILED")
+				.endsWith("\n\nparser pitfall");
+		f.goal.set(succeeded);
+		when(f.runs.read(succeeded.spec().runId())).thenReturn(f.completed);
+		var verified = f.service.update(accepted.id(), 4, "verified-goal", f.content("parser verified again"), f.actor);
+		assertThat(verified.content()).isEqualTo(f.content("parser verified again"));
+	}
+
+	@Test void refinementFromARejectedGoalAsksForAPitfallAndMarksIt() throws Exception {
+		var f = new LessonFixture(root);
+		f.rejectGoal();
+		var prompts = new ArrayList<String>();
+		ChatModel model = new ChatModel() {
+			@Override public ChatResponse call(Prompt prompt) {
+				prompts.add(prompt.getUserMessage().getText());
+				return new ChatResponse(List.of(new org.springframework.ai.chat.model.Generation(new AssistantMessage(
+						"{\"title\":\"Parser pitfall\",\"content\":\"parser rejects trailing commas\",\"tags\":[\"parser\"]}"))));
+			}
+			// Provider models expose tool-aware defaults; refinement strips their tools before the call.
+			@Override public ChatOptions getOptions() { return ToolCallingChatOptions.builder().build(); }
+		};
+		var binding = new ModelBinding(UUID.randomUUID(), new ModelRef("codex", "gpt-6.1-sol"), LessonFixture.HASH,
+				"responses", model, ChatClient.builder(model).build());
+		var turn = new TurnContext(f.actor.session(), "refine", Path.of(f.actor.workspace()), binding);
+		var candidate = f.service.refine("verified-goal", turn, 1000).candidate();
+		assertThat(prompts).singleElement().asString().contains("failed goal").contains("1..3600");
+		assertThat(candidate.content().content()).startsWith(LessonService.FAILURE_MARKER)
+				.endsWith("\n\nparser rejects trailing commas");
 	}
 
 	@Test void successfulLabelCannotSubstituteForMatchingGateEvidence() throws Exception {
