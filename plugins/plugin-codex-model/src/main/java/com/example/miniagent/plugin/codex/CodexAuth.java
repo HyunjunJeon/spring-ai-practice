@@ -68,6 +68,12 @@ public class CodexAuth {
 	/** 401 을 받았을 때: 자체 토큰이면 강제로 갱신해 본다. Codex CLI 토큰이면 할 수 있는 게 없다. */
 	public synchronized Optional<CodexCredentials> recoverFromUnauthorized(CodexCredentials failed) {
 		if (failed.source() == CodexCredentials.Source.MINI_AGENT && failed.refreshToken() != null) {
+			// 같은 토큰으로 401 을 받은 다른 호출이 먼저 갱신했으면 저장된 새 토큰을 쓴다.
+			// failed 의 refresh token 은 이미 회전되어 다시 쓰면 서버가 재사용으로 보고 로그인을 끊는다.
+			Optional<CodexCredentials> stored = readOwn();
+			if (stored.isPresent() && !stored.get().accessToken().equals(failed.accessToken())) {
+				return stored;
+			}
 			return Optional.of(refresh(failed));
 		}
 		return Optional.empty();
