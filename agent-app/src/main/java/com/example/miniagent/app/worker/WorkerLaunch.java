@@ -64,10 +64,9 @@ public record WorkerLaunch(ModelSelection selection, String auth, String baseUrl
 		String result = Arrays.stream(classpath.split(java.util.regex.Pattern.quote(File.pathSeparator)))
 				.filter(s -> !s.isBlank())
 				.map(s -> Path.of(s).toAbsolutePath().normalize())
-				.filter(p -> {
-					for (Path part : p) if (Set.of("test-classes", "test", "tests").contains(part.toString())) return false;
-					return true;
-				})
+				// Only an entry that is itself a test output directory; an ancestor named "test" says nothing.
+				.filter(p -> p.getFileName() == null
+						|| !Set.of("test-classes", "test", "tests").contains(p.getFileName().toString()))
 				.map(Path::toString).collect(Collectors.joining(File.pathSeparator));
 		if (result.isEmpty()) throw new IllegalArgumentException("No production classpath");
 		return result;
