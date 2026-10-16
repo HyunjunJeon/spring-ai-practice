@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.model.TurnContext;
@@ -30,11 +31,15 @@ public final class LessonCommand implements SlashCommand {
 	public record Retirement(String id, int expectedVersion) {}
 	public record Export(String id, int expectedVersion, String name) {}
 	public record Exported(String skill, String path, String loads, String warning) {}
+	/** expectedLoads and expectedDigest repeat the values the {@code /lesson skills} row printed. */
+	public record Unexport(String name, Scope scope, long expectedLoads, String expectedDigest) {}
+	public record Reinstate(String name, Scope scope) {}
+	public record Moved(String skill, String from, String to, String loads, String warning) {}
 
 	@Override public String name() { return "lesson"; }
 	@Override public String description() {
 		return "list | skills | show/inspect/history <id> | lookup <text> | refine <goal-id>"
-				+ " | propose/accept/promote/update/rollback/retire/export <JSON>";
+				+ " | propose/accept/promote/update/rollback/retire/export/unexport/reinstate <JSON>";
 	}
 	public static boolean isControlInput(String input) { return ControlInput.isLessonControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
@@ -92,6 +97,15 @@ public final class LessonCommand implements SlashCommand {
 					var file = export.export(e.id(), e.expectedVersion(), e.name(), actor);
 					yield new Exported(e.name(), file.toString(), "next start", project ? PROJECT_SKILL_WARNING : null);
 				}
+				case "unexport" -> {
+					var u = parse(arg, Unexport.class);
+					yield moved(u.name(), u.scope(), export.unexport(u.name(), u.scope(), u.expectedLoads(),
+							u.expectedDigest(), retiredReason(u, actor), actor));
+				}
+				case "reinstate" -> {
+					var r = parse(arg, Reinstate.class);
+					yield moved(r.name(), r.scope(), export.reinstate(r.name(), r.scope(), actor));
+				}
 				default -> throw new IOException("Unknown lesson operation");
 			};
 			print(result, context); return true;
@@ -100,6 +114,21 @@ public final class LessonCommand implements SlashCommand {
 			context.console().error("Lesson " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 			return false;
 		}
+	}
+	/**
+	 * The report's current reasons for this skill, as unexport records them; OPERATOR when no rule applies. The report
+	 * shows only this workspace's PROJECT rows, so name and scope pick one row.
+	 */
+	private String retiredReason(Unexport u, Actor actor) throws IOException {
+		var reasons = skills.report(actor).skills().stream()
+				.filter(row -> row.name().equals(u.name()) && row.scope() == u.scope())
+				.findFirst().map(SkillUsageReport.Row::reasons).orElse(List.of());
+		return reasons.isEmpty() ? "OPERATOR" : reasons.stream().map(Enum::name).collect(Collectors.joining(","));
+	}
+	/** Moving a PROJECT folder changes the verified tree just as writing one does. */
+	private static Moved moved(String name, Scope scope, LessonSkillExport.Move move) {
+		return new Moved(name, move.from().toString(), move.to().toString(), "next start",
+				scope == Scope.PROJECT ? PROJECT_SKILL_WARNING : null);
 	}
 	public static <T> T parse(String json, Class<T> type) throws IOException {
 		if (json.length() > 16384) throw new IOException("Lesson JSON bound");

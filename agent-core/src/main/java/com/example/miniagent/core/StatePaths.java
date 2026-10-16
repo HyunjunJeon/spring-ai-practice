@@ -26,4 +26,17 @@ public final class StatePaths {
 	public static Path userSkills(Path home) {
 		return home.resolve("skills");
 	}
+
+	/**
+	 * Sibling of the project skill root that the skills plugin never reads. {@code /lesson unexport} moves PROJECT
+	 * skills there and {@code /lesson reinstate} moves them back.
+	 */
+	public static Path projectRetiredSkills(Path cwd) {
+		return cwd.resolve(".mini-agent").resolve("skills-retired");
+	}
+
+	/** Sibling of the user skill root that the skills plugin never reads; retired GLOBAL skills wait there. */
+	public static Path userRetiredSkills(Path home) {
+		return home.resolve("skills-retired");
+	}
 }

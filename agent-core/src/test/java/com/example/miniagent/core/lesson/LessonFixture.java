@@ -72,8 +72,10 @@ final class LessonFixture {
 	LessonCommand command() { return command(Clock.systemUTC(), () -> 0); }
 	/** The command of this fixture's home, reporting at {@code clock} and with the given in-process record failures. */
 	LessonCommand command(Clock clock, LongSupplier recordFailures) {
-		var report = new SkillUsageReport(service, new SkillUsageStore(home, clock), home, clock, recordFailures);
-		return new LessonCommand(service, new LessonSkillExport(service, home), report, Path.of(actor.workspace()));
+		var usage = new SkillUsageStore(home, clock);
+		var report = new SkillUsageReport(service, usage, home, clock, recordFailures);
+		return new LessonCommand(service, new LessonSkillExport(service, home, usage, clock), report,
+				Path.of(actor.workspace()));
 	}
 	/** The operator console of this fixture's session; output lands in {@code out}. */
 	SlashCommand.CommandContext console(ByteArrayOutputStream out) {

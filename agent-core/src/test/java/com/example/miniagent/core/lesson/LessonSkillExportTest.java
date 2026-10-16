@@ -174,4 +174,19 @@ class LessonSkillExportTest {
 				+ "run a new goal to verify again.");
 		assertThat(LessonStore.JSON.readTree(globalOut.toString()).path("warning").isNull()).isTrue();
 	}
+
+	@Test void aNameInEitherRetiredRootIsReservedForReinstate() throws Exception {
+		var f = new LessonFixture(root);
+		var lesson = promoted(f, Scope.PROJECT);
+		var export = linking(f);
+		var userRetired = Files.createDirectories(f.home.resolve("skills-retired").resolve("user-retired"));
+		assertThatThrownBy(() -> export.export(lesson.id(), 3, "user-retired", f.actor))
+				.isInstanceOf(IOException.class).hasMessage("Skill is retired, use /lesson reinstate: " + userRetired);
+		var projectRetired = Files.createDirectories(
+				Path.of(f.actor.workspace(), ".mini-agent", "skills-retired", "project-retired"));
+		assertThatThrownBy(() -> export.export(lesson.id(), 3, "project-retired", f.actor))
+				.isInstanceOf(IOException.class).hasMessage("Skill is retired, use /lesson reinstate: " + projectRetired);
+		assertThat(Path.of(f.actor.workspace(), ".mini-agent", "skills")).doesNotExist();
+		assertThat(links(f)).isEmpty();
+	}
 }

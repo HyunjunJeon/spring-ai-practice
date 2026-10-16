@@ -25,4 +25,12 @@ public record SkillUsage(LessonRecord.Scope scope, String workspace, String name
 		return new SkillUsage(scope, workspace, name, lessonId, lessonVersion, exportedAt, exportDigest,
 				chosenLoads + (chosen ? 1 : 0), forcedLoads + (chosen ? 0 : 1), at, retiredAt, retiredReason, restoredAt);
 	}
+	SkillUsage retired(Instant at, String reason) {
+		return new SkillUsage(scope, workspace, name, lessonId, lessonVersion, exportedAt, exportDigest, chosenLoads,
+				forcedLoads, lastLoadedAt, at, reason, restoredAt);
+	}
+	SkillUsage reinstated(Instant at) {
+		return new SkillUsage(scope, workspace, name, lessonId, lessonVersion, exportedAt, exportDigest, chosenLoads,
+				forcedLoads, lastLoadedAt, null, null, at);
+	}
 }
