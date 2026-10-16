@@ -54,6 +54,8 @@ final class CodexResponses {
 	 */
 	static final String OUTPUT_ITEMS = "codex.outputItems";
 
+	private static final String NOT_COMPLETED = "Codex response did not complete successfully";
+
 	private CodexResponses() {
 	}
 
@@ -192,9 +194,16 @@ final class CodexResponses {
 			String type = event.path("type").asString("");
 			switch (type) {
 				case "response.output_item.done" -> items.add(event.path("item"));
-				case "response.completed", "response.done", "response.incomplete" -> {
-					return new Result(items, event.path("response"));
+				case "response.completed", "response.done" -> {
+					// stream() 과 같은 기준: 실패하거나 잘린 응답과 잘못된 도구 호출은 최종 답이 아니다.
+					JsonNode response = event.path("response");
+					if (!succeeded(response)) {
+						throw new CodexApiException(NOT_COMPLETED);
+					}
+					requireValidToolCalls(items, json);
+					return new Result(items, response);
 				}
+				case "response.incomplete" -> throw unsuccessful(event);
 				case "response.failed" -> throw new CodexApiException(
 						event.path("response").path("error").path("message").asString("Codex response failed"));
 				case "error" -> throw new CodexApiException(firstNonBlank(event.path("message").asString(""),
@@ -239,21 +248,13 @@ final class CodexResponses {
 					case "response.output_item.done" -> this.items.add(event.path("item"));
 					case "response.completed", "response.done" -> {
 						JsonNode response = event.path("response");
-						if (!response.isObject() || !"completed".equals(response.path("status").asString("completed"))) {
-							throw new CodexApiException("Codex response did not complete successfully");
+						if (!response.isObject() || !succeeded(response)) {
+							throw new CodexApiException(NOT_COMPLETED);
 						}
 						if (this.items.isEmpty()) {
 							response.path("output").forEach(this.items::add);
 						}
-						for (JsonNode item : this.items) {
-							if ("function_call".equals(item.path("type").asString(""))) {
-								if (item.path("call_id").asString("").isBlank()
-										|| item.path("name").asString("").isBlank()
-										|| !json.readTree(item.path("arguments").asString("")).isObject()) {
-									throw new CodexApiException("Invalid completed Codex tool call");
-								}
-							}
-						}
+						requireValidToolCalls(this.items, json);
 						ChatResponse result = toChatResponse(new Result(this.items, response), model, reasoningEffort, json);
 						this.completed = true;
 						if (this.emittedText) {
@@ -264,9 +265,7 @@ final class CodexResponses {
 						}
 						return result;
 					}
-					case "response.failed", "response.incomplete", "error" -> throw new CodexApiException(
-							firstNonBlank(event.path("response").path("error").path("message").asString(""),
-									event.path("message").asString(""), "Codex response did not complete successfully"));
+					case "response.failed", "response.incomplete", "error" -> throw unsuccessful(event);
 					default -> {
 						// Argument fragments are never exposed to the tool loop.
 					}
@@ -344,6 +343,28 @@ final class CodexResponses {
 			.build();
 		var generation = new Generation(output, ChatGenerationMetadata.builder().finishReason(finishReason).build());
 		return new ChatResponse(List.of(generation), metadata);
+	}
+
+	/** status 가 없으면 completed 로 본다. */
+	private static boolean succeeded(JsonNode response) {
+		return "completed".equals(response.path("status").asString("completed"));
+	}
+
+	private static void requireValidToolCalls(List<JsonNode> items, JsonMapper json) {
+		for (JsonNode item : items) {
+			if ("function_call".equals(item.path("type").asString(""))) {
+				if (item.path("call_id").asString("").isBlank()
+						|| item.path("name").asString("").isBlank()
+						|| !json.readTree(item.path("arguments").asString("")).isObject()) {
+					throw new CodexApiException("Invalid completed Codex tool call");
+				}
+			}
+		}
+	}
+
+	private static CodexApiException unsuccessful(JsonNode event) {
+		return new CodexApiException(firstNonBlank(event.path("response").path("error").path("message").asString(""),
+				event.path("message").asString(""), NOT_COMPLETED));
 	}
 
 	private static String firstNonBlank(String... values) {
