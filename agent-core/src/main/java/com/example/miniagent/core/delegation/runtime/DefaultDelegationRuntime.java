@@ -77,12 +77,14 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 	}
 	private record PlanKey(String conversationId, String planId) {}
 	private record UsageKey(RunId runId, String attemptId, RunEvent.UsageKind kind, String callId) {}
+	private static final int RETAINED_PLANS = 128;
 	private final ChildScopeFactory factory;
 	private final DelegationProperties properties;
 	private final SessionRunLock sessions;
 	private final ThreadPoolExecutor workers;
 	private final Semaphore capacity;
 	private final Map<PlanKey, PlanExecution> executions = new ConcurrentHashMap<>();
+	private final java.util.concurrent.atomic.AtomicLong admissions = new java.util.concurrent.atomic.AtomicLong();
 	private volatile boolean closed;
 	private DelegationEvidenceCollector collector;
 	private java.util.function.Consumer<Execution> observer = event -> {};
@@ -250,6 +252,8 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 			catch (RunStoreException ex) { throw new java.io.UncheckedIOException(ex); }
 			finally {
 				synchronized (plan) {
+					// Only a SUCCEEDED child was admitted; a follow-up that threw before reporting must not strand it RUNNING.
+					if (child.status == ChildStatus.RUNNING) child.status = ChildStatus.SUCCEEDED;
 					plan.ledger.settle(childId);
 					child.scope = null;
 					plan.busy = false;
@@ -310,7 +314,8 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 					if (previous.messaging) throw new IllegalStateException("Messaging plan identity already used");
 					if (!previous.busy && !previous.hasPending()) this.executions.remove(key, previous);
 				}
-				if (this.executions.size() >= 128) throw new IllegalStateException("Retained plan limit");
+				if (this.executions.size() >= RETAINED_PLANS) evictOldestFinished();
+				if (this.executions.size() >= RETAINED_PLANS) throw new IllegalStateException("Retained plan limit");
 				if (this.executions.putIfAbsent(key, execution) != null)
 					throw new IllegalStateException("Delegation already active");
 			}
@@ -421,6 +426,17 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 		}
 	}
 
+	/** At the cap the oldest finished plan gives way; busy, pending and messaging plans keep their identity. */
+	private void evictOldestFinished() {
+		this.executions.entrySet().stream().filter(entry -> entry.getValue().finished())
+			.min(java.util.Comparator.comparingLong(entry -> entry.getValue().sequence))
+			.ifPresent(entry -> {
+				synchronized (entry.getValue()) {
+					if (entry.getValue().finished()) this.executions.remove(entry.getKey(), entry.getValue());
+				}
+			});
+	}
+
 	private PlanExecution requirePlan(String conversation, String planId) {
 		PlanExecution plan = this.executions.get(new PlanKey(conversation, planId));
 		if (plan == null) throw new IllegalArgumentException("No current owned plan");
@@ -477,6 +493,7 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 		volatile boolean abandoned;
 		volatile boolean busy = true;
 		volatile boolean messaging;
+		final long sequence = admissions.incrementAndGet();
 		final String revision, configurationDigest;
 		PlanExecution(TurnContext parent, DelegationPlanValidator.ValidatedPlan validated,
 				ToolScope parentScope, BudgetLedger ledger, java.util.concurrent.atomic.AtomicReference<RunContext> accountingOwner,
@@ -538,6 +555,7 @@ public final class DefaultDelegationRuntime implements AutoCloseable {
 		synchronized boolean hasPending() {
 			return this.children.values().stream().anyMatch(child -> child.pending);
 		}
+		synchronized boolean finished() { return !this.busy && !hasPending() && !this.messaging; }
 		synchronized Outcome outcome() {
 			if (hasPending()) return new Pending(this.validated.plan().planId(),
 				this.children.values().stream().filter(child -> child.pending)
