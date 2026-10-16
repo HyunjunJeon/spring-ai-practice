@@ -1,5 +1,11 @@
 package com.example.miniagent.plugin.memory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.util.Comparator;
 import java.util.List;
 
 import com.example.miniagent.core.AgentConsole;
@@ -7,6 +13,8 @@ import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.model.TurnContext;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
@@ -58,7 +66,7 @@ public class MemoryPluginAutoConfiguration {
 
 	@Bean
 	JsonlChatMemoryRepository jsonlChatMemoryRepository(AgentProperties properties) {
-		return new JsonlChatMemoryRepository(properties.getHome().resolve("sessions"));
+		return new JsonlChatMemoryRepository(sessionsDirectory(properties));
 	}
 
 	/**
@@ -182,10 +190,11 @@ public class MemoryPluginAutoConfiguration {
 	}
 
 	@Bean
-	SlashCommand resumeCommand(ChatMemoryRepository repository) {
+	SlashCommand resumeCommand(ChatMemoryRepository repository, AgentProperties properties) {
+		Path sessions = sessionsDirectory(properties);
 		return SlashCommand.of("resume", "세션 이어가기 (/resume <id>, id 생략 시 가장 최근)", (args, ctx) -> {
 			List<String> ids = repository.findConversationIds();
-			String id = args.isBlank() ? (ids.isEmpty() ? null : ids.get(ids.size() - 1)) : args.strip();
+			String id = args.isBlank() ? mostRecentlyModified(sessions, ids) : args.strip();
 			if (id == null || !ids.contains(id)) {
 				ctx.console().error("세션을 찾을 수 없습니다: " + args);
 				return;
@@ -219,6 +228,29 @@ public class MemoryPluginAutoConfiguration {
 			@Value("${agent.plugins.memory.compaction:true}") boolean compaction) {
 		return AgentPlugin.of("memory",
 				"JSONL 세션 메모리 (" + (insideLoop ? "루프 안쪽" : "루프 바깥") + ", 요약 " + (compaction ? "켜짐" : "꺼짐") + ")");
+	}
+
+	private static Path sessionsDirectory(AgentProperties properties) {
+		return properties.getHome().resolve("sessions");
+	}
+
+	/**
+	 * 파일 수정 시각이 가장 늦은 세션 ID. 수정 시각이 같으면 ID 순서상 마지막이다.
+	 * ID 순서만으로는 {@code branch-<uuid>} 가 날짜형 ID 보다 항상 뒤에 놓인다.
+	 */
+	private static @Nullable String mostRecentlyModified(Path sessions, List<String> ids) {
+		return ids.stream()
+			.max(Comparator.comparing((String id) -> modifiedAt(sessions, id)).thenComparing(Comparator.naturalOrder()))
+			.orElse(null);
+	}
+
+	private static FileTime modifiedAt(Path sessions, String id) {
+		try {
+			return Files.getLastModifiedTime(sessions.resolve(id + ".jsonl"));
+		}
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 	private static String abbreviate(String text) {
