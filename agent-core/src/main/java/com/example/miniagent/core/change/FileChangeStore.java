@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -337,13 +338,28 @@ public final class FileChangeStore implements ChangeStore {
 			validateBlobs(snapshot);
 			byte[] manifest = ChangeJournal.JSON.writeValueAsBytes(new Manifest(1, hash, snapshot));
 			if (manifest.length > limits.maxManifestBytes()) throw new Failure(LIMIT, "Manifest exceeds limit");
+			try { journal.append(snapshot); }
+			catch (Failure ex) {
+				// A refusal raised before the first journal byte was written leaves the lease usable.
+				if (journalGrew(scan)) this.poisoned = true;
+				throw ex;
+			}
 			try {
-				journal.append(snapshot);
 				AtomicFiles.write(directory.resolve("manifests").resolve(set.changeSetId() + ".json"),
 						manifest, limits.maxManifestBytes());
 			}
 			catch (Failure ex) { this.poisoned = true; throw ex; }
 			return snapshot;
+		}
+		private boolean journalGrew(ChangeJournal.Scan before) {
+			try {
+				return Files.readAttributes(directory.resolve("journal.log"), BasicFileAttributes.class,
+						LinkOption.NOFOLLOW_LINKS).size() != before.completeBytes();
+			}
+			catch (IOException ex) {
+				// An unreadable journal size cannot prove that nothing was written.
+				return true;
+			}
 		}
 		@Override public synchronized Snapshot propose(ChangeSet proposal) throws Failure {
 			View view = writable();
