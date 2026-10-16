@@ -1,6 +1,8 @@
 package com.example.miniagent.core.lesson;
 
+import java.time.Clock;
 import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.SkillUseListener;
 import com.example.miniagent.core.autoconfigure.AgentAutoConfiguration;
 import com.example.miniagent.core.change.ChangeStore;
 import com.example.miniagent.core.change.VerificationRunner;
@@ -40,6 +42,15 @@ public class LessonAutoConfiguration {
 	@Bean @ConditionalOnMissingBean
 	LessonSkillExport lessonSkillExport(LessonService lessons, AgentProperties properties) throws java.io.IOException {
 		return new LessonSkillExport(lessons, com.example.miniagent.core.StatePaths.home(properties.getHome()));
+	}
+	@Bean @ConditionalOnMissingBean
+	SkillUsageStore skillUsageStore(AgentProperties properties) throws java.io.IOException {
+		return new SkillUsageStore(com.example.miniagent.core.StatePaths.home(properties.getHome()), Clock.systemUTC());
+	}
+	@Bean @ConditionalOnMissingBean
+	SkillUseListener skillUseListener(SkillUsageStore store, AgentProperties properties) throws java.io.IOException {
+		return new SkillUsageRecorder(store, properties.getCwd(),
+				com.example.miniagent.core.StatePaths.home(properties.getHome()));
 	}
 	@Bean @ConditionalOnMissingBean
 	LessonCommand lessonCommand(LessonService lessons, LessonSkillExport export, AgentProperties properties) {
