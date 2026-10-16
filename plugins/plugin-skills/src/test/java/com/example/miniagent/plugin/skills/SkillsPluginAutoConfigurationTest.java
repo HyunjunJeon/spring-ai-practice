@@ -16,6 +16,7 @@ import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.AgentSession;
+import com.example.miniagent.core.SkillUseListener;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.SystemPromptContributor;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,15 @@ class SkillsPluginAutoConfigurationTest {
 	private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
 	private final List<Prompt> prompts = new ArrayList<>();
+
+	/** 리스너가 받은 호출 하나와, 그때까지 모델이 받은 프롬프트 수. */
+	private record Use(Path directory, SkillUseListener.Kind kind, int promptsSoFar) {
+	}
+
+	private final List<Use> uses = new ArrayList<>();
+
+	private final SkillUseListener recording = (directory, kind) -> this.uses
+		.add(new Use(directory, kind, this.prompts.size()));
 
 	private ApplicationContextRunner runner() {
 		return new ApplicationContextRunner()
@@ -206,6 +216,57 @@ class SkillsPluginAutoConfigurationTest {
 			assertThat(this.prompts).isEmpty();
 			assertThat(this.output.toString(StandardCharsets.UTF_8)).contains("알 수 없는 스킬: nope")
 				.doesNotContain("must not be asked");
+		});
+	}
+
+	@Test
+	void loadSkillFromTheContributedProviderTellsTheListenerBean() throws Exception {
+		skill(projectSkills(), "release-dir", "release", "cut a release", "Step one.");
+
+		runner().withBean(SkillUseListener.class, () -> this.recording).run(context -> {
+			context.getBean(ToolCallbackProvider.class).getToolCallbacks()[0].call("{\"name\":\"release\"}");
+
+			assertThat(this.uses).containsExactly(
+					new Use(projectSkills().resolve("release-dir"), SkillUseListener.Kind.CHOSEN, 0));
+		});
+	}
+
+	@Test
+	void skillCommandTellsTheListenerTheSkillWasForcedBeforeTheTurn() throws Exception {
+		skill(projectSkills(), "release-dir", "release", "cut a release", "Step one.");
+
+		runner().withBean(SkillUseListener.class, () -> this.recording).run(context -> {
+			command(context, "skill").execute("release ship it", commandContext("shipped"));
+
+			assertThat(this.uses).containsExactly(
+					new Use(projectSkills().resolve("release-dir"), SkillUseListener.Kind.FORCED, 0));
+			assertThat(this.prompts).hasSize(1);
+		});
+	}
+
+	@Test
+	void skillCommandStillRunsTheTurnWhenTheListenerFails() throws Exception {
+		skill(projectSkills(), "release-dir", "release", "cut a release", "Step one.");
+		SkillUseListener failing = (directory, kind) -> {
+			throw new IllegalStateException("usage store unavailable");
+		};
+
+		runner().withBean(SkillUseListener.class, () -> failing).run(context -> {
+			command(context, "skill").execute("release ship it", commandContext("shipped"));
+
+			assertThat(this.prompts).hasSize(1);
+			assertThat(printedLines()).containsExactly("shipped");
+		});
+	}
+
+	@Test
+	void skillCommandWithAnUnknownNameTellsTheListenerNothing() throws Exception {
+		skill(projectSkills(), "release-dir", "release", "cut a release", "Step one.");
+
+		runner().withBean(SkillUseListener.class, () -> this.recording).run(context -> {
+			command(context, "skill").execute("nope do something", commandContext("must not be asked"));
+
+			assertThat(this.uses).isEmpty();
 		});
 	}
 

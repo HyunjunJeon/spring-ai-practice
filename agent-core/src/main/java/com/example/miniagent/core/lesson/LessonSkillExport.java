@@ -5,9 +5,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.List;
 import com.example.miniagent.core.StatePaths;
 import com.example.miniagent.core.change.AtomicFiles;
+import com.example.miniagent.core.change.Fingerprinter;
 import static com.example.miniagent.core.lesson.LessonRecord.*;
 
 /**
@@ -18,7 +20,15 @@ public final class LessonSkillExport {
 	private static final int MAX_BYTES = 64 * 1024;
 	private final LessonService lessons;
 	private final Path home;
-	public LessonSkillExport(LessonService lessons, Path home) { this.lessons = lessons; this.home = home; }
+	private final SkillUsageStore usage;
+	private final Clock clock;
+	/** Links exports in the usage store of {@code home}, stamped with the system clock. */
+	public LessonSkillExport(LessonService lessons, Path home) {
+		this(lessons, home, new SkillUsageStore(home, Clock.systemUTC()), Clock.systemUTC());
+	}
+	public LessonSkillExport(LessonService lessons, Path home, SkillUsageStore usage, Clock clock) {
+		this.lessons = lessons; this.home = home; this.usage = usage; this.clock = clock;
+	}
 
 	/** Writes {@code <root>/<name>/SKILL.md}. The skills plugin scans its roots at startup, so it loads on the next start. */
 	public Path export(String id, int expectedVersion, String name, Actor actor) throws IOException {
@@ -42,10 +52,20 @@ public final class LessonSkillExport {
 		directories(root);
 		Path directory = Files.createDirectory(root.resolve(name));
 		Path file = directory.resolve("SKILL.md");
-		try { AtomicFiles.write(file, render(lesson, name).getBytes(StandardCharsets.UTF_8), MAX_BYTES); }
+		byte[] bytes = render(lesson, name).getBytes(StandardCharsets.UTF_8);
+		try {
+			AtomicFiles.write(file, bytes, MAX_BYTES);
+			// Usage identity matches the root: a PROJECT skill belongs to this workspace, a GLOBAL one to the home.
+			String workspace = lesson.scope() == Scope.PROJECT ? actor.workspace() : null;
+			usage.link(new SkillUsage(lesson.scope(), workspace, name, lesson.id(), lesson.version(), clock.instant(),
+					Fingerprinter.sha256(bytes), 0, 0, null, null, null, null));
+		}
 		catch (IOException | RuntimeException ex) {
-			// A failed write must not leave the name taken.
-			try { Files.deleteIfExists(directory); }
+			// A failed write must not leave the name taken, and a skill without a link could never be retired.
+			try {
+				Files.deleteIfExists(file);
+				Files.deleteIfExists(directory);
+			}
 			catch (IOException cleanup) { ex.addSuppressed(cleanup); }
 			throw ex;
 		}

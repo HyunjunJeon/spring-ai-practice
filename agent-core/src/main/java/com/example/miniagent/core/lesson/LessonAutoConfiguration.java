@@ -40,8 +40,10 @@ public class LessonAutoConfiguration {
 		return new LessonRefinementAdvisor.EffectGuard();
 	}
 	@Bean @ConditionalOnMissingBean
-	LessonSkillExport lessonSkillExport(LessonService lessons, AgentProperties properties) throws java.io.IOException {
-		return new LessonSkillExport(lessons, com.example.miniagent.core.StatePaths.home(properties.getHome()));
+	LessonSkillExport lessonSkillExport(LessonService lessons, SkillUsageStore usage, AgentProperties properties)
+			throws java.io.IOException {
+		return new LessonSkillExport(lessons, com.example.miniagent.core.StatePaths.home(properties.getHome()), usage,
+				Clock.systemUTC());
 	}
 	@Bean @ConditionalOnMissingBean
 	SkillUsageStore skillUsageStore(AgentProperties properties) throws java.io.IOException {

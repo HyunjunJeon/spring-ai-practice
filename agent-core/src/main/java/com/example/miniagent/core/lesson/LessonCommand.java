@@ -12,6 +12,10 @@ import static com.example.miniagent.core.lesson.LessonRecord.*;
 
 /** Operator-only /lesson; mutating operations take strict bounded JSON with compare-version fields. */
 public final class LessonCommand implements SlashCommand {
+	// .mini-agent/skills is part of the verified tree, so every succeeded goal there is revoked at its next inspection.
+	private static final String PROJECT_SKILL_WARNING = "PROJECT skills live inside the workspace, so this changes the "
+			+ "workspace fingerprint: succeeded goals in this workspace lose their verified evidence and can no longer "
+			+ "ground new lessons; run a new goal to verify again.";
 	private final LessonService lessons;
 	private final LessonSkillExport export;
 	private final Path workspace;
@@ -24,7 +28,7 @@ public final class LessonCommand implements SlashCommand {
 	public record Rollback(String id, int expectedVersion, int toVersion) {}
 	public record Retirement(String id, int expectedVersion) {}
 	public record Export(String id, int expectedVersion, String name) {}
-	public record Exported(String skill, String path, String loads) {}
+	public record Exported(String skill, String path, String loads, String warning) {}
 
 	@Override public String name() { return "lesson"; }
 	@Override public String description() {
@@ -79,8 +83,10 @@ public final class LessonCommand implements SlashCommand {
 				}
 				case "export" -> {
 					var e = parse(arg, Export.class);
+					// Read before exporting: export takes only this revision, and a revision's scope never changes.
+					boolean project = lessons.lookup(e.id(), actor).scope() == Scope.PROJECT;
 					var file = export.export(e.id(), e.expectedVersion(), e.name(), actor);
-					yield new Exported(e.name(), file.toString(), "next start");
+					yield new Exported(e.name(), file.toString(), "next start", project ? PROJECT_SKILL_WARNING : null);
 				}
 				default -> throw new IOException("Unknown lesson operation");
 			};

@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.AgentPlugin;
 import com.example.miniagent.core.AgentProperties;
+import com.example.miniagent.core.SkillUseListener;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.StatePaths;
 import com.example.miniagent.core.SystemPromptContributor;
 
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.context.annotation.Bean;
@@ -50,9 +52,14 @@ public class SkillsPluginAutoConfiguration {
 		};
 	}
 
+	/** lesson 기능이 꺼져 있으면 사용 기록 리스너 빈이 없으므로 아무것도 기록하지 않는다. */
+	private static SkillUseListener usage(ObjectProvider<SkillUseListener> listener) {
+		return listener.getIfAvailable(() -> SkillUseListener.NONE);
+	}
+
 	@Bean
-	ToolCallbackProvider skillToolsProvider(SkillRegistry registry) {
-		return MethodToolCallbackProvider.builder().toolObjects(new SkillTools(registry)).build();
+	ToolCallbackProvider skillToolsProvider(SkillRegistry registry, ObjectProvider<SkillUseListener> listener) {
+		return MethodToolCallbackProvider.builder().toolObjects(new SkillTools(registry, usage(listener))).build();
 	}
 
 	@Bean
@@ -67,12 +74,19 @@ public class SkillsPluginAutoConfiguration {
 
 	/** 명령이 에이전트를 직접 구동하는 예: 스킬 지침을 강제로 붙여 한 턴을 실행한다. */
 	@Bean
-	SlashCommand skillCommand(SkillRegistry registry) {
+	SlashCommand skillCommand(SkillRegistry registry, ObjectProvider<SkillUseListener> listener) {
+		SkillUseListener usage = usage(listener);
 		return SlashCommand.of("skill", "스킬을 강제로 적용해 실행 (/skill <이름> <요청>)", (args, ctx) -> {
 			String[] parts = args.strip().split("\\s+", 2);
 			registry.find(parts[0]).ifPresentOrElse(skill -> {
 				String request = (parts.length > 1) ? parts[1] : "";
 				String prompt = "Follow these skill instructions:\n\n%s\n\nUser request: %s".formatted(skill.instructions(), request);
+				try {
+					usage.loaded(skill.directory(), SkillUseListener.Kind.FORCED);
+				}
+				catch (RuntimeException ex) {
+					// 사용 기록은 best-effort 다. 리스너가 실패해도 턴은 그대로 실행한다.
+				}
 				Agent.AgentReply reply = ctx.agent().run(prompt);
 				ctx.console().println(reply.text());
 			}, () -> ctx.console().error("알 수 없는 스킬: " + parts[0]));

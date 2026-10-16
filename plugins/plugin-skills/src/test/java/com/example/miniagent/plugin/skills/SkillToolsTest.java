@@ -2,9 +2,11 @@ package com.example.miniagent.plugin.skills;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.example.miniagent.core.SkillUseListener;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,11 +24,23 @@ class SkillToolsTest {
 	@TempDir
 	Path root;
 
-	private SkillTools tools() throws Exception {
+	/** 리스너가 받은 호출 하나. */
+	private record Use(Path directory, SkillUseListener.Kind kind) {
+	}
+
+	private final List<Use> uses = new ArrayList<>();
+
+	private final SkillUseListener recording = (directory, kind) -> this.uses.add(new Use(directory, kind));
+
+	private SkillRegistry registry() throws Exception {
 		Path dir = Files.createDirectories(this.root.resolve("release"));
 		Files.writeString(dir.resolve("SKILL.md"),
 				"---\nname: release\ndescription: cut a release\n---\nStep one.\n\nStep two.\n");
-		return new SkillTools(new SkillRegistry(List.of(this.root)));
+		return new SkillRegistry(List.of(this.root));
+	}
+
+	private SkillTools tools() throws Exception {
+		return new SkillTools(registry());
 	}
 
 	@Test
@@ -72,6 +86,49 @@ class SkillToolsTest {
 		assertThatThrownBy(() -> loadSkill.call("{\"name\":\"missing\"}")).isInstanceOf(ToolExecutionException.class)
 			.hasRootCauseInstanceOf(IllegalArgumentException.class)
 			.hasRootCauseMessage("Unknown skill: missing");
+	}
+
+	@Test
+	void eachLoadTellsTheListenerTheSkillDirectoryAsChosen() throws Exception {
+		SkillTools tools = new SkillTools(registry(), this.recording);
+
+		tools.loadSkill("release");
+		tools.loadSkill("release");
+
+		assertThat(this.uses).containsExactly(new Use(this.root.resolve("release"), SkillUseListener.Kind.CHOSEN),
+				new Use(this.root.resolve("release"), SkillUseListener.Kind.CHOSEN));
+	}
+
+	@Test
+	void aListenerLeavesTheReturnedTextUnchanged() throws Exception {
+		String without = tools().loadSkill("release");
+
+		assertThat(new SkillTools(registry(), this.recording).loadSkill("release")).isEqualTo(without);
+	}
+
+	@Test
+	void aFailingListenerStillHandsTheModelTheInstructions() throws Exception {
+		SkillTools tools = new SkillTools(registry(), (directory, kind) -> {
+			throw new IllegalStateException("usage store unavailable");
+		});
+
+		assertThat(tools.loadSkill("release")).isEqualTo(tools().loadSkill("release"));
+	}
+
+	@Test
+	void anUnknownNameIsRejectedWithoutTellingTheListener() throws Exception {
+		SkillTools tools = new SkillTools(registry(), this.recording);
+
+		assertThatThrownBy(() -> tools.loadSkill("missing")).hasMessage("Unknown skill: missing");
+		assertThat(this.uses).isEmpty();
+	}
+
+	@Test
+	void aMissingListenerIsRefusedWhenTheToolIsBuilt() throws Exception {
+		SkillRegistry registry = registry();
+
+		assertThatThrownBy(() -> new SkillTools(registry, null)).isInstanceOf(NullPointerException.class)
+			.hasMessage("listener");
 	}
 
 	private static ToolCallbackProvider provider(SkillTools tools) {
