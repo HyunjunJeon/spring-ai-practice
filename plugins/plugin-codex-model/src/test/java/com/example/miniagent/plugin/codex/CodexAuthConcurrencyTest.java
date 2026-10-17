@@ -1,7 +1,9 @@
 package com.example.miniagent.plugin.codex;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -59,9 +60,6 @@ class CodexAuthConcurrencyTest {
 	}
 
 	@Test
-	@Disabled("SUSPECT plugins-providers:G4: both instances read the expiring own token and each refreshes it; "
-			+ "the token endpoint saw [refresh-1, refresh-1], so the rotated refresh token is spent twice "
-			+ "(no cross-process lock or re-read in CodexAuth.current)")
 	void twoInstancesRefreshingAnExpiringTokenAtOnceSpendItsRefreshTokenOnce() throws Exception {
 		CodexAuth app = auth();
 		CodexAuth worker = auth();
@@ -87,6 +85,18 @@ class CodexAuthConcurrencyTest {
 		for (Future<CodexCredentials> result : results) {
 			assertThat(result.get().accessToken()).isEqualTo(stored.accessToken());
 		}
+	}
+
+	@Test
+	void theRefreshLockBesideTheStoreIsOwnerOnly() throws Exception {
+		CodexAuth app = auth();
+		app.saveOwn(CodexEndpoints.ownToken(Instant.now().plusSeconds(60), "refresh-1"));
+		this.endpoints.honor("refresh-1");
+
+		app.current();
+
+		assertThat(Files.getPosixFilePermissions(this.dir.resolve("auth/openai-codex.json.lock")))
+			.isEqualTo(PosixFilePermissions.fromString("rw-------"));
 	}
 
 	private CodexAuth auth() {

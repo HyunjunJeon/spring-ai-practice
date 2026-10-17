@@ -2,12 +2,21 @@ package com.example.miniagent.plugin.codex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JsonNode;
@@ -26,6 +35,16 @@ public class CodexAuth {
 
 	/** 만료 5분 전부터 갱신 대상으로 본다. */
 	private static final long REFRESH_MARGIN_SECONDS = 300;
+
+	private static final FileAttribute<Set<PosixFilePermission>> OWNER_ONLY = PosixFilePermissions
+		.asFileAttribute(PosixFilePermissions.fromString("rw-------"));
+
+	/**
+	 * 잠금 파일의 실제 경로마다 하나인 JVM 안의 모니터. 인스턴스의 synchronized 는 같은 JVM 의 다른 인스턴스를 막지 못하고,
+	 * 한 JVM 안에서 같은 파일을 두 번 FileChannel.lock 하면 기다리지 않고 OverlappingFileLockException 이 난다.
+	 * 또 잠금을 쥔 파일의 다른 디스크립터를 닫으면 OS 가 그 잠금까지 풀 수 있어서, 이 모니터를 잡은 뒤에만 채널을 연다.
+	 */
+	private static final ConcurrentMap<Path, Object> REFRESH_MONITORS = new ConcurrentHashMap<>();
 
 	private final JsonMapper json = JsonMapper.builder().build();
 
@@ -93,7 +112,7 @@ public class CodexAuth {
 			Files.createDirectories(this.ownStore.getParent());
 			// 생성 시점부터 소유자 전용인 파일에 완성한 뒤 게시한다. 기존 토큰은 실패 시 유지된다.
 			Path temp = Files.createTempFile(this.ownStore.getParent(), "." + this.ownStore.getFileName() + ".", ".tmp",
-					PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+					OWNER_ONLY);
 			Throwable failure = null;
 			try {
 				Files.writeString(temp, this.json.writeValueAsString(node), StandardCharsets.UTF_8);
@@ -153,9 +172,33 @@ public class CodexAuth {
 		if (credentials.source() != CodexCredentials.Source.MINI_AGENT || credentials.refreshToken() == null) {
 			throw new IllegalStateException("자체 토큰만 갱신할 수 있습니다");
 		}
-		CodexCredentials refreshed = this.oauth.refresh(credentials.refreshToken());
-		saveOwn(refreshed);
-		return refreshed;
+		// 앱과 워커 JVM 처럼 같은 저장소를 쓰는 다른 인스턴스·프로세스와 한 번에 하나씩 갱신한다.
+		Path lockFile = this.ownStore.resolveSibling(this.ownStore.getFileName() + ".lock");
+		try {
+			Files.createDirectories(this.ownStore.getParent());
+			try {
+				Files.createFile(lockFile, OWNER_ONLY);
+			}
+			catch (FileAlreadyExistsException ex) {
+				// 다른 인스턴스나 이전 실행이 만든 잠금 파일을 그대로 쓴다. 잠금 파일은 지우지 않는다.
+			}
+			synchronized (REFRESH_MONITORS.computeIfAbsent(lockFile.toRealPath(), path -> new Object())) {
+				try (FileChannel channel = FileChannel.open(lockFile, StandardOpenOption.WRITE);
+						FileLock ignored = channel.lock()) {
+					// refresh token 은 한 번 쓰면 회전한다. 기다리는 동안 다른 쪽이 갱신했으면 다시 쓰지 않고 그 토큰을 쓴다.
+					Optional<CodexCredentials> stored = readOwn();
+					if (stored.isPresent() && !stored.get().accessToken().equals(credentials.accessToken())) {
+						return stored.get();
+					}
+					CodexCredentials refreshed = this.oauth.refresh(credentials.refreshToken());
+					saveOwn(refreshed);
+					return refreshed;
+				}
+			}
+		}
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 	/**
