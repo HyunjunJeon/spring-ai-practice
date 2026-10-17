@@ -13,8 +13,7 @@ public final class WorkerCommand implements SlashCommand {
 	@Override public String name() { return "worker"; }
 	@Override public String description() { return "start | status | stop | wakeup | resume <goalId> [run resume options]"; }
 	public static boolean isControlInput(String input) {
-		String[] parts = input.strip().split("\\s+");
-		return parts.length >= 2 && parts[0].equals("/worker");
+		return input.strip().matches("/worker\\s+status");
 	}
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
 	@Override public boolean executeWithStatus(String args, CommandContext context) {
