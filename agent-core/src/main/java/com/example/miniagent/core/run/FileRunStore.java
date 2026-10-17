@@ -12,9 +12,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -286,6 +288,33 @@ public final class FileRunStore implements RunStore {
 		return List.copyOf(result);
 	}
 
+	/**
+	 * Active time a lost attempt's rows prove: from its start to its last row, never past the loss.
+	 * An approval request pauses the meter until its decision row, as the approval broker does.
+	 * A parent is paused while its child runs; the child's own rows charge that time on import.
+	 */
+	private static long lostActiveMillis(List<RunEvent> events, String attemptId) {
+		long active = 0;
+		Instant previous = null;
+		Set<String> waiting = new HashSet<>();
+		for (RunEvent event : events) {
+			if (event instanceof RunEvent.AttemptStarted start && start.attemptId().equals(attemptId))
+				previous = start.at();
+			if (previous == null) continue;
+			boolean childImport = event instanceof RunEvent.UsageRecorded usage && usage.callId().startsWith("child-");
+			if (waiting.isEmpty() && !childImport) active += Duration.between(previous, event.at()).toMillis();
+			previous = event.at();
+			switch (event) {
+				case RunEvent.ApprovalRequested request -> waiting.add(request.requestId());
+				case RunEvent.ApprovalResolved resolved -> waiting.remove(resolved.requestId());
+				// The attempt's own ACTIVE_TIME row already charged everything before it.
+				case RunEvent.UsageRecorded usage when usage.kind() == RunEvent.UsageKind.ACTIVE_TIME -> active = 0;
+				default -> {}
+			}
+		}
+		return active;
+	}
+
 	private static byte[] frame(long sequence, RunEvent event) {
 		var root = JSON.createObjectNode();
 		root.put("type", event.getClass().getSimpleName());
@@ -484,8 +513,10 @@ public final class FileRunStore implements RunStore {
 				appendOwned(new RunEvent.StateChanged(at, RunState.INTERRUPTED, RunEvent.Reason.PROCESS_LOST));
 				Attempt active = this.record.attempts().isEmpty() ? null : this.record.attempts().getLast();
 				if (active != null && active.endedAt() == null) {
+					// The lost process never journaled this attempt's active time; charge what its rows prove.
+					long proven = lostActiveMillis(this.events, active.attemptId());
 					appendOwned(new RunEvent.UsageRecorded(at, active.attemptId(), RunEvent.UsageKind.MODEL_ROUND,
-							"process-lost-" + this.record.sequence(), new RunUsage(0, true, 0, 0, 0)));
+							"process-lost-" + this.record.sequence(), new RunUsage(0, true, 0, proven, 0)));
 					appendOwned(new RunEvent.AttemptEnded(at, active.attemptId()));
 				}
 			}

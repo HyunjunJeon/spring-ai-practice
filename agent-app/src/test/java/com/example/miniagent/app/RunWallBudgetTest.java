@@ -24,7 +24,6 @@ import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.*;
 import com.example.miniagent.plugin.fakemodel.ScriptedChatModel;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -46,12 +45,19 @@ class RunWallBudgetTest {
 	private static final Instant START = Instant.parse("2026-10-06T00:00:00Z");
 	private static final Duration WALL = Duration.ofMinutes(10);
 	private static final Duration WORK = Duration.ofMinutes(15);
+	/** Above WORK but below twice WORK, so a lost attempt charged twice exhausts it. */
+	private static final Duration LONG_WALL = Duration.ofMinutes(20);
+	/** Paused time inside the lost attempt: longer than LONG_WALL on its own. */
+	private static final Duration PAUSED = Duration.ofMinutes(30);
+	private static final Duration CHILD = Duration.ofMinutes(1);
+	private static final String DIGEST = "a".repeat(64);
 	private static final String GOAL = "!tool checkpoint {}";
 
 	@TempDir Path directory;
 	private final MutableClock clock = new MutableClock();
 	private final AtomicInteger modelCalls = new AtomicInteger();
 	private volatile boolean loseProcess;
+	private volatile Journaled beforeLoss;
 	private FileRunStore runs;
 	private RunExecutor executor;
 	private Path cwd;
@@ -108,8 +114,6 @@ class RunWallBudgetTest {
 				.singleElement().extracting(RunEvent::at).isEqualTo(START.plus(WORK));
 	}
 
-	@Disabled("SUSPECT run:G7: a process lost 15 minutes into the attempt leaves activeMillis=0 in the journal, "
-			+ "so resume under a 10-minute wall calls the model again and ends COMPLETED/NONE, not INTERRUPTED/BUDGET_EXHAUSTED")
 	@Test void lostAttemptStillCountsTowardTheWallOnResume() throws Exception {
 		RunId id = loseProcessAfterFirstRound();
 		RunRecord resumed = this.executor.resume(id, SELECTED, this.cwd).record();
@@ -119,22 +123,74 @@ class RunWallBudgetTest {
 		assertThat(this.modelCalls).hasValue(1);
 	}
 
+	@Test void activeTimeTheLostAttemptJournaledIsNotChargedTwice() throws Exception {
+		// A deferred approval journals ACTIVE_TIME, then keeps the writer until its process exits.
+		RunId id = loseProcessAfterFirstRound(LONG_WALL, RunContext::finishActiveTime);
+		RunRecord resumed = this.executor.resume(id, SELECTED, this.cwd).record();
+		assertThat(resumed.state()).isEqualTo(RunState.COMPLETED);
+		assertThat(resumed.usage().activeMillis()).isEqualTo(WORK.toMillis());
+	}
+
+	@Test void approvalWaitBeforeTheLossDoesNotCountTowardTheWall() throws Exception {
+		RunId id = loseProcessAfterFirstRound(LONG_WALL, context -> {
+			context.writer().append(new RunEvent.ApprovalRequested(context.now(), context.attemptId(), "approval",
+					"checkpoint-call", DIGEST, null));
+			this.clock.advance(PAUSED);
+			context.writer().append(new RunEvent.ApprovalResolved(context.now(), context.attemptId(), "approval",
+					RunEvent.Decision.APPROVED));
+		});
+		RunRecord resumed = this.executor.resume(id, SELECTED, this.cwd).record();
+		assertThat(resumed.state()).isEqualTo(RunState.COMPLETED);
+		assertThat(resumed.usage().activeMillis()).isEqualTo(WORK.toMillis());
+	}
+
+	@Test void childRunBeforeTheLossCountsOnlyThroughItsImportedRow() throws Exception {
+		// The parent pauses while a child runs, then imports the child's own acknowledged time.
+		RunId id = loseProcessAfterFirstRound(LONG_WALL, context -> {
+			this.clock.advance(PAUSED);
+			context.writer().append(new RunEvent.UsageRecorded(context.now(), context.attemptId(),
+					RunEvent.UsageKind.COMPACTION, "child-" + DIGEST, new RunUsage(0, false, 0, CHILD.toMillis(), 0)));
+		});
+		RunRecord resumed = this.executor.resume(id, SELECTED, this.cwd).record();
+		assertThat(resumed.state()).isEqualTo(RunState.COMPLETED);
+		assertThat(resumed.usage().activeMillis()).isEqualTo(WORK.plus(CHILD).toMillis());
+	}
+
 	private RunExecutor.Result start() throws Exception {
-		return this.executor.start(GOAL, "parent", SELECTED, this.cwd, new RunBudget(WALL, null, 50));
+		return start(WALL);
+	}
+
+	private RunExecutor.Result start(Duration wall) throws Exception {
+		return this.executor.start(GOAL, "parent", SELECTED, this.cwd, new RunBudget(wall, null, 50));
 	}
 
 	/** The tool releases the run writer the way a killed JVM releases its lock: nothing later is journaled. */
 	private RunId loseProcessAfterFirstRound() throws Exception {
+		return loseProcessAfterFirstRound(WALL, context -> {});
+	}
+
+	/** As above, after the lost attempt journals {@code rows} through its own writer and the mutable clock. */
+	private RunId loseProcessAfterFirstRound(Duration wall, Journaled rows) throws Exception {
 		this.loseProcess = true;
-		assertThat(assertThrows(RunStoreException.class, this::start).code()).isEqualTo(RunStoreException.Code.CLOSED);
+		this.beforeLoss = rows;
+		assertThat(assertThrows(RunStoreException.class, () -> start(wall)).code())
+				.isEqualTo(RunStoreException.Code.CLOSED);
 		this.loseProcess = false;
 		return this.runs.list().getFirst();
+	}
+
+	private interface Journaled {
+		void append(RunContext context) throws RunStoreException;
 	}
 
 	public class CheckpointTool {
 		@Tool(name = "checkpoint", description = "Reached after the first model round")
 		public String reach() throws RunStoreException {
-			if (loseProcess) RunContext.current().orElseThrow().writer().close();
+			if (loseProcess) {
+				RunContext context = RunContext.current().orElseThrow();
+				beforeLoss.append(context);
+				context.writer().close();
+			}
 			return "reached";
 		}
 	}
