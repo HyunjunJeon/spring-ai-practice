@@ -57,10 +57,13 @@ public class TurnTraceAdvisor implements CallAdvisor, StreamAdvisor {
 		this.settings.setCurrentTurn(turn);
 		String userText = request.prompt().getUserMessage().getText();
 		this.events.publishEvent(new TraceEvent.TurnStarted(turn.initialMessages, (userText != null) ? userText : ""));
-		return chain.nextStream(request.mutate().context(TURN_RECORD, turn).build()).doFinally(signal -> {
-			this.settings.setCurrentTurn(null);
-			this.events.publishEvent(turn.finish());
-		});
+		// doFinally 는 구독자에게 완료를 알린 뒤에 돌아서, 완료를 받고 턴을 닫은 쪽(RPC 콘솔 등)은 TurnFinished 를 놓쳤다.
+		// 즉시 정리하는 using 은 완료·오류 신호를 내려보내기 전에, 취소는 안쪽 스트림을 취소한 뒤에 한 번만 정리한다.
+		return Flux.using(() -> turn, record -> chain.nextStream(request.mutate().context(TURN_RECORD, record).build()),
+				record -> {
+					this.settings.setCurrentTurn(null);
+					this.events.publishEvent(record.finish());
+				});
 	}
 
 	@Override
