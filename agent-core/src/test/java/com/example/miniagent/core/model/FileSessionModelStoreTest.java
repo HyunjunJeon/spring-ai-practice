@@ -64,8 +64,7 @@ class FileSessionModelStoreTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "../escape", "..", ".", "/absolute", "a/b", "a\\b", "", "a.json",
-			" space", "a\nb", "한글", "-leading" })
+	@ValueSource(strings = { "../escape", "..", ".", "/absolute", "a/b", "a\\b", "", " space", "a\nb", "한글" })
 	void traversalAndUnsafeIdsAreRejectedBeforeReadingOrWriting(String id) throws IOException {
 		FileSessionModelStore store = new FileSessionModelStore(this.home);
 		assertThatThrownBy(() -> store.load(id)).isInstanceOf(IllegalArgumentException.class);
@@ -73,6 +72,18 @@ class FileSessionModelStoreTest {
 			.isInstanceOf(IllegalArgumentException.class);
 		try (var files = Files.list(this.home.resolve("model-selections"))) {
 			assertThat(files).isEmpty();
+		}
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "a.b", "-x", "-leading", "a.json", ".hidden", "a..", "..a" })
+	void idsTheMemoryAlphabetAcceptsRoundTrip(String id) throws IOException {
+		FileSessionModelStore store = new FileSessionModelStore(this.home);
+		ModelSelection selection = new ModelSelection(new ModelRef("fake", "a"));
+		store.save(id, selection);
+		assertThat(store.load(id)).contains(selection);
+		try (var files = Files.list(this.home.resolve("model-selections"))) {
+			assertThat(files.map(path -> path.getFileName().toString())).containsExactly(id + ".json");
 		}
 	}
 

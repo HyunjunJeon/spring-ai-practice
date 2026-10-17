@@ -133,7 +133,10 @@ public final class FileSessionModelStore implements SessionModelStore {
 	}
 
 	private Path file(String sessionId) throws IOException {
-		if (sessionId == null || !sessionId.matches("[A-Za-z0-9][A-Za-z0-9_-]{0,127}")) {
+		// The memory plugin names its session files with [A-Za-z0-9._-]+, so any id it accepts must work here too.
+		// A bare "." or ".." stays rejected because those are reserved path segments.
+		if (sessionId == null || !sessionId.matches("[A-Za-z0-9._-]{1,128}") || sessionId.equals(".")
+				|| sessionId.equals("..")) {
 			throw new IllegalArgumentException("Invalid session ID");
 		}
 		checkDirectory();
