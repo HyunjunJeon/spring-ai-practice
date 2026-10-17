@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.example.miniagent.core.change.AtomicFiles;
 import com.example.miniagent.core.change.Fingerprinter;
+import com.example.miniagent.core.run.OsMetadata;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -69,25 +70,22 @@ public final class GoalStore {
 	}
 	private void clean(String id) throws IOException {
 		ancestors(directory); ancestors(path(id));
-		try (var entries = Files.list(path(id))) {
-			for (Path entry : entries.limit(5).toList())
-				if (!Set.of("state.json", "claim.lock", "control").contains(entry.getFileName().toString()))
-					throw new IOException("Goal storage recovery required");
-		}
+		for (Path entry : OsMetadata.entries(path(id), 5))
+			if (!Set.of("state.json", "claim.lock", "control").contains(entry.getFileName().toString()))
+				throw new IOException("Goal storage recovery required");
 	}
 	public List<String> list() throws IOException {
 		synchronized (STORAGE) {
 			initialize();
 			var ids = new ArrayList<String>();
-			try (var entries = Files.list(directory)) {
-				for (Path entry : entries.limit(1025).toList()) {
-					if (ids.size() >= 1024) throw new IOException("Goal quota exceeded");
-					// An entry this store did not write (.DS_Store, an editor backup) is a storage fault, not a bug.
-					try { GoalRecord.safe(entry.getFileName().toString()); }
-					catch (IllegalArgumentException ex) { throw new IOException("Goal storage recovery required", ex); }
-					directory(entry);
-					ids.add(entry.getFileName().toString());
-				}
+			for (Path entry : OsMetadata.entries(directory, 1025)) {
+				if (ids.size() >= 1024) throw new IOException("Goal quota exceeded");
+				// An entry this store did not write (an editor backup, a stray file) is a storage fault, not a bug.
+				// OS metadata (.DS_Store) is not listed here: OsMetadata.entries skips it before the bound.
+				try { GoalRecord.safe(entry.getFileName().toString()); }
+				catch (IllegalArgumentException ex) { throw new IOException("Goal storage recovery required", ex); }
+				directory(entry);
+				ids.add(entry.getFileName().toString());
 			}
 			return ids.stream().sorted().toList();
 		}

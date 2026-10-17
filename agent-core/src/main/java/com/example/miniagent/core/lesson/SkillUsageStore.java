@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.example.miniagent.core.change.AtomicFiles;
 import com.example.miniagent.core.change.Fingerprinter;
+import com.example.miniagent.core.run.OsMetadata;
 
 /**
  * Export links and load counts of lesson-promoted skills, in {@code <home>/skill-usage}: one bounded, checksummed
@@ -53,11 +54,9 @@ public final class SkillUsageStore {
 		ancestors(directory);
 		if (!Files.getPosixFilePermissions(directory, LinkOption.NOFOLLOW_LINKS)
 				.equals(PosixFilePermissions.fromString("rwx------"))) throw new IOException("Nonprivate skill usage");
-		try (var paths = Files.list(directory)) {
-			for (Path path : paths.limit(4).toList())
-				if (!Set.of("usage.json", "store.lock").contains(path.getFileName().toString()))
-					throw new IOException("Skill usage storage recovery required");
-		}
+		for (Path path : OsMetadata.entries(directory, 4))
+			if (!Set.of("usage.json", "store.lock").contains(path.getFileName().toString()))
+				throw new IOException("Skill usage storage recovery required");
 		Path lock = directory.resolve("store.lock");
 		if (Files.exists(lock, LinkOption.NOFOLLOW_LINKS)
 				&& (!Files.isRegularFile(lock, LinkOption.NOFOLLOW_LINKS) || Files.size(lock) != 0
