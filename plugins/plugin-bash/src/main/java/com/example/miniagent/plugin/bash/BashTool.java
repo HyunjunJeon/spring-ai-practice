@@ -35,6 +35,9 @@ import org.springframework.ai.tool.function.FunctionToolCallback;
  */
 public final class BashTool {
 
+	/** 셸이 끝난 뒤 리더가 파이프에 이미 쌓인 출력을 가져가도록 기다리는 상한(밀리초). */
+	private static final long OUTPUT_DRAIN_GRACE_MILLIS = 250;
+
 	private BashTool() {
 	}
 
@@ -118,6 +121,10 @@ public final class BashTool {
 		}
 		Capture capture = new Capture(maxOutputChars, maxOutputBytes);
 		CompletableFuture<Void> completed = new CompletableFuture<>();
+		// 백그라운드 자식이 출력 파이프를 쥐고 있으면 셸이 끝나도 EOF 가 오지 않는다. 셸 종료를 기다리되,
+		// 파이프에 이미 있던 출력은 짧은 유예 안에 읽히므로 그 뒤에는 종료 코드를 돌려준다.
+		process.onExit().thenRunAsync(() -> completed.complete(null),
+				CompletableFuture.delayedExecutor(OUTPUT_DRAIN_GRACE_MILLIS, TimeUnit.MILLISECONDS));
 		Thread reader = Thread.ofVirtual().name("bash-output").start(() -> {
 			try {
 				byte[] buffer = new byte[8192];
