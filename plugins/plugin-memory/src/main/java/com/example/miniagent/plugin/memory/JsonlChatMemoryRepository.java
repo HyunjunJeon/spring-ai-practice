@@ -109,20 +109,30 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 		return new History(List.copyOf(messages), summary);
 	}
 
-	/** SPI 계약대로 목록 전체로 파일을 다시 쓴다(요약 기록은 남지 않는다). 이 플러그인의 메모리는 append 만 쓴다. */
+	/**
+	 * SPI 계약대로 목록 전체로 파일을 다시 쓴다(요약 기록은 남지 않는다). 이 플러그인의 메모리는 append 만 쓴다.
+	 * append 와 같은 파일 잠금을 잡고 제자리에서 다시 쓴다. 임시 파일로 바꿔치면 다른 프로세스가 쥔 잠금이 옛 파일에
+	 * 남아, 그 프로세스의 append 가 사라진다.
+	 */
 	@Override
 	public synchronized void saveAll(String conversationId, List<Message> messages) {
-		List<String> lines = new ArrayList<>();
-		branch(conversationId).ifPresent(value -> lines.add(this.json.writeValueAsString(
-				new StoredMessage("branch", this.json.writeValueAsString(value), null, null, null, null))));
-		messages.stream().map(StoredMessage::from).map(this.json::writeValueAsString).forEach(lines::add);
-		try {
+		// 분기 머리글은 잠금을 잡기 전에 읽는다. 잠금을 쥔 채 같은 파일의 다른 기술자를 열고 닫으면 잠금이 풀릴 수 있다.
+		StringBuilder lines = new StringBuilder();
+		branch(conversationId).ifPresent(value -> lines.append(this.json.writeValueAsString(
+				new StoredMessage("branch", this.json.writeValueAsString(value), null, null, null, null))).append('\n'));
+		messages.stream().map(StoredMessage::from).forEach(message ->
+				lines.append(this.json.writeValueAsString(message)).append('\n'));
+		ByteBuffer bytes = ByteBuffer.wrap(lines.toString().getBytes(StandardCharsets.UTF_8));
+		Path file = file(conversationId);
+		withoutInterrupt(() -> {
 			Files.createDirectories(this.directory);
-			Files.write(file(conversationId), lines, StandardCharsets.UTF_8);
-		}
-		catch (IOException ex) {
-			throw new UncheckedIOException(ex);
-		}
+			try (FileChannel channel = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.READ,
+					StandardOpenOption.WRITE); FileLock lock = channel.lock()) {
+				channel.truncate(0);
+				writeFully(channel, bytes, 0);
+			}
+			return null;
+		});
 	}
 
 	/** 메시지를 파일 끝에 덧붙인다. 앞의 기록은 건드리지 않는다. */
@@ -150,9 +160,7 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 					StandardOpenOption.WRITE); FileLock lock = channel.lock()) {
 				long position = completeLength(channel);
 				channel.truncate(position);
-				while (bytes.hasRemaining()) {
-					position += channel.write(bytes, position);
-				}
+				writeFully(channel, bytes, position);
 			}
 			return null;
 		});
@@ -292,6 +300,13 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 
 		T run() throws IOException;
 
+	}
+
+	/** {@code position} 부터 버퍼가 빌 때까지 쓴다. */
+	private static void writeFully(FileChannel channel, ByteBuffer bytes, long position) throws IOException {
+		while (bytes.hasRemaining()) {
+			position += channel.write(bytes, position);
+		}
 	}
 
 	/** 마지막 줄바꿈 바로 뒤의 위치. 파일이 줄바꿈으로 끝나면 파일 크기와 같다. */
