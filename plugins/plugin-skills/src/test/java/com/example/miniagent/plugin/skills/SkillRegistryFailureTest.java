@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -69,8 +68,6 @@ class SkillRegistryFailureTest {
 		assertThat(loadedNames()).containsExactly("a-good", "z-good");
 	}
 
-	@Disabled("SUSPECT plugins-tools:G4: an unreadable skill folder makes Files.walk throw UncheckedIOException"
-			+ "(AccessDeniedException) out of the SkillRegistry constructor; only a bad SKILL.md file is fixed")
 	@Test
 	void unreadableSkillFolderIsSkippedAndNeighboursStillLoad() throws Exception {
 		assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));

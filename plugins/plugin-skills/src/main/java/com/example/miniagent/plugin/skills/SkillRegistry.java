@@ -3,14 +3,17 @@ package com.example.miniagent.plugin.skills;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * {@code <dir>/<skill>/SKILL.md} 를 찾아 frontmatter 의 name/description 을 읽는다.
@@ -25,8 +28,8 @@ public class SkillRegistry {
 			if (!Files.isDirectory(root)) {
 				continue;
 			}
-			try (Stream<Path> files = Files.walk(root, 3)) {
-				files.filter(f -> f.getFileName().toString().equals("SKILL.md"))
+			try {
+				findSkillFiles(root).stream()
 					.sorted()
 					.map(SkillRegistry::parse)
 					.flatMap(Optional::stream)
@@ -44,6 +47,26 @@ public class SkillRegistry {
 
 	public Optional<Skill> find(String name) {
 		return Optional.ofNullable(this.skills.get(name));
+	}
+
+	private static List<Path> findSkillFiles(Path root) throws IOException {
+		List<Path> found = new ArrayList<>();
+		Files.walkFileTree(root, Set.of(), 3, new SimpleFileVisitor<>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				if (file.getFileName().toString().equals("SKILL.md")) {
+					found.add(file);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFileFailed(Path file, IOException ex) {
+				// 읽을 수 없는 스킬 폴더 하나가 다른 스킬과 에이전트 시작을 막지 않도록 건너뛴다.
+				return FileVisitResult.CONTINUE;
+			}
+		});
+		return found;
 	}
 
 	private static Optional<Skill> parse(Path file) {
