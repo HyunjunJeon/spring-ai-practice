@@ -195,9 +195,9 @@ final class CodexResponses {
 			switch (type) {
 				case "response.output_item.done" -> items.add(event.path("item"));
 				case "response.completed", "response.done" -> {
-					// stream() 과 같은 기준: 실패하거나 잘린 응답과 잘못된 도구 호출은 최종 답이 아니다.
+					// stream() 과 같은 기준: 실패하거나 잘린 응답, response 객체 없는 완료 이벤트, 잘못된 도구 호출은 최종 답이 아니다.
 					JsonNode response = event.path("response");
-					if (!succeeded(response)) {
+					if (!response.isObject() || !succeeded(response)) {
 						throw new CodexApiException(NOT_COMPLETED);
 					}
 					requireValidToolCalls(items, json);

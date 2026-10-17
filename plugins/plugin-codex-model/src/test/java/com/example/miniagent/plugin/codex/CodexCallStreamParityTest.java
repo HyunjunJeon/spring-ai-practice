@@ -71,6 +71,8 @@ class CodexCallStreamParityTest {
 						"{\"type\":\"response.done\",\"response\":{\"status\":\"failed\"}}")),
 				named("response.completed with incomplete status", List.of(tool,
 						"{\"type\":\"response.completed\",\"response\":{\"status\":\"incomplete\"}}")),
+				named("response.completed without response", List.of(tool, "{\"type\":\"response.completed\"}")),
+				named("response.done without response", List.of(tool, "{\"type\":\"response.done\"}")),
 				named("error event", List.of(tool, "{\"type\":\"error\",\"message\":\"bad\"}")),
 				named("no terminal event", List.of(tool)),
 				named("tool call with blank call_id", List.of(tool("", "echo", "{}"), COMPLETED)),
