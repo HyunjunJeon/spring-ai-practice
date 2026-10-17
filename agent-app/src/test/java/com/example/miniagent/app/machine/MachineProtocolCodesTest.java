@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -165,13 +164,18 @@ class MachineProtocolCodesTest {
 			assertThat(frame.get(key).isNull()).as(key).isTrue();
 	}
 
-	@Disabled("SUSPECT app-composition:G25: a payload key named like an envelope key replaces it, "
-			+ "because emit() calls frame.putAll(payload) after the envelope fields (MachineProtocol.java:120)")
 	@Test void payloadKeysCannotShadowTheEnvelopeKeys() {
 		this.protocol.emit("event", new MachineProtocol.Correlation("r", "e", "s", "t"),
 				Map.of("type", "hijacked", "requestId", "other"));
 		JsonNode frame = emitted();
 		assertThat(frame.path("type").asString()).isEqualTo("event");
 		assertThat(frame.path("requestId").asString()).isEqualTo("r");
+	}
+
+	@Test void payloadKeysCannotFillTheNullEnvelopeKeysOfAnUncorrelatedFrame() {
+		this.protocol.emit("ready", null, Map.of("requestId", "forged", "mode", "rpc"));
+		JsonNode frame = emitted();
+		assertThat(frame.get("requestId").isNull()).isTrue();
+		assertThat(frame.path("mode").asString()).isEqualTo("rpc");
 	}
 }
