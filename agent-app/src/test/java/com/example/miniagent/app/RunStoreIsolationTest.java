@@ -18,7 +18,6 @@ import com.example.miniagent.core.run.RunId;
 import com.example.miniagent.core.run.RunRecord;
 import com.example.miniagent.core.run.RunState;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -56,9 +55,6 @@ class RunStoreIsolationTest {
 				.noneMatch(event -> event instanceof RunEvent.UsageRecorded usage && usage.callId().startsWith("child-"));
 	}
 
-	@Disabled("SUSPECT run:G1: with a stray runs/.DS_Store, a CORRUPT sibling or a FUTURE_SCHEMA sibling, "
-			+ "reconcileChildUsage throws RunStoreException ('Not a real run directory', 'Event CRC/sequence mismatch', "
-			+ "'Future run schema: 2') after AttemptStarted, leaving the new run INTERRUPTED/PROCESS_LOST with an open attempt")
 	@ParameterizedTest
 	@EnumSource(Damage.class)
 	void damagedUnrelatedEntryDoesNotLoseANewRootRun(Damage damage) throws Exception {
@@ -78,9 +74,6 @@ class RunStoreIsolationTest {
 		}
 	}
 
-	@Disabled("SUSPECT run:G1: a runs/.DS_Store written during the turn makes settle's hasUnfinishedChildren throw "
-			+ "RunStoreException 'Not a real run directory' after AttemptEnded; startOperation throws and the finished run "
-			+ "reads INTERRUPTED/PROCESS_LOST")
 	@Test void strayFileAppearingDuringTheTurnDoesNotTurnTheFinishedTurnIntoProcessLost() throws Exception {
 		var result = operation(context -> {
 			try { damage(Damage.STRAY_FILE); }
