@@ -21,7 +21,7 @@ public class FakeModelAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnExpression("'${agent.models.default:fake/fake-scripted}'.startsWith('fake/')")
+	@ConditionalOnExpression("'${agent.models.default:}'.isBlank() || '${agent.models.default:}'.startsWith('fake/')")
 	ChatModel scriptedChatModel() {
 		return new ScriptedChatModel();
 	}
