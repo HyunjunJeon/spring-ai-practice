@@ -110,9 +110,9 @@ public class FileCheckpoints implements AutoCloseable {
 	public synchronized void beforeWrite(String sessionId, String turnId, Path file) {
 		Deque<Checkpoint> stack = this.sessions.computeIfAbsent(sessionId, id -> new ArrayDeque<>());
 		Checkpoint current = stack.peekLast();
-		if (current == null || !current.turnId().equals(turnId)) {
+		boolean opensTurn = current == null || !current.turnId().equals(turnId);
+		if (opensTurn) {
 			current = new Checkpoint(turnId, new ArrayList<>());
-			stack.addLast(current);
 		}
 		for (Entry entry : current.entries()) {
 			if (entry.change.file().equals(file)) {
@@ -146,6 +146,10 @@ public class FileCheckpoints implements AutoCloseable {
 				catch (IOException cleanup) { ex.addSuppressed(cleanup); }
 			}
 			throw new UncheckedIOException("Cannot checkpoint " + file + ": " + ex.getMessage(), ex);
+		}
+		if (opensTurn) {
+			// 백업이 성공한 뒤에만 쌓는다. 빈 체크포인트가 남으면 다음 undo 가 그것을 소비해 이전 턴이 되돌려지지 않는다.
+			stack.addLast(current);
 		}
 		current.entries().add(new Entry(new Change(file, backup), before));
 	}

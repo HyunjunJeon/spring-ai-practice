@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 import com.example.miniagent.core.model.ToolContextKeys;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -249,8 +248,6 @@ class FileCheckpointsFailureTest {
 	}
 
 	@Test
-	@Disabled("SUSPECT plugins-tools:G11: a beforeWrite that fails leaves an empty checkpoint on the stack, so the next "
-			+ "undo consumes it, restores nothing and reports no changes while the earlier turn stays un-undone")
 	void failedBackupDoesNotSwallowTheNextUndoOfAnEarlierTurn() throws Exception {
 		Path earlier = Files.writeString(this.work.resolve("earlier.txt"), "earlier original");
 		Path later = Files.writeString(this.work.resolve("later.txt"), "later original");
