@@ -232,7 +232,8 @@ public final class GoalService {
 					var prior = record.results();
 					try {
 						var result = verifier.get().run(target, gate.argv(),
-								Duration.ofMillis(Math.min(gate.timeoutMillis(), remaining)), gate.maxOutputBytes(),
+								Duration.ofMillis(Math.min(gate.timeoutMillis(), remaining)),
+								Duration.ofMillis(gate.timeoutMillis()), gate.maxOutputBytes(),
 								cancellation, binding -> {
 									expected.set(binding);
 									if (prior.stream().anyMatch(r -> r.gate() == gateIndex
