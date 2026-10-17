@@ -117,7 +117,10 @@ public final class MachineProtocol {
 		frame.put("executionId", correlation == null ? null : correlation.executionId());
 		frame.put("sessionId", correlation == null ? null : correlation.sessionId());
 		frame.put("turnId", correlation == null ? null : correlation.turnId());
-		frame.putAll(payload);
+		// 봉투 키는 payload 가 덮어쓰지 못한다. putIfAbsent 는 null 로 채운 봉투 키를 비어 있다고 보므로 쓰지 않는다.
+		payload.forEach((key, value) -> {
+			if (!frame.containsKey(key)) frame.put(key, value);
+		});
 		this.out.println(this.json.writeValueAsString(frame));
 		this.out.flush();
 	}
