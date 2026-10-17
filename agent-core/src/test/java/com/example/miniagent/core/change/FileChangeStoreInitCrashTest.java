@@ -1,5 +1,6 @@
 package com.example.miniagent.core.change;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -119,5 +120,35 @@ class FileChangeStoreInitCrashTest {
 		Files.createFile(store.directory().resolve("notes.txt"));
 		unsafeJournal(store, store::acquire);
 		assertThat(names(store.directory())).containsExactly(".DS_Store", "notes.txt", "workspace.json", "workspace.lock");
+	}
+
+	/** Initializes the store, closes its lease, then drops a non-empty file into manifests/ the way the OS or a user would. */
+	private Path manifestsEntryAfterInitialization(FileChangeStore store, String name, byte[] bytes) throws Exception {
+		try (var lease = store.acquire()) { assertThat(lease.read().changes()).isEmpty(); }
+		Path entry = store.directory().resolve("manifests").resolve(name);
+		Files.write(entry, bytes);
+		return entry;
+	}
+
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._manifest.json" })
+	void anOsMetadataFileInTheManifestsFolderLeavesTheStoreClean(String metadata) throws Exception {
+		FileChangeStore store = store();
+		byte[] bytes = "finder bytes".getBytes(StandardCharsets.UTF_8);
+		Path entry = manifestsEntryAfterInitialization(store, metadata, bytes);
+		try (var lease = store.acquire()) {
+			assertThat(lease.read().journalState()).isEqualTo(ChangeJournal.State.CLEAN);
+			assertThat(lease.read().changes()).isEmpty();
+		}
+		assertThat(Files.readAllBytes(entry)).isEqualTo(bytes);
+	}
+
+	@Test void anotherUnknownFileInTheManifestsFolderStillCorruptsTheStore() throws Exception {
+		FileChangeStore store = store();
+		byte[] bytes = "not a manifest".getBytes(StandardCharsets.UTF_8);
+		Path entry = manifestsEntryAfterInitialization(store, "notes.txt", bytes);
+		try (var lease = store.acquire()) { assertThat(lease.read().journalState()).isEqualTo(ChangeJournal.State.CORRUPT); }
+		assertThat(Files.readAllBytes(entry)).isEqualTo(bytes);
 	}
 }
