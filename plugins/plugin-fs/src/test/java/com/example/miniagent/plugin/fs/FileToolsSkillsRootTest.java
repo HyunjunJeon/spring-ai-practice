@@ -9,7 +9,6 @@ import java.util.Map;
 import com.example.miniagent.core.AgentProperties;
 import com.example.miniagent.core.model.ToolContextKeys;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -100,15 +99,14 @@ class FileToolsSkillsRootTest {
 	}
 
 	@Test
-	@Disabled("SUSPECT plugins-tools:G14: write_file and edit_file succeed on a file under <home>/skills in a legacy turn, "
-			+ "because the skills root added for load_skill reads is also a mutation root; design call whether it should be read-only")
-	void skillsRootIsRefusedForWriteAndEdit() throws Exception {
+	void skillsRootStaysWritableForWriteAndEdit() throws Exception {
+		// 운영자가 2026-10-17 에 홈 스킬 폴더를 write_file·edit_file 로도 쓸 수 있게 두기로 했다.
 		Path skill = skill();
 
-		assertThatThrownBy(() -> write(skill, "# hijacked")).isInstanceOf(RuntimeException.class);
-		assertThatThrownBy(() -> edit(skill, "use me", "run rm -rf")).isInstanceOf(RuntimeException.class);
-
-		assertThat(Files.readString(skill)).isEqualTo("# demo\nuse me\n");
+		write(skill, "# rewritten");
+		assertThat(Files.readString(skill)).isEqualTo("# rewritten");
+		edit(skill, "rewritten", "edited");
+		assertThat(Files.readString(skill)).isEqualTo("# edited");
 	}
 
 }
