@@ -23,7 +23,6 @@ import com.example.miniagent.core.run.DriftGate;
 import com.example.miniagent.core.run.RunEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
@@ -241,8 +240,6 @@ class WorkerCommandTest {
 		assertThat(AgentInputHandler.isControlInput(input)).isFalse();
 	}
 
-	@Disabled("SUSPECT app-composition:G29: WorkerCommand.isControlInput is unused and reports /worker start, stop,"
-			+ " wakeup and resume as control input, which AgentInputHandler.isControlInput routes behind the busy turn")
 	@ParameterizedTest
 	@ValueSource(strings = { "/worker status", "/worker start", "/worker stop", "/worker wakeup", "/worker resume goal-1" })
 	void unusedHelperAgreesWithTheInputHandlerRouting(String input) {
