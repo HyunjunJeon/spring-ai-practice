@@ -56,11 +56,17 @@ public final class LessonStore {
 		Files.createDirectory(path, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
 		AtomicFiles.forceDirectory(path.getParent());
 	}
+	/** Finder and AppleDouble files the OS drops into any folder. The store never opens or deletes them. */
+	private static boolean osMetadata(String name) {
+		return name.equals(".DS_Store") || name.startsWith("._");
+	}
 	private void clean() throws IOException {
 		privateDirectory(directory);
 		try (var paths = Files.list(directory)) {
-			for (Path path : paths.limit(4).toList())
-				if (!Set.of("lessons.json", "store.lock").contains(path.getFileName().toString()))
+			// Skipped before the bound, so metadata files cannot crowd a real stray file out of the check.
+			for (String name : paths.map(path -> path.getFileName().toString()).filter(name -> !osMetadata(name))
+					.limit(4).toList())
+				if (!Set.of("lessons.json", "store.lock").contains(name))
 					throw new IOException("Lesson storage recovery required");
 		}
 		Path lock = directory.resolve("store.lock");

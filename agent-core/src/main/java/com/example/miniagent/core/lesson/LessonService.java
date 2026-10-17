@@ -136,7 +136,7 @@ public final class LessonService {
 	}
 	private LessonRecord candidate(Content content, Proof proof, Actor actor, Generation generation) throws IOException {
 		return store.mutate(histories -> {
-			if (histories.size() >= LessonStore.MAX_ENTRIES) throw new IOException("Lesson entry limit");
+			if (histories.size() >= LessonStore.MAX_ENTRIES) evict(histories);
 			// Also close the window between generation and taking the storage lock.
 			if (!proof.equals(proof(proof.goalId(), actor))) throw new IOException("Lesson proof changed");
 			var record = new LessonRecord(UUID.randomUUID().toString(), 1, State.CANDIDATE, Scope.SESSION,
@@ -145,6 +145,27 @@ public final class LessonService {
 			histories.add(List.of(record));
 			return record;
 		});
+	}
+	/**
+	 * Makes room in a full store by removing the RETIRED lesson, or else the CANDIDATE, whose latest revision is oldest
+	 * by createdAt; a tie goes to the earlier entry. The whole history goes, so no rollback can bring it back.
+	 * ACCEPTED lessons are never removed, so a store of only accepted lessons keeps refusing.
+	 */
+	private static void evict(List<List<LessonRecord>> histories) throws IOException {
+		for (State state : List.of(State.RETIRED, State.CANDIDATE)) {
+			int oldest = -1;
+			for (int i = 0; i < histories.size(); i++) {
+				var latest = histories.get(i).getLast();
+				if (latest.state() == state
+						&& (oldest < 0 || latest.createdAt().isBefore(histories.get(oldest).getLast().createdAt())))
+					oldest = i;
+			}
+			if (oldest >= 0) {
+				histories.remove(oldest);
+				return;
+			}
+		}
+		throw new IOException("Lesson entry limit");
 	}
 	public LessonRecord accept(String id, int expectedVersion, Scope scope, Actor actor) throws IOException {
 		return change(id, expectedVersion, actor, (current, history) -> {

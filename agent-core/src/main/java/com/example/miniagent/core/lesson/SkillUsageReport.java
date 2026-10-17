@@ -27,7 +27,10 @@ public final class SkillUsageReport {
 	/** Days without an export, restore or load after which a skill is reported unused. */
 	public static final int UNUSED_DAYS = 30;
 	private static final Duration UNUSED_AFTER = Duration.ofDays(UNUSED_DAYS);
-	/** What {@link Row#lessonState()} says when the linked lesson is not visible to the actor. */
+	/**
+	 * What {@link Row#lessonState()} says when the linked lesson is no longer in the store. A shown row's lesson is
+	 * always visible when it exists: an export needs PROJECT or GLOBAL scope, and no revision narrows a scope.
+	 */
 	private static final String UNKNOWN_LESSON = "UNKNOWN";
 	public enum Reason { SOURCE_RETIRED, UNUSED }
 	public enum Flag { MODIFIED, LESSON_CHANGED, MISSING }
@@ -74,7 +77,9 @@ public final class SkillUsageReport {
 		var flags = EnumSet.noneOf(Flag.class);
 		// A skill that is already retired has nothing left to retire, so it gets no reasons.
 		if (!retired) {
-			if (lesson != null && lesson.state() == State.RETIRED) reasons.add(Reason.SOURCE_RETIRED);
+			// A full store evicts RETIRED lessons. An exported lesson never becomes a CANDIDATE again, and ACCEPTED
+			// lessons are never evicted, so a missing source was retired.
+			if (lesson == null || lesson.state() == State.RETIRED) reasons.add(Reason.SOURCE_RETIRED);
 			if (unused(entry, trackingSince, now)) reasons.add(Reason.UNUSED);
 		}
 		if (lesson != null && lesson.version() > entry.lessonVersion()) flags.add(Flag.LESSON_CHANGED);
