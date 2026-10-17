@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -147,6 +149,24 @@ class CodexChatModelCallTest {
 		assertThat(response.getMetadata().getUsage().getCacheReadInputTokens()).isEqualTo(64L);
 		Object effort = response.getMetadata().get(TraceEvent.REASONING_EFFORT_METADATA);
 		assertThat(effort).isEqualTo("low");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "response.completed", "response.done" })
+	void completionEventWithoutResponseObjectIsNotACompletedAnswer(String eventType) {
+		saveOwnToken();
+		this.endpoints.answerResponses(exchange -> {
+			try (OutputStream out = CodexEndpoints.sse(exchange)) {
+				CodexEndpoints.event(out, """
+						{"type":"response.output_item.done","item":{"type":"message","content":[{"type":"output_text","text":"partial"}]}}
+						""");
+				CodexEndpoints.event(out, "{\"type\":\"" + eventType + "\"}");
+			}
+		});
+
+		assertThatThrownBy(() -> model("auto").call(new Prompt("hi")))
+			.isExactlyInstanceOf(CodexResponses.CodexApiException.class)
+			.hasMessage("Codex response did not complete successfully");
 	}
 
 	@Test
