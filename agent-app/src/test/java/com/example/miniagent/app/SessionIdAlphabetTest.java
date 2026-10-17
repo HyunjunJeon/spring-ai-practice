@@ -13,7 +13,6 @@ import com.example.miniagent.core.AgentConsole;
 import com.example.miniagent.core.AgentInputHandler;
 import com.example.miniagent.core.AgentSession;
 import com.example.miniagent.core.SlashCommand;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -73,9 +72,6 @@ class SessionIdAlphabetTest {
 		}
 	}
 
-	@Disabled("SUSPECT model:G4: memory accepts session ids with a dot or a leading dash (a.b, -x) but"
-			+ " FileSessionModelStore rejects them with IllegalArgumentException 'Invalid session ID',"
-			+ " so after /resume every turn and /model show fail")
 	@ParameterizedTest
 	@ValueSource(strings = { "a.b", "-x" })
 	void resumedSessionTheMemoryAcceptsStillRunsTurnsAndShowsItsModel(String sessionId) {
