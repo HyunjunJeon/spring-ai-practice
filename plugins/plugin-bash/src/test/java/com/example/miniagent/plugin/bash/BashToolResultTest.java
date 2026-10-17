@@ -12,7 +12,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.example.miniagent.core.model.ToolContextKeys;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -100,14 +99,17 @@ class BashToolResultTest {
 	}
 
 	@Test
-	@Disabled("SUSPECT plugins-tools:G39: a shell that exits 0 while a background child keeps the output pipe "
-			+ "open makes call() wait for the whole timeout and return \"(no output, timed out after Ns)\" "
-			+ "instead of \"(exit code 0)\" (BashTool.java:131)")
 	void shellExitWithBackgroundChildHoldingThePipeReportsExitCodeAndLeavesItRunning() throws Exception {
 		assertThat(callWhileOrphanKeepsRunning("sleep 60 & echo $! > ready.fifo; exit 0"))
 			.contains("exit code 0")
 			.doesNotContain("timed out")
 			.doesNotContain("cleanup failed");
+	}
+
+	@Test
+	void shellExitWithBackgroundChildHoldingThePipeKeepsTheOutputWrittenBeforeExit() throws Exception {
+		assertThat(callWhileOrphanKeepsRunning("sleep 60 & echo $! > ready.fifo; printf done; exit 0"))
+			.isEqualTo("\"done\\n(exit code 0)\"");
 	}
 
 	/**
