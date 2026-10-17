@@ -128,20 +128,26 @@ public final class FileChangeStore implements ChangeStore {
 	private void initialize() throws IOException {
 		Path identity = this.directory.resolve("workspace.json");
 		if (!Files.exists(identity, LinkOption.NOFOLLOW_LINKS)) {
-			try (var paths = Files.list(this.directory)) {
-				if (paths.anyMatch(p -> !p.getFileName().toString().equals("workspace.lock")))
-					throw new Failure(CORRUPT, "Incomplete workspace initialization; bytes preserved");
-			}
+			if (!holdsOnly(Set.of("workspace.lock")))
+				throw new Failure(CORRUPT, "Incomplete workspace initialization; bytes preserved");
 			AtomicFiles.write(identity, ChangeJournal.JSON.writeValueAsBytes(
 					new Identity(1, this.hash, this.workspace.toString())), this.limits.maxManifestBytes());
-			AtomicFiles.createFile(this.directory.resolve("journal.log"));
 		}
 		Identity stored = decode(AtomicFiles.read(identity, this.limits.maxManifestBytes()), Identity.class);
 		if (!stored.workspaceHash().equals(this.hash) || !stored.cwd().equals(this.workspace.toString()))
 			throw new Failure(IDENTITY_MISMATCH, "Workspace identity mismatch");
-		AtomicFiles.checkFile(this.directory.resolve("journal.log"));
+		Path journalFile = this.directory.resolve("journal.log");
+		// A crash between workspace.json and journal.log leaves nothing else behind. A journal lost later stays refused.
+		if (holdsOnly(Set.of("workspace.json", "workspace.lock"))) AtomicFiles.createFile(journalFile);
+		AtomicFiles.checkFile(journalFile);
 		for (String child : List.of("manifests", "blobs", "staging", "evidence"))
 			AtomicFiles.directory(this.directory.resolve(child));
+	}
+
+	private boolean holdsOnly(Set<String> names) throws IOException {
+		try (var paths = Files.list(this.directory)) {
+			return paths.allMatch(p -> names.contains(p.getFileName().toString()));
+		}
 	}
 
 	private static <T> T decode(byte[] bytes, Class<T> type) throws Failure {

@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -39,15 +38,17 @@ class FileChangeStoreInitCrashTest {
 		});
 	}
 
-	@Test void crashAfterTheIdentityWriteBlocksEveryLaterAcquireAndChangesNothing() throws Exception {
-		FileChangeStore store = identityOnlyStore();
+	@Test void journalLostFromAnInitializedStoreBlocksEveryLaterAcquireAndChangesNothing() throws Exception {
+		FileChangeStore store = store();
+		try (var lease = store.acquire()) { assertThat(lease.read().changes()).isEmpty(); }
+		Files.delete(store.directory().resolve("journal.log"));
 		byte[] identity = Files.readAllBytes(store.directory().resolve("workspace.json"));
 		// A repeat is CORRUPT again, not LOCKED: the failed acquire released its lock.
 		unsafeJournal(store, store::acquire);
 		unsafeJournal(store, store::acquire);
 		unsafeJournal(store, store()::read);
 		assertThat(Files.readAllBytes(store.directory().resolve("workspace.json"))).isEqualTo(identity);
-		assertThat(names(store.directory())).containsExactly("workspace.json", "workspace.lock");
+		assertThat(names(store.directory())).containsExactly("blobs", "evidence", "manifests", "staging", "workspace.json", "workspace.lock");
 	}
 
 	@Test void strayPendingTempFromACrashDuringTheIdentityWriteIsPreservedAndBlocksInitialization() throws Exception {
@@ -62,7 +63,6 @@ class FileChangeStoreInitCrashTest {
 		assertThat(names(store.directory())).containsExactly(".pending-1234.tmp", "workspace.lock");
 	}
 
-	@Disabled("SUSPECT change-store:G8: a crash between workspace.json and journal.log makes every later acquire fail CORRUPT (Unsafe change file) instead of recreating the empty journal")
 	@Test void acquireRecreatesTheEmptyJournalWhenOnlyTheIdentityWasWritten() throws Exception {
 		FileChangeStore store = identityOnlyStore();
 		byte[] identity = Files.readAllBytes(store.directory().resolve("workspace.json"));
