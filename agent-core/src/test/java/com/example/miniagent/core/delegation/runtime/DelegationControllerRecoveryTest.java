@@ -50,7 +50,6 @@ import com.example.miniagent.core.execution.ToolJournalInterceptor;
 import com.example.miniagent.core.model.*;
 import com.example.miniagent.core.model.registry.ModelRegistry;
 import com.example.miniagent.core.run.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.ai.chat.client.ChatClient;
@@ -180,11 +179,7 @@ class DelegationControllerRecoveryTest {
 		cancelBusyRecovery(false);
 	}
 
-	@Test @Disabled("SUSPECT delegation:G4: when the cancelled provider call restores the thread's "
-		+ "interrupt flag, recover() fails with RunStoreException 'Run store operation failed' "
-		+ "(ClosedByInterruptException in FileRunStore.read via RunContext.chargeAcknowledgedChild) "
-		+ "instead of collecting the recovered child CANCELLED")
-	void busyRecoveryCancellationSurvivesAProviderThatRestoresTheInterruptFlag() throws Exception {
+	@Test void busyRecoveryCancellationSurvivesAProviderThatRestoresTheInterruptFlag() throws Exception {
 		cancelBusyRecovery(true);
 	}
 
