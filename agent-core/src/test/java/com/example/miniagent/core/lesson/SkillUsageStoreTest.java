@@ -20,6 +20,8 @@ import com.example.miniagent.core.change.Fingerprinter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.node.ObjectNode;
 import static com.example.miniagent.core.lesson.LessonRecord.Scope.*;
 import static org.assertj.core.api.Assertions.*;
@@ -165,13 +167,39 @@ class SkillUsageStoreTest {
 		store.link(link(GLOBAL, null, "parser-fix"));
 		Path directory = home.resolve("skill-usage");
 		byte[] snapshot = Files.readAllBytes(directory.resolve("usage.json"));
-		Files.createFile(directory.resolve(".DS_Store"));
+		Files.createFile(directory.resolve("notes.txt"));
 		assertThatThrownBy(store::read).isInstanceOf(IOException.class).hasMessage("Skill usage storage recovery required");
 		assertThatThrownBy(() -> store.link(link(GLOBAL, null, "other"))).isInstanceOf(IOException.class)
 				.hasMessage("Skill usage storage recovery required");
 		assertThat(Files.readAllBytes(directory.resolve("usage.json"))).isEqualTo(snapshot);
-		Files.delete(directory.resolve(".DS_Store"));
+		Files.delete(directory.resolve("notes.txt"));
 		assertThat(store.read().entries()).extracting(SkillUsage::name).containsExactly("parser-fix");
+	}
+
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._usage.json" })
+	void anOsMetadataFileIsIgnoredByReadsAndLinksAndLeftInPlace(String metadata) throws Exception {
+		var store = new SkillUsageStore(home, clock);
+		store.link(link(GLOBAL, null, "parser-fix"));
+		Path directory = home.resolve("skill-usage");
+		Files.createFile(directory.resolve(metadata));
+		assertThat(store.read().entries()).extracting(SkillUsage::name).containsExactly("parser-fix");
+		store.link(link(GLOBAL, null, "other"));
+		assertThat(store.read().entries()).extracting(SkillUsage::name).containsExactly("parser-fix", "other");
+		assertThat(directory.resolve(metadata)).exists();
+	}
+
+	@Test void metadataFilesDoNotCrowdAStrayFileOutOfTheCheck() throws Exception {
+		var store = new SkillUsageStore(home, clock);
+		store.link(link(GLOBAL, null, "parser-fix"));
+		Path directory = home.resolve("skill-usage");
+		Files.createFile(directory.resolve(".DS_Store"));
+		for (int i = 0; i < 300; i++) Files.createFile(directory.resolve("._copy-" + i));
+		Files.createFile(directory.resolve("notes.txt"));
+		assertThatThrownBy(store::read).isInstanceOf(IOException.class).hasMessage("Skill usage storage recovery required");
+		assertThatThrownBy(() -> store.link(link(GLOBAL, null, "other"))).isInstanceOf(IOException.class)
+				.hasMessage("Skill usage storage recovery required");
 	}
 
 	@Test void aNonprivateDirectoryALinkedHomeOrAnUnsafeLockIsRefused() throws Exception {

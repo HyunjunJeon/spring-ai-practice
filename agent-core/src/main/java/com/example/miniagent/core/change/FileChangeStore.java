@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.example.miniagent.core.run.OsMetadata;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.example.miniagent.core.change.ChangeStore.Code.*;
 
@@ -146,7 +148,9 @@ public final class FileChangeStore implements ChangeStore {
 
 	private boolean holdsOnly(Set<String> names) throws IOException {
 		try (var paths = Files.list(this.directory)) {
-			return paths.allMatch(p -> names.contains(p.getFileName().toString()));
+			// OS metadata (.DS_Store) does not make the directory look partly initialized.
+			return paths.map(p -> p.getFileName().toString()).filter(name -> !OsMetadata.matches(name))
+					.allMatch(names::contains);
 		}
 	}
 

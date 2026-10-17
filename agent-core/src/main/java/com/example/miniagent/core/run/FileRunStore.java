@@ -132,7 +132,7 @@ public final class FileRunStore implements RunStore {
 			try (var paths = Files.list(this.runs)) {
 				List<RunId> ids = new ArrayList<>();
 				for (Path path : paths.sorted().toList()) {
-					if (osMetadata(path)) continue;
+					if (OsMetadata.matches(path.getFileName().toString())) continue;
 					checkDirectory(path);
 					ids.add(new RunId(path.getFileName().toString()));
 				}
@@ -142,12 +142,6 @@ public final class FileRunStore implements RunStore {
 		catch (IOException | IllegalArgumentException ex) {
 			throw failure(ex);
 		}
-	}
-
-	// Finder and AppleDouble metadata only; any other unknown entry still fails closed.
-	private static boolean osMetadata(Path path) {
-		String name = path.getFileName().toString();
-		return name.equals(".DS_Store") || name.startsWith("._");
 	}
 
 	/** Lineage comes from spec.json alone, so damage in an unrelated run's journal cannot fail this scan. */

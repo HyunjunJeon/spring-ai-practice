@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.*;
 import static com.example.miniagent.core.change.ChangeStore.Code.*;
@@ -72,5 +74,50 @@ class FileChangeStoreInitCrashTest {
 		}
 		assertThat(Files.size(store.directory().resolve("journal.log"))).isZero();
 		assertThat(Files.readAllBytes(store.directory().resolve("workspace.json"))).isEqualTo(identity);
+	}
+
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._workspace.json" })
+	void anOsMetadataFileInAFreshDirectoryDoesNotBlockInitialization(String metadata) throws Exception {
+		FileChangeStore store = store();
+		Files.createFile(store.directory().resolve(metadata));
+		try (var lease = store.acquire()) { assertThat(lease.read().changes()).isEmpty(); }
+		assertThat(names(store.directory())).containsExactlyInAnyOrder(metadata, "blobs", "evidence", "journal.log",
+				"manifests", "staging", "workspace.json", "workspace.lock");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { ".DS_Store", "._journal.log" })
+	void acquireRecreatesTheEmptyJournalWhenOnlyTheIdentityAndOsMetadataExist(String metadata) throws Exception {
+		FileChangeStore store = identityOnlyStore();
+		byte[] identity = Files.readAllBytes(store.directory().resolve("workspace.json"));
+		Files.createFile(store.directory().resolve(metadata));
+		try (var lease = store.acquire()) {
+			assertThat(lease.read().journalState()).isEqualTo(ChangeJournal.State.CLEAN);
+			assertThat(lease.read().changes()).isEmpty();
+		}
+		assertThat(Files.size(store.directory().resolve("journal.log"))).isZero();
+		assertThat(Files.readAllBytes(store.directory().resolve("workspace.json"))).isEqualTo(identity);
+		assertThat(store.directory().resolve(metadata)).exists();
+	}
+
+	@Test void anotherUnknownFileInAFreshDirectoryStillBlocksInitializationNextToMetadata() throws Exception {
+		FileChangeStore store = store();
+		Files.createFile(store.directory().resolve(".DS_Store"));
+		Files.createFile(store.directory().resolve("notes.txt"));
+		assertThatThrownBy(store::acquire).isInstanceOfSatisfying(ChangeStore.Failure.class, ex -> {
+			assertThat(ex.code()).isEqualTo(CORRUPT);
+			assertThat(ex).hasMessage("Incomplete workspace initialization; bytes preserved");
+		});
+		assertThat(names(store.directory())).containsExactly(".DS_Store", "notes.txt", "workspace.lock");
+	}
+
+	@Test void anotherUnknownFileNextToTheIdentityStillKeepsTheJournalFromBeingRecreated() throws Exception {
+		FileChangeStore store = identityOnlyStore();
+		Files.createFile(store.directory().resolve(".DS_Store"));
+		Files.createFile(store.directory().resolve("notes.txt"));
+		unsafeJournal(store, store::acquire);
+		assertThat(names(store.directory())).containsExactly(".DS_Store", "notes.txt", "workspace.json", "workspace.lock");
 	}
 }

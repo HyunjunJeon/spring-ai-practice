@@ -15,7 +15,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.*;
 
-/** goal-lesson:G8. Entries the store did not write, and the entry quota, must fail as IOException. */
+/**
+ * goal-lesson:G8. Entries the store did not write, and the entry quota, must fail as IOException. OS metadata files
+ * (.DS_Store, AppleDouble ._ files) are not such entries: they are ignored and left where they are.
+ */
 class GoalStoreStrayEntryTest {
 	@TempDir Path home;
 	@TempDir Path work;
@@ -41,7 +44,7 @@ class GoalStoreStrayEntryTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { ".DS_Store", "-leading-dash", "has space", "ünï" })
+	@ValueSource(strings = { "-leading-dash", "has space", "ünï" })
 	void anEntryWithAnUnsafeNameFailsListAndCreateAsIOExceptionAndKeepsStoredGoalsUsable(String stray) throws Exception {
 		var store = new GoalStore(home);
 		var stored = pending();
@@ -59,6 +62,76 @@ class GoalStoreStrayEntryTest {
 		assertThat(service(store).inspect(stored.id())).isEqualTo(stored);
 		assertThat(service(store).cancel(stored.id()).state()).isEqualTo(GoalRecord.State.CANCELLED);
 		assertThat(store.cancelled(stored.id())).isTrue();
+	}
+
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._goals" })
+	void anOsMetadataFileIsIgnoredByListAndCreateAndLeftInPlace(String metadata) throws Exception {
+		var store = new GoalStore(home);
+		var stored = pending();
+		store.create(stored);
+		Files.createFile(home.resolve("goals").resolve(metadata));
+		assertThat(store.list()).containsExactly(stored.id());
+		var next = pending();
+		store.create(next);
+		assertThat(store.list()).containsExactlyInAnyOrder(stored.id(), next.id());
+		assertThat(service(store).list()).extracting(GoalRecord::id).containsExactlyInAnyOrder(stored.id(), next.id());
+		assertThat(home.resolve("goals").resolve(metadata)).exists();
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { ".DS_Store", "._state.json" })
+	void anOsMetadataFileInsideAGoalIsIgnoredByClaimAndWriteAndLeftInPlace(String metadata) throws Exception {
+		var store = new GoalStore(home);
+		var stored = pending();
+		store.create(stored);
+		Path goal = home.resolve("goals").resolve(stored.id());
+		Files.createFile(goal.resolve(metadata));
+		try (var claim = store.claim(stored.id())) {
+			store.write(stored);
+		}
+		assertThat(store.read(stored.id())).isEqualTo(stored);
+		assertThat(goal.resolve(metadata)).exists();
+	}
+
+	@Test void anotherUnknownFileInsideAGoalStillFailsClaimAndWriteClosed() throws Exception {
+		var store = new GoalStore(home);
+		var stored = pending();
+		store.create(stored);
+		Path goal = home.resolve("goals").resolve(stored.id());
+		Files.createFile(goal.resolve("notes.txt"));
+		assertThatThrownBy(() -> store.claim(stored.id())).isInstanceOf(IOException.class)
+				.hasMessage("Goal storage recovery required");
+		assertThatThrownBy(() -> store.write(stored)).isInstanceOf(IOException.class)
+				.hasMessage("Goal storage recovery required");
+		assertThat(goal.resolve("notes.txt")).exists();
+	}
+
+	@Test void metadataFilesDoNotCrowdAStrayFileOutOfTheGoalCheck() throws Exception {
+		var store = new GoalStore(home);
+		var stored = pending();
+		store.create(stored);
+		Path goal = home.resolve("goals").resolve(stored.id());
+		Files.createFile(goal.resolve(".DS_Store"));
+		for (int i = 0; i < 300; i++) Files.createFile(goal.resolve("._copy-" + i));
+		Files.createFile(goal.resolve("notes.txt"));
+		assertThatThrownBy(() -> store.claim(stored.id())).isInstanceOf(IOException.class)
+				.hasMessage("Goal storage recovery required");
+	}
+
+	@Test void metadataFilesDoNotCountAgainstTheEntryQuotaOrHideAnEntryBeyondIt() throws Exception {
+		var store = new GoalStore(home);
+		var stored = pending();
+		store.create(stored);
+		Path goals = home.resolve("goals");
+		for (int i = 1; i < 1024; i++) privateDirectory(goals.resolve("g" + i));
+		Files.createFile(goals.resolve(".DS_Store"));
+		for (int i = 0; i < 8; i++) Files.createFile(goals.resolve("._copy-" + i));
+		assertThat(store.list()).hasSize(1024).contains(stored.id()).isSorted();
+		// The 1025th real goal is the one entry past the quota. Metadata must neither be counted nor shadow it.
+		privateDirectory(goals.resolve("g1024"));
+		assertThatThrownBy(store::list).isInstanceOf(IOException.class).hasMessage("Goal quota exceeded");
 	}
 
 	@Test void aStrayEntryWithASafeNameAlreadyFailsAsIOException() throws Exception {
