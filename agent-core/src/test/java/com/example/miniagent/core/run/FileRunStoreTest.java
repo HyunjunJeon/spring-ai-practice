@@ -309,6 +309,33 @@ class FileRunStoreTest {
 	}
 
 	@Test
+	void interruptedCallerReadsTheJournalAndKeepsItsInterrupt() throws Exception {
+		FileRunStore store = new FileRunStore(this.home);
+		RunId id = new RunId("one");
+		RunEvent.StateChanged completed = new RunEvent.StateChanged(AT, RunState.COMPLETED, RunEvent.Reason.NONE);
+		// A cancelled provider call may restore the interrupt before recovery reads the journal.
+		Thread.currentThread().interrupt();
+		try {
+			try (RunWriter writer = store.create(spec("one"))) {
+				start(writer);
+				// Live JVM writer: the read loads the journal without the lock channel.
+				assertThat(store.read(id).state()).isEqualTo(RunState.RUNNING);
+				end(writer);
+				writer.append(completed);
+			}
+			// No writer: the read holds the lock channel while it loads the journal.
+			RunRecord record = store.read(id);
+			assertThat(record.state()).isEqualTo(RunState.COMPLETED);
+			assertThat(record.usage()).isEqualTo(new RunUsage(7, false, 0, 100, 0));
+			assertThat(FileRunStore.events(store, id)).hasSize(5).last().isEqualTo(completed);
+			assertThat(Thread.currentThread().isInterrupted()).isTrue();
+		}
+		finally {
+			Thread.interrupted();
+		}
+	}
+
+	@Test
 	void terminalMustBeLastAfterUsageAndAttemptEnd() throws Exception {
 		FileRunStore store = new FileRunStore(this.home);
 		try (RunWriter writer = store.create(spec("one"))) {

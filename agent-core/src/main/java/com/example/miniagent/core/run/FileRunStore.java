@@ -333,6 +333,8 @@ public final class FileRunStore implements RunStore {
 	}
 
 	private static byte[] readBytes(Path path) throws IOException {
+		// A pending interrupt closes the channel; a cancelled caller still settles from the journal.
+		boolean interrupted = Thread.interrupted();
 		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
 			if (channel.size() > Integer.MAX_VALUE - 8) {
 				throw new RunStoreException(IO, "Run file exceeds supported size");
@@ -342,6 +344,11 @@ public final class FileRunStore implements RunStore {
 				// Snapshot the complete prefix; a live append may add an incomplete final frame.
 			}
 			return Arrays.copyOf(buffer.array(), buffer.position());
+		}
+		finally {
+			if (interrupted) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 
