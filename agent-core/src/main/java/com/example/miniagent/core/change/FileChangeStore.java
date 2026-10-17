@@ -195,8 +195,10 @@ public final class FileChangeStore implements ChangeStore {
 				var iterator = paths.iterator();
 				int count = 0;
 				while (iterator.hasNext()) {
-					if (++count > 10000) throw new Failure(LIMIT, "Too many manifest directory entries");
 					Path path = iterator.next();
+					// OS metadata is neither opened nor counted toward the entry bound.
+					if (OsMetadata.matches(path.getFileName().toString())) continue;
+					if (++count > 10000) throw new Failure(LIMIT, "Too many manifest directory entries");
 					// Failed temp files are retained, never promoted to manifests.
 					if (path.getFileName().toString().startsWith(".pending-")) continue;
 					Manifest manifest = decode(AtomicFiles.read(path, this.limits.maxManifestBytes()), Manifest.class);
