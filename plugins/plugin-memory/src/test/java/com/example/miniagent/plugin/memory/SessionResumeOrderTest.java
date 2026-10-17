@@ -29,12 +29,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** id 없는 {@code /resume} 은 이름순 마지막이 아니라 가장 최근에 수정된 세션을 연다. */
 class SessionResumeOrderTest {
 
+	private static final String RED = "\u001B[31m";
+
+	private static final String RESET = "\u001B[0m";
+
 	private static final String OLDER = "20260101-000000-aaaa";
 
 	private static final String NEWER = "20260102-000000-bbbb";
 
 	/** 'b' 가 숫자보다 뒤에 정렬되므로, 분기 세션은 시각과 상관없이 이름순 마지막이다. */
 	private static final String BRANCH = "branch-5b0f2c8e-1111-4222-8333-944455556666";
+
+	private static final String VANISHED = "zzzz-vanished";
+
+	private static final String LOOPING = "zzzz-looping";
 
 	@TempDir
 	Path home;
@@ -84,6 +92,43 @@ class SessionResumeOrderTest {
 		assertThat(screen()).isEqualTo("세션 전환: " + OLDER + " (전체 기록 2개 메시지)");
 	}
 
+	/** 목록에는 있지만 파일이 없는 세션(다른 프로세스나 /forget 이 목록을 읽은 뒤 지운 경우)은 건너뛴다. */
+	@Test
+	void resumeWithoutIdSkipsASessionWhoseFileVanishedAndOpensTheNewestRemaining() throws Exception {
+		createSessions("2026-03-01T00:00:00Z", "2026-04-01T00:00:00Z", "2026-02-01T00:00:00Z");
+		createVanishedSession(VANISHED);
+
+		resume("");
+
+		assertThat(this.session.id()).isEqualTo(NEWER);
+		assertThat(screen()).isEqualTo("세션 전환: " + NEWER + " (전체 기록 2개 메시지)");
+	}
+
+	@Test
+	void resumeWithoutIdReportsNoSessionWhenEveryListedFileVanished() throws Exception {
+		createVanishedSession(VANISHED);
+		this.session.switchTo("current");
+
+		resume("");
+
+		assertThat(this.session.id()).isEqualTo("current");
+		assertThat(screen()).isEqualTo(RED + "세션을 찾을 수 없습니다: " + RESET);
+	}
+
+	@Test
+	void resumeWithoutIdReportsAnUnreadableSessionFileAndKeepsTheCurrentSession() throws Exception {
+		createSessions("2026-03-01T00:00:00Z", "2026-04-01T00:00:00Z", "2026-02-01T00:00:00Z");
+		Path sessions = this.home.resolve("sessions");
+		Files.createSymbolicLink(sessions.resolve(LOOPING + ".jsonl"), Path.of(LOOPING + ".jsonl"));
+		this.session.switchTo("current");
+
+		resume("");
+
+		assertThat(this.session.id()).isEqualTo("current");
+		assertThat(screen()).startsWith(RED + "세션 수정 시각을 읽지 못했습니다: FileSystemException")
+			.contains(LOOPING + ".jsonl");
+	}
+
 	/** 같은 세션 두 개와 그 첫 턴에서 갈라진 분기 하나를 만들고 파일 수정 시각을 고정한다. */
 	private void createSessions(String olderModified, String newerModified, String branchModified) throws Exception {
 		var repository = new JsonlChatMemoryRepository(this.home.resolve("sessions"));
@@ -94,6 +139,12 @@ class SessionResumeOrderTest {
 		touch(OLDER, olderModified);
 		touch(NEWER, newerModified);
 		touch(BRANCH, branchModified);
+	}
+
+	/** 디렉터리 목록에는 나타나지만 가리키는 파일이 없는 {@code <id>.jsonl}. 수정 시각을 읽으면 NoSuchFileException 이다. */
+	private void createVanishedSession(String id) throws Exception {
+		Path sessions = Files.createDirectories(this.home.resolve("sessions"));
+		Files.createSymbolicLink(sessions.resolve(id + ".jsonl"), Path.of("does-not-exist"));
 	}
 
 	private void touch(String id, String modified) throws Exception {
