@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
@@ -49,12 +52,32 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 
 	private static final String EXTENSION = ".jsonl";
 
+	/**
+	 * 세션 파일마다 하나씩, 이 JVM 의 모든 저장소 인스턴스가 함께 쓰는 잠금. POSIX 에서는 프로세스가 같은 파일의 기술자를
+	 * 하나라도 닫으면 그 파일에 건 잠금이 모두 풀린다({@link FileLock} 문서). 그래서 쓰는 쪽이 파일 잠금을 쥔 동안 읽는
+	 * 쪽이 같은 파일을 열고 닫으면 다른 프로세스가 끼어든다. 세션 파일을 여는 접근은 모두 이 잠금을 먼저 잡는다.
+	 * 항목은 JVM 이 끝날 때까지 남고, 이 JVM 이 건드린 세션 파일 수만큼 생긴다.
+	 */
+	private static final ConcurrentMap<Path, ReentrantLock> FILE_LOCKS = new ConcurrentHashMap<>();
+
 	private final Path directory;
 
 	private final JsonMapper json = JsonMapper.builder().build();
 
+	private final Runnable whileFileLocked;
+
 	public JsonlChatMemoryRepository(Path directory) {
+		this(directory, () -> {
+		});
+	}
+
+	/**
+	 * {@code whileFileLocked} 는 쓰는 쪽이 파일 잠금을 쥔 동안, 파일을 쓰기 직전에 부른다. 파일 상태만으로는 그 순간을
+	 * 잡을 수 없어서, 테스트가 그 사이에 같은 파일로 다른 접근을 끼워 넣는 자리로 쓴다.
+	 */
+	JsonlChatMemoryRepository(Path directory, Runnable whileFileLocked) {
 		this.directory = directory;
+		this.whileFileLocked = whileFileLocked;
 	}
 
 	@Override
@@ -85,7 +108,7 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 		if (!Files.exists(file)) {
 			return new History(List.of(), null);
 		}
-		String text = withoutInterrupt(() -> Files.readString(file, StandardCharsets.UTF_8));
+		String text = locked(file, () -> Files.readString(file, StandardCharsets.UTF_8));
 		List<Message> messages = new ArrayList<>();
 		Summary summary = null;
 		// 줄바꿈으로 끝나지 않은 마지막 조각은 쓰다 끊긴 기록이라 읽지 않는다.
@@ -124,10 +147,11 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 				lines.append(this.json.writeValueAsString(message)).append('\n'));
 		ByteBuffer bytes = ByteBuffer.wrap(lines.toString().getBytes(StandardCharsets.UTF_8));
 		Path file = file(conversationId);
-		withoutInterrupt(() -> {
+		locked(file, () -> {
 			Files.createDirectories(this.directory);
 			try (FileChannel channel = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.READ,
 					StandardOpenOption.WRITE); FileLock lock = channel.lock()) {
+				this.whileFileLocked.run();
 				channel.truncate(0);
 				writeFully(channel, bytes, 0);
 			}
@@ -154,10 +178,11 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 		records.forEach(record -> lines.append(this.json.writeValueAsString(record)).append('\n'));
 		ByteBuffer bytes = ByteBuffer.wrap(lines.toString().getBytes(StandardCharsets.UTF_8));
 		Path file = file(conversationId);
-		withoutInterrupt(() -> {
+		locked(file, () -> {
 			Files.createDirectories(this.directory);
 			try (FileChannel channel = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.READ,
 					StandardOpenOption.WRITE); FileLock lock = channel.lock()) {
+				this.whileFileLocked.run();
 				long position = completeLength(channel);
 				channel.truncate(position);
 				writeFully(channel, bytes, position);
@@ -168,12 +193,8 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 
 	@Override
 	public synchronized void deleteByConversationId(String conversationId) {
-		try {
-			Files.deleteIfExists(file(conversationId));
-		}
-		catch (IOException ex) {
-			throw new UncheckedIOException(ex);
-		}
+		Path file = file(conversationId);
+		locked(file, () -> Files.deleteIfExists(file));
 	}
 
 	/** Forget conversation content without turning an existing branch into a new root. */
@@ -188,7 +209,7 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 	public java.util.Optional<Branch> branch(String conversationId) {
 		Path path = file(conversationId);
 		if (!Files.exists(path)) return java.util.Optional.empty();
-		return withoutInterrupt(() -> {
+		return locked(path, () -> {
 			try (var input = Files.newInputStream(path)) {
 				byte[] prefix = input.readNBytes(8192);
 				String text = new String(prefix, StandardCharsets.UTF_8);
@@ -229,7 +250,8 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 		if (summary != null && summary.covers() > 0 && summary.covers() <= count) {
 			text.append(this.json.writeValueAsString(StoredMessage.summary(summary))).append('\n');
 		}
-		withoutInterrupt(() -> {
+		// 원본 잠금은 read 가 돌아올 때 이미 놓았다. 대상 잠금만 잡으니 두 세션 잠금을 겹쳐 쥐는 일이 없다.
+		locked(target, () -> {
 			Files.createDirectories(this.directory);
 			Path temporary = Files.createTempFile(this.directory, ".fork-", ".tmp");
 			try {
@@ -273,6 +295,21 @@ public class JsonlChatMemoryRepository implements ChatMemoryRepository {
 			throw new IllegalArgumentException("Invalid session id: " + conversationId);
 		}
 		return this.directory.resolve(conversationId + EXTENSION);
+	}
+
+	/**
+	 * 세션 파일의 JVM 안 잠금을 쥔 채 입출력한다. 다른 스레드나 인스턴스가 그 파일의 잠금을 쥐고 있으면 기다린다.
+	 * 인터럽트로 깨지 않는 {@code lock()} 을 써서 {@link #withoutInterrupt} 와 같이 취소된 턴의 기록도 끝까지 쓴다.
+	 */
+	private static <T> T locked(Path file, IoAction<T> action) {
+		ReentrantLock lock = FILE_LOCKS.computeIfAbsent(file.toAbsolutePath().normalize(), key -> new ReentrantLock());
+		lock.lock();
+		try {
+			return withoutInterrupt(action);
+		}
+		finally {
+			lock.unlock();
+		}
 	}
 
 	/**

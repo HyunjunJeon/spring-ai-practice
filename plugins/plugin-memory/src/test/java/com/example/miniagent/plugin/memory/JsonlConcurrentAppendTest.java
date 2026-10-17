@@ -13,17 +13,26 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
@@ -35,6 +44,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * 같은 세션 파일에 여러 스레드와 다른 프로세스가 동시에 덧붙여도 기록이 끊기거나 섞이거나 사라지지 않는다.
  * 같은 JVM 안에서는 두 번째 파일 잠금이 막히지 않고 예외를 던지므로, 다른 프로세스는 자식 JVM 으로 만든다.
+ * POSIX 에서는 같은 파일의 기술자를 하나라도 닫으면 이 프로세스의 잠금이 모두 풀리므로, 쓰는 쪽이 잠금을 쥔 동안
+ * 같은 JVM 의 다른 접근은 그 파일을 열지 않고 기다려야 한다.
  */
 class JsonlConcurrentAppendTest {
 
@@ -120,6 +131,120 @@ class JsonlConcurrentAppendTest {
 				Map.of(0, 25, 1, 25, 2, 25, 3, 25, 9, 100));
 	}
 
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("accessesWhileLocked")
+	void anotherAccessInThisJvmWaitsWhileAWriterHoldsTheSessionLock(
+			Consumer<JsonlChatMemoryRepository> operation, List<String> stored) throws Exception {
+		Path file = this.dir.resolve("held.jsonl");
+		var other = new JsonlChatMemoryRepository(this.dir);
+		other.append("held", List.of(new UserMessage("before")));
+		var during = new FutureTask<Void>(() -> operation.accept(other), null);
+		var probe = new AtomicReference<String>();
+		var writer = new JsonlChatMemoryRepository(this.dir, () -> {
+			awaitFinishedOrWaiting(Thread.ofPlatform().start(during));
+			try (var child = Child.launch("probe", file.toString())) {
+				probe.set(child.awaitAnyLine(Set.of("ACQUIRED", "HELD")));
+				assertThat(child.awaitExit()).isZero();
+			}
+			catch (IOException | InterruptedException ex) {
+				throw new IllegalStateException(ex);
+			}
+		});
+
+		writer.append("held", List.of(new UserMessage("while locked")));
+
+		assertThat(probe).as("another process took the lock while this JVM's writer held it").hasValue("HELD");
+		during.get(LIMIT_SECONDS, TimeUnit.SECONDS);
+		assertThat(new JsonlChatMemoryRepository(this.dir).findByConversationId("held")).extracting(Message::getText)
+			.containsExactlyElementsOf(stored);
+	}
+
+	static Stream<Arguments> accessesWhileLocked() {
+		List<String> bothWrites = List.of("before", "while locked");
+		return Stream.of(
+				// 대조군: 디렉터리만 읽으니 세션 파일을 열지 않는다. 잠금 앞에서 기다리지 않아도 HELD 여야 한다.
+				access("findConversationIds", JsonlChatMemoryRepository::findConversationIds, bothWrites),
+				access("findByConversationId", repository -> repository.findByConversationId("held"), bothWrites),
+				access("read", repository -> repository.read("held"), bothWrites),
+				access("branch", repository -> repository.branch("held"), bothWrites),
+				access("completedTurns", repository -> repository.completedTurns("held"), bothWrites),
+				access("fork", repository -> repository.fork("held", "copy", 0), bothWrites),
+				access("append from another instance",
+						repository -> repository.append("held", List.of(new UserMessage("after"))),
+						List.of("before", "while locked", "after")));
+	}
+
+	private static Arguments access(String name, Consumer<JsonlChatMemoryRepository> operation,
+			List<String> stored) {
+		return Arguments.of(Named.of(name, operation), stored);
+	}
+
+	@Test
+	void forksAndAppendsFromTwoInstancesFinishAndKeepEveryRecord() throws Exception {
+		var appender = new JsonlChatMemoryRepository(this.dir);
+		var forker = new JsonlChatMemoryRepository(this.dir);
+		appendPairs(appender, "source", 9, 1);
+		var start = new CountDownLatch(1);
+		try (var executor = Executors.newFixedThreadPool(4)) {
+			List<Future<?>> workers = new ArrayList<>();
+			workers.add(executor.submit(() -> {
+				start.await();
+				appendPairs(appender, "source", 0, 25);
+				return null;
+			}));
+			workers.add(executor.submit(() -> {
+				start.await();
+				appendPairs(forker, "source", 1, 25);
+				return null;
+			}));
+			workers.add(executor.submit(() -> {
+				start.await();
+				for (int fork = 0; fork < 25; fork++) {
+					forker.fork("source", "fork-" + fork, 1);
+					appender.append("fork-" + fork, List.of(new UserMessage("after fork " + fork)));
+				}
+				return null;
+			}));
+			workers.add(executor.submit(() -> {
+				start.await();
+				for (int read = 0; read < 25; read++) {
+					assertThat(appender.completedTurns("source")).isPositive();
+				}
+				return null;
+			}));
+			start.countDown();
+			for (Future<?> worker : workers) {
+				worker.get(LIMIT_SECONDS, TimeUnit.SECONDS);
+			}
+		}
+
+		assertPairsWholeAndInOrder(appender.findByConversationId("source"), Map.of(9, 1, 0, 25, 1, 25));
+		for (int fork = 0; fork < 25; fork++) {
+			String id = "fork-" + fork;
+			assertThat(forker.branch(id)).get()
+				.extracting(JsonlChatMemoryRepository.Branch::parentId, JsonlChatMemoryRepository.Branch::forkTurns,
+						JsonlChatMemoryRepository.Branch::forkMessages)
+				.containsExactly("source", 1, 2);
+			assertThat(forker.findByConversationId(id)).extracting(Message::getText)
+				.containsExactly("w9-000 question", "w9-000 answer" + PADDING, "after fork " + fork);
+		}
+	}
+
+	/**
+	 * 접근하는 스레드가 끝나거나(잠금을 무시하고 파일을 열고 닫았다) 잠금 앞에서 멈출 때까지 돈다. 어느 쪽인지는
+	 * 다른 프로세스가 잠금을 잡아 보는 것으로 판정한다. 기한은 멈춘 테스트를 끝내기 위한 것이고 판정에 쓰지 않는다.
+	 */
+	private static void awaitFinishedOrWaiting(Thread thread) {
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(LIMIT_SECONDS);
+		Set<Thread.State> settled = Set.of(Thread.State.TERMINATED, Thread.State.WAITING, Thread.State.BLOCKED);
+		while (!settled.contains(thread.getState())) {
+			if (System.nanoTime() > deadline) {
+				throw new AssertionError("access neither finished nor waited: " + thread.getState());
+			}
+			Thread.onSpinWait();
+		}
+	}
+
 	/** 한 번의 append 가 질문과 답 두 메시지를 함께 쓰므로, 두 메시지는 항상 붙어서 저장되어야 한다. */
 	private static void appendPairs(JsonlChatMemoryRepository repository, String session, int writer, int count) {
 		for (int sequence = 0; sequence < count; sequence++) {
@@ -185,11 +310,16 @@ class JsonlConcurrentAppendTest {
 		}
 
 		void awaitLine(String expected) throws InterruptedException {
+			awaitAnyLine(Set.of(expected));
+		}
+
+		/** {@code expected} 가운데 자식이 먼저 출력한 줄을 돌려준다. */
+		String awaitAnyLine(Set<String> expected) throws InterruptedException {
 			long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(LIMIT_SECONDS);
 			while (System.nanoTime() < deadline) {
 				String line = this.lines.poll(1, TimeUnit.SECONDS);
-				if (expected.equals(line)) {
-					return;
+				if (line != null && expected.contains(line)) {
+					return line;
 				}
 				if (line == null && !this.process.isAlive()) {
 					break;
@@ -214,10 +344,19 @@ class JsonlConcurrentAppendTest {
 			this.process.destroyForcibly();
 		}
 
-		/** {@code hold <file>} 은 파일 잠금을 쥐고 있다가 한 줄을 받으면 놓는다. {@code append} 는 GO 를 받으면 덧붙인다. */
+		/**
+		 * {@code hold <file>} 은 파일 잠금을 쥐고 있다가 한 줄을 받으면 놓는다. {@code append} 는 GO 를 받으면 덧붙인다.
+		 * {@code probe <file>} 은 잠금을 한 번만 잡아 보고 ACQUIRED 나 HELD 를 출력한다.
+		 */
 		public static void main(String[] arguments) throws Exception {
 			var input = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-			if (arguments[0].equals("hold")) {
+			if (arguments[0].equals("probe")) {
+				try (var channel = FileChannel.open(Path.of(arguments[1]), StandardOpenOption.READ,
+						StandardOpenOption.WRITE); var lock = channel.tryLock()) {
+					System.out.println((lock != null) ? "ACQUIRED" : "HELD");
+				}
+			}
+			else if (arguments[0].equals("hold")) {
 				try (var channel = FileChannel.open(Path.of(arguments[1]), StandardOpenOption.CREATE,
 						StandardOpenOption.READ, StandardOpenOption.WRITE); var lock = channel.lock()) {
 					System.out.println("LOCKED");
