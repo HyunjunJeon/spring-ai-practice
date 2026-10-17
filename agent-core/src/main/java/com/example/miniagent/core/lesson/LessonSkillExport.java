@@ -25,12 +25,18 @@ public final class LessonSkillExport {
 	private final Path home;
 	private final SkillUsageStore usage;
 	private final Clock clock;
+	private final SkillWriter writer;
+	/** Writes the rendered SKILL.md; a test hands in one that fails, because no file system state fails that write. */
+	@FunctionalInterface interface SkillWriter { void write(Path file, byte[] bytes) throws IOException; }
 	/** Links exports in the usage store of {@code home}, stamped with the system clock. */
 	public LessonSkillExport(LessonService lessons, Path home) {
 		this(lessons, home, new SkillUsageStore(home, Clock.systemUTC()), Clock.systemUTC());
 	}
 	public LessonSkillExport(LessonService lessons, Path home, SkillUsageStore usage, Clock clock) {
-		this.lessons = lessons; this.home = home; this.usage = usage; this.clock = clock;
+		this(lessons, home, usage, clock, (file, bytes) -> AtomicFiles.write(file, bytes, MAX_BYTES));
+	}
+	LessonSkillExport(LessonService lessons, Path home, SkillUsageStore usage, Clock clock, SkillWriter writer) {
+		this.lessons = lessons; this.home = home; this.usage = usage; this.clock = clock; this.writer = writer;
 	}
 
 	/** Writes {@code <root>/<name>/SKILL.md}. The skills plugin scans its roots at startup, so it loads on the next start. */
@@ -61,7 +67,7 @@ public final class LessonSkillExport {
 		Path file = directory.resolve("SKILL.md");
 		byte[] bytes = render(lesson, name).getBytes(StandardCharsets.UTF_8);
 		try {
-			AtomicFiles.write(file, bytes, MAX_BYTES);
+			writer.write(file, bytes);
 			// Usage identity matches the root: a PROJECT skill belongs to this workspace, a GLOBAL one to the home.
 			String workspace = lesson.scope() == Scope.PROJECT ? actor.workspace() : null;
 			usage.link(new SkillUsage(lesson.scope(), workspace, name, lesson.id(), lesson.version(), clock.instant(),
