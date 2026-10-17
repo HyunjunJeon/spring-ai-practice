@@ -81,10 +81,12 @@ public final class DriftGate {
 	String latest(RunStore runs, RunRecord record, String baseline) throws IOException {
 		if (baseline == null) throw new IOException("Missing owner baseline; start a new run");
 		String latest = baseline;
+		Map<String, RunEvent.ToolStarted> started = new HashMap<>();
 		for (RunEvent event : FileRunStore.events(runs, record.spec().runId())) {
-			if (event instanceof RunEvent.ToolFinished finished) {
+			if (event instanceof RunEvent.ToolStarted start) started.put(start.attemptId() + ":" + start.toolCallKey(), start);
+			else if (event instanceof RunEvent.ToolFinished finished) {
 				var result = this.evidence.get(finished.resultDigest(), ToolEvidenceStore.ResultEvidence.class);
-				validateResult(result, record.spec(), finished);
+				validateResult(result, record.spec(), started.get(finished.attemptId() + ":" + finished.toolCallKey()), finished);
 				latest = this.evidence.put(result.after());
 			}
 			else if (event instanceof RunEvent.DriftAccepted accepted) {
@@ -124,10 +126,12 @@ public final class DriftGate {
 
 	/** core 내부용이며 core.execution 전용이다. 플러그인 API가 아니다. */
 	public static void validateResult(ToolEvidenceStore.ResultEvidence result, RunSpec spec,
-			RunEvent.ToolFinished finished) throws IOException {
+			RunEvent.ToolStarted started, RunEvent.ToolFinished finished) throws IOException {
 		if (result.schemaVersion() != 1 || !result.runId().equals(spec.runId().value())
 				|| !result.attemptId().equals(finished.attemptId()) || !result.toolCallKey().equals(finished.toolCallKey())
 				|| !result.after().specDigest().equals(specDigest(spec)))
 			throw new IOException("Result evidence owner mismatch");
+		if (started == null || !started.toolName().equals(result.toolName()) || !started.argsDigest().equals(result.argsDigest()))
+			throw new IOException("Result does not match started tool");
 	}
 }

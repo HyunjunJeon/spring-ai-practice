@@ -18,10 +18,8 @@ public final class JournalResumeContributor implements RunResumeContributor {
 			if (event instanceof RunEvent.ToolStarted start) starts.put(start.attemptId() + ":" + start.toolCallKey(), start);
 			if (event instanceof RunEvent.ToolFinished finish) {
 				var result = this.evidence.get(finish.resultDigest(), ToolEvidenceStore.ResultEvidence.class);
-				DriftGate.validateResult(result, record.spec(), finish);
 				var start = starts.get(finish.attemptId() + ":" + finish.toolCallKey());
-				if (start == null || !start.toolName().equals(result.toolName()) || !start.argsDigest().equals(result.argsDigest()))
-					throw new IOException("Result does not match started tool");
+				DriftGate.validateResult(result, record.spec(), start, finish);
 				text.append("\nVerified tool result ").append(result.toolName()).append(" key=")
 						.append(result.toolCallKey()).append(" effect=").append(start.effect())
 						.append(" sha256=").append(finish.resultDigest()).append("\n");

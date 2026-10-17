@@ -9,7 +9,6 @@ import java.util.function.UnaryOperator;
 import com.example.miniagent.core.ToolInterceptor;
 import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.run.ToolEvidenceStore.ResultEvidence;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -130,10 +129,6 @@ class JournalEvidenceOwnershipTest {
 		assertThat(probe.sequenceAfter).isEqualTo(probe.sequenceBefore);
 	}
 
-	@Disabled("SUSPECT run:G5: ToolJournalInterceptor.intercept only calls DriftGate.validateResult, which checks run, attempt, "
-			+ "key, schema and spec; evidence whose toolName or argsDigest differs from the journaled ToolStarted is accepted "
-			+ "(nextCall returns normally and the call journals its own start and finish), while JournalResumeContributor "
-			+ "refuses it with 'Result does not match started tool'. DriftGate.latest (inspectDrift) accepts it too.")
 	@ParameterizedTest @EnumSource(value = Foreign.class, names = {"TOOL", "ARGS"})
 	void nextToolCallAlsoRefusesEvidenceFromAnotherToolOrArguments(Foreign foreign) throws Exception {
 		var f = new SafeResumeTest.Fixture(this.temp, false);
@@ -158,12 +153,14 @@ class JournalEvidenceOwnershipTest {
 	}
 
 	@ParameterizedTest @EnumSource(value = Foreign.class, names = {"TOOL", "ARGS"})
-	void toolOrArgumentMismatchBlocksResumeAndLeavesTheJournalUntouched(Foreign foreign) throws Exception {
+	void toolOrArgumentMismatchBlocksInspectDriftAndResumeAndLeavesTheJournalUntouched(Foreign foreign) throws Exception {
 		var f = new SafeResumeTest.Fixture(this.temp, false);
 		RunId run = forgeInsideAttempt(f, foreign.variant).record.spec().runId();
 		String before = f.runs.export(run).eventsLog();
 
-		assertThatThrownBy(() -> f.executor.resume(run, f.selected, f.cwd)).isInstanceOf(IOException.class).hasMessage(START_MISMATCH);
+		assertThatThrownBy(() -> f.executor.inspectDrift(run)).isInstanceOf(IOException.class).hasMessage(START_MISMATCH);
+		assertThatThrownBy(() -> f.executor.resume(run, f.selected, f.cwd)).isInstanceOfSatisfying(RunExecutor.Failure.class,
+				ex -> assertThat(ex.code()).isEqualTo(RunExecutor.Code.IDENTITY_DRIFT)).cause().hasMessage(START_MISMATCH);
 		assertThat(f.runs.export(run).eventsLog()).isEqualTo(before);
 		assertThat(f.runs.read(run).state()).isEqualTo(RunState.INTERRUPTED);
 	}
