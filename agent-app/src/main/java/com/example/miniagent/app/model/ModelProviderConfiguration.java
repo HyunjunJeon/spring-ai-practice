@@ -38,9 +38,9 @@ public class ModelProviderConfiguration {
 		return new OllamaModelProvider(environment);
 	}
 
-	/** Compatibility for consumers still injecting the startup-selected ChatModel. */
+	/** Compatibility for consumers still injecting the startup-selected ChatModel. A blank default counts as unset. */
 	@Bean
-	@ConditionalOnExpression("!'${agent.models.default:fake/fake-scripted}'.startsWith('fake/')")
+	@ConditionalOnExpression("!'${agent.models.default:}'.isBlank() && !'${agent.models.default:}'.startsWith('fake/')")
 	@Nullable ChatModel selectedDefaultChatModel(Environment environment, ObjectProvider<ModelProvider> providers) {
 		String configured = environment.getRequiredProperty("agent.models.default");
 		String[] parts = configured.split("/", 2);

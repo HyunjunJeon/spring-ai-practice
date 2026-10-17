@@ -4,7 +4,6 @@ import java.nio.file.Path;
 
 import com.example.miniagent.core.Agent;
 import com.example.miniagent.core.model.ModelRef;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,9 +34,6 @@ class DefaultModelConfigurationTest {
 			});
 	}
 
-	@Disabled("SUSPECT model:G20: a blank agent.models.default fails startup in selectedDefaultChatModel with"
-			+ " IllegalArgumentException 'agent.models.default must be provider/model' instead of falling back to"
-			+ " spring.ai.model.chat the way AgentAutoConfiguration treats an unset default")
 	@Test
 	void blankDefaultFallsBackToTheFakeProviderLikeAnUnsetDefault() {
 		try (var context = ProviderProfileMigrationTest.start(this.home, "", "--agent.models.default=")) {
@@ -45,6 +41,23 @@ class DefaultModelConfigurationTest {
 
 			assertThat(agent.selectedModel().ref().provider()).isEqualTo("fake");
 			assertThat(agent.run("offline").text()).contains("[fake]");
+		}
+	}
+
+	@Test
+	void unsetDefaultStartsWithTheCompatibilityChatModel() {
+		try (var context = ProviderProfileMigrationTest.start(this.home, "")) {
+			assertThat(context.getBeansOfType(ChatModel.class)).containsOnlyKeys("scriptedChatModel");
+			assertThat(context.containsBean("selectedDefaultChatModel")).isFalse();
+		}
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "", "   " })
+	void blankDefaultKeepsTheCompatibilityChatModelOfAnUnsetDefault(String blank) {
+		try (var context = ProviderProfileMigrationTest.start(this.home, "", "--agent.models.default=" + blank)) {
+			assertThat(context.getBeansOfType(ChatModel.class)).containsOnlyKeys("scriptedChatModel");
+			assertThat(context.containsBean("selectedDefaultChatModel")).isFalse();
 		}
 	}
 
