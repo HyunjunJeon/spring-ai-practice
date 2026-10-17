@@ -74,10 +74,10 @@ public final class ToolJournalInterceptor implements ToolInterceptor {
 					}
 					if (event instanceof RunEvent.ToolFinished finish) {
 						var result = binding.evidence().get(finish.resultDigest(), ToolEvidenceStore.ResultEvidence.class);
-						DriftGate.validateResult(result, context.spec(), finish);
-						if (finish.attemptId().equals(context.attemptId())) expected = binding.evidence().put(result.after());
 						var start = started.get(finish.attemptId() + ":" + finish.toolCallKey());
-						if (start != null && start.effect() == RunEvent.Effect.MUTATING
+						DriftGate.validateResult(result, context.spec(), start, finish);
+						if (finish.attemptId().equals(context.attemptId())) expected = binding.evidence().put(result.after());
+						if (start.effect() == RunEvent.Effect.MUTATING
 								&& start.toolName().equals(invocation.toolName()) && start.argsDigest().equals(args))
 							throw new Stop(Stop.Kind.INTERRUPTED, "Verified mutation must not be automatically repeated");
 					}
