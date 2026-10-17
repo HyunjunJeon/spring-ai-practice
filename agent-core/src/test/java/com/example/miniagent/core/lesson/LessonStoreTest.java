@@ -96,7 +96,8 @@ class LessonStoreTest {
 		var accepted = f.accepted("parser retained");
 		f.store.mutate(histories -> {
 			for (int i = 1; i < LessonStore.MAX_ENTRIES; i++) {
-				var original = histories.getFirst().getFirst();
+				// Accepted copies: a full store evicts a candidate or retired lesson instead of refusing.
+				var original = histories.getFirst().getLast();
 				var copy = new LessonRecord(java.util.UUID.randomUUID().toString(), 1, original.state(), original.scope(),
 						original.session(), original.workspace(), original.content(), original.proof(), original.creator(),
 						original.operator(), original.operation(), null, original.generation(), original.createdAt());

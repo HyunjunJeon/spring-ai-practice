@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import com.example.miniagent.core.model.ToolContextKeys;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +18,10 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import static org.assertj.core.api.Assertions.*;
 
-/** goal-lesson:G7. Any file in the lessons folder besides the snapshot and its lock fails the store closed. */
+/**
+ * goal-lesson:G7. Any file in the lessons folder besides the snapshot, its lock and OS metadata files fails the
+ * store closed. OS metadata files are ignored and left where they are.
+ */
 class LessonStoreStrayFileTest {
 	@TempDir Path root;
 
@@ -30,8 +32,8 @@ class LessonStoreStrayFileTest {
 	}
 
 	@ParameterizedTest
-	// A Finder file, the temp file AtomicFiles leaves after a crash mid-write, and an editor backup.
-	@ValueSource(strings = { ".DS_Store", ".pending-4711.tmp", "lessons.json.bak" })
+	// The temp file AtomicFiles leaves after a crash mid-write, and an editor backup. Neither is OS metadata.
+	@ValueSource(strings = { ".pending-4711.tmp", "lessons.json.bak" })
 	void aStrayFileFailsReadsWritesAndTheAdvisorClosedWithoutTouchingStoredLessons(String stray) throws Exception {
 		var f = new LessonFixture(root);
 		var accepted = f.accepted("parser lesson");
@@ -53,9 +55,32 @@ class LessonStoreStrayFileTest {
 		assertThat(f.service.lookup(f.actor, "parser")).extracting(LessonRecord::id).containsExactly(accepted.id());
 	}
 
-	@Disabled("SUSPECT goal-lesson:G7: a stray .DS_Store in the lessons folder makes LessonStore.clean() throw "
-			+ "'Lesson storage recovery required', so LessonAdvisor fails every agent turn with UncheckedIOException "
-			+ "'Lesson retrieval failed closed' until the file is deleted by hand (fail closed versus skip is a design call)")
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._lessons.json" })
+	void anOsMetadataFileIsIgnoredByReadsWritesAndTheAdvisorAndLeftInPlace(String metadata) throws Exception {
+		var f = new LessonFixture(root);
+		var accepted = f.accepted("parser lesson");
+		Path lessons = f.home.resolve("lessons");
+		Files.createFile(lessons.resolve(metadata));
+		assertThat(f.service.list(f.actor)).extracting(LessonRecord::id).containsExactly(accepted.id());
+		var candidate = f.service.propose("verified-goal", f.content("parser another"), f.actor);
+		assertThat(f.service.list(f.actor)).extracting(LessonRecord::id).containsExactly(accepted.id(), candidate.id());
+		assertThat(new LessonAdvisor(f.service).prepare(request(f)).context().get(LessonAdvisor.SELECTED))
+				.isEqualTo(List.of(Map.of("id", accepted.id(), "version", 2, "scope", "SESSION")));
+		assertThat(lessons.resolve(metadata)).exists();
+	}
+
+	@Test void metadataFilesDoNotCrowdAStrayFileOutOfTheCheck() throws Exception {
+		var f = new LessonFixture(root);
+		f.accepted("parser lesson");
+		Path lessons = f.home.resolve("lessons");
+		Files.createFile(lessons.resolve(".DS_Store"));
+		for (int i = 0; i < 60; i++) Files.createFile(lessons.resolve("._copy-" + i));
+		Files.createFile(lessons.resolve("lessons.json.bak"));
+		assertThatThrownBy(f.store::read).isInstanceOf(IOException.class).hasMessage("Lesson storage recovery required");
+	}
+
 	@Test void aFinderMetadataFileDoesNotStopTheAdvisorFromInjectingAcceptedLessons() throws Exception {
 		var f = new LessonFixture(root);
 		var accepted = f.accepted("parser lesson");

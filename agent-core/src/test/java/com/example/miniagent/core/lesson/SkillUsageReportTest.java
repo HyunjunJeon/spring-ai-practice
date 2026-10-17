@@ -225,7 +225,7 @@ class SkillUsageReportTest {
 		assertThat(row.candidate()).isFalse();
 	}
 
-	@Test void aLessonTheActorCannotSeeIsUnknownAndSaysNothingAboutTheSource() throws Exception {
+	@Test void aLinkedLessonMissingFromTheStoreIsUnknownAndCountsAsASourceRetired() throws Exception {
 		var file = globalFile("ghost");
 		Files.createDirectories(file.getParent());
 		Files.writeString(file, "---\nname: ghost\ndescription: g\n---\n\nbody\n");
@@ -234,8 +234,29 @@ class SkillUsageReportTest {
 		var row = row("ghost");
 		assertThat(row.lessonState()).isEqualTo("UNKNOWN");
 		assertThat(row.lessonVersion()).isNull();
-		assertThat(row.reasons()).isEmpty();
+		assertThat(row.reasons()).containsExactly(SkillUsageReport.Reason.SOURCE_RETIRED);
 		assertThat(row.flags()).isEmpty();
+	}
+
+	@Test void aSkillWhoseRetiredLessonWasEvictedStaysASourceRetiredCandidate() throws Exception {
+		var lesson = export(PROJECT, "parser-offsets");
+		var retired = f.service.retire(lesson.id(), lesson.version(), f.actor);
+		// Accepted lessons are never evicted, so the retired source is the one entry a new proposal can push out.
+		f.store.mutate(histories -> {
+			while (histories.size() < LessonStore.MAX_ENTRIES)
+				histories.add(List.of(new LessonRecord(UUID.randomUUID().toString(), 1, LessonRecord.State.ACCEPTED,
+						retired.scope(), retired.session(), retired.workspace(), retired.content(), retired.proof(),
+						retired.creator(), retired.operator(), "accept", null, retired.generation(), retired.createdAt())));
+			return retired;
+		});
+		f.service.propose("verified-goal", f.content("parser another"), f.actor);
+		assertThatThrownBy(() -> f.service.lookup(lesson.id(), f.actor)).hasMessage("Lesson not found");
+		var row = row("parser-offsets");
+		assertThat(row.lessonState()).isEqualTo("UNKNOWN");
+		assertThat(row.lessonVersion()).isNull();
+		assertThat(row.reasons()).containsExactly(SkillUsageReport.Reason.SOURCE_RETIRED);
+		assertThat(row.flags()).isEmpty();
+		assertThat(row.candidate()).isTrue();
 	}
 
 	@Test void anEditedSkillIsModifiedAndNeverACandidate() throws Exception {
