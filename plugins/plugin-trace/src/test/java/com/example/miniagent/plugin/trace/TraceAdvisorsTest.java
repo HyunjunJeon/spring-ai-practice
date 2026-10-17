@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import com.example.miniagent.core.TraceEvent;
 import com.example.miniagent.core.TraceEvent.Tokens;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -88,9 +87,6 @@ class TraceAdvisorsTest {
 		assertTwoToolRoundTurn(model);
 	}
 
-	@Disabled("SUSPECT plugins-ui:G2: a streamed round reports reasoningEffort null although the provider put it in the"
-			+ " response metadata (ChatClientMessageAggregator rebuilds the metadata and drops unknown keys), so the"
-			+ " summary line shows no effort for streamed turns")
 	@Test
 	void streamedRoundsKeepTheReasoningEffortTheProviderReported() throws InterruptedException {
 		ScriptedModel model = new ScriptedModel(twoToolRoundsThenAnswer());
@@ -104,9 +100,6 @@ class TraceAdvisorsTest {
 			.satisfies(finished -> assertThat(finished.reasoningEffort()).isEqualTo("high"));
 	}
 
-	@Disabled("SUSPECT plugins-ui:G2: a streamed round reports cached=0 although the provider reported cache-read tokens"
-			+ " (ChatClientMessageAggregator rebuilds the usage without them), so the cache column is always 0 for"
-			+ " streamed turns")
 	@Test
 	void streamedRoundsKeepTheCachedTokensTheProviderReported() throws InterruptedException {
 		ScriptedModel model = new ScriptedModel(twoToolRoundsThenAnswer());
@@ -118,6 +111,36 @@ class TraceAdvisorsTest {
 			.containsExactly(40L, 60L, 80L);
 		assertThat(events(TraceEvent.TurnFinished.class)).singleElement()
 			.satisfies(finished -> assertThat(finished.tokens().cached()).isEqualTo(180));
+	}
+
+	@Test
+	void streamedRoundKeepsTheValuesReportedEarlierWhenALaterChunkReportsNone() throws InterruptedException {
+		ChatModel chunked = new ChatModel() {
+			@Override
+			public ChatResponse call(Prompt prompt) {
+				throw new AssertionError("streaming only");
+			}
+
+			@Override
+			public Flux<ChatResponse> stream(Prompt prompt) {
+				return Flux.just(answerRound("do", "stop", "fake-1", "low", 100, 10, 40),
+						answerRound("ne", "stop", "fake-1", null, 0, 0, 0));
+			}
+
+			@Override
+			public ToolCallingChatOptions getOptions() {
+				return ToolCallingChatOptions.builder().build();
+			}
+		};
+
+		assertThat(String.join("", traced(chunked).prompt().user("hello").stream().content().collectList().block()))
+			.isEqualTo("done");
+		awaitTurnFinished();
+
+		assertThat(events(TraceEvent.RoundFinished.class)).singleElement().satisfies(round -> {
+			assertThat(round.reasoningEffort()).isEqualTo("low");
+			assertThat(round.tokens().cached()).isEqualTo(40);
+		});
 	}
 
 	@Test
@@ -202,6 +225,20 @@ class TraceAdvisorsTest {
 		assertThat(events(TraceEvent.TurnFinished.class)).singleElement().satisfies(finished -> {
 			assertThat(finished.answered()).isTrue();
 			assertThat(finished.model()).isNull();
+		});
+	}
+
+	@Test
+	void streamedRoundWithoutProviderMetadataReportsNoUsageModelOrEffort() throws InterruptedException {
+		ScriptedModel model = new ScriptedModel(List.of(() -> new ChatResponse(List.of(new Generation(new AssistantMessage("ok"))))));
+
+		traced(model).prompt().user("hello").stream().content().collectList().block();
+		awaitTurnFinished();
+
+		assertThat(events(TraceEvent.RoundFinished.class)).singleElement().satisfies(round -> {
+			assertThat(round.tokens()).isEqualTo(Tokens.ZERO);
+			assertThat(round.model()).isNull();
+			assertThat(round.reasoningEffort()).isNull();
 		});
 	}
 

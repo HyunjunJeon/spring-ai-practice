@@ -3,8 +3,11 @@ package com.example.miniagent.plugin.trace;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.example.miniagent.core.TraceEvent;
+import org.jspecify.annotations.Nullable;
 
 import reactor.core.publisher.Flux;
 
@@ -71,8 +74,28 @@ public class RoundTraceAdvisor implements CallAdvisor, StreamAdvisor {
 		turn.lastMessages = messages;
 		this.events.publishEvent(new TraceEvent.RoundStarted(round, messages, added, toolCount(request)));
 		long start = System.nanoTime();
-		return new ChatClientMessageAggregator().aggregateChatClientResponse(chain.nextStream(request), aggregated -> {
-			TraceEvent.RoundFinished finished = finished(round, aggregated.chatResponse(), System.nanoTime() - start);
+		// ChatClientMessageAggregator 는 메타데이터를 새로 만들어 reasoning effort 와 캐시 읽기 토큰을 버린다.
+		// 청크가 지나갈 때 따로 받아 두고, 뒤쪽 청크가 값을 싣지 않아도 마지막으로 보고된 값을 남긴다.
+		AtomicReference<String> effort = new AtomicReference<>();
+		AtomicLong cached = new AtomicLong();
+		Flux<ChatClientResponse> chunks = chain.nextStream(request).doOnNext(chunk -> {
+			ChatResponse response = chunk.chatResponse();
+			if (response == null) {
+				return;
+			}
+			ChatResponseMetadata metadata = response.getMetadata();
+			Object reportedEffort = metadata.get(TraceEvent.REASONING_EFFORT_METADATA);
+			if (reportedEffort != null) {
+				effort.set(reportedEffort.toString());
+			}
+			Long reportedCached = metadata.getUsage().getCacheReadInputTokens();
+			if (reportedCached != null && reportedCached > 0) {
+				cached.set(reportedCached);
+			}
+		});
+		return new ChatClientMessageAggregator().aggregateChatClientResponse(chunks, aggregated -> {
+			TraceEvent.RoundFinished finished = withStreamed(
+					finished(round, aggregated.chatResponse(), System.nanoTime() - start), effort.get(), cached.get());
 			turn.roundFinished(finished);
 			this.events.publishEvent(finished);
 		});
@@ -91,6 +114,15 @@ public class RoundTraceAdvisor implements CallAdvisor, StreamAdvisor {
 	private static int toolCount(ChatClientRequest request) {
 		return (request.prompt().getOptions() instanceof ToolCallingChatOptions options
 				&& options.getToolCallbacks() != null) ? options.getToolCallbacks().size() : 0;
+	}
+
+	/** 집계된 응답에서 사라진 reasoning effort 와 캐시 읽기 토큰을 청크에서 받아 둔 값으로 채운다. */
+	private static TraceEvent.RoundFinished withStreamed(TraceEvent.RoundFinished round, @Nullable String effort,
+			long cached) {
+		TraceEvent.Tokens tokens = round.tokens();
+		return new TraceEvent.RoundFinished(round.round(), round.toolCalls(), round.answerChars(),
+				round.abnormalFinish(), round.durationNanos(),
+				new TraceEvent.Tokens(tokens.input(), tokens.output(), cached), round.model(), effort);
 	}
 
 	private static TraceEvent.RoundFinished finished(int round, ChatResponse chatResponse, long nanos) {
