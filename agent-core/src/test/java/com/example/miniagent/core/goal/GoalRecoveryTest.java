@@ -44,6 +44,7 @@ class GoalRecoveryTest {
 		return new RunStore() {
 			public RunRecord read(RunId id) { assertThat(id).isEqualTo(spec.runId()); return record; }
 			public List<RunId> list() { throw new AssertionError("Historical scan forbidden"); }
+			public List<RunId> children(RunId parent) { throw new AssertionError("Historical scan forbidden"); }
 			public RunWriter create(RunSpec input) { throw new AssertionError("New run forbidden"); }
 			public RunWriter openWriter(RunId id) { throw new AssertionError("Terminal resume forbidden"); }
 			public OpaqueRun export(RunId id) { throw new AssertionError("No export needed"); }

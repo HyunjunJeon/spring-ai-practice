@@ -580,10 +580,8 @@ public final class RunExecutor {
 
 	private boolean hasUnfinishedChildren(RunSpec parent) throws RunStoreException {
 		if (parent.childId() != null) return false;
-		for (RunId id : this.runs.list()) {
-			if (id.equals(parent.runId())) continue;
-			RunRecord child = this.runs.read(id);
-			if (parent.runId().equals(child.spec().parentRunId()) && !child.state().terminal()) return true;
+		for (RunId id : this.runs.children(parent.runId())) {
+			if (!this.runs.read(id).state().terminal()) return true;
 		}
 		return false;
 	}

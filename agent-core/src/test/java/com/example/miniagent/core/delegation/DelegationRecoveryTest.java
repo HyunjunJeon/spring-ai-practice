@@ -292,6 +292,7 @@ class DelegationRecoveryTest {
 			@Override public RunWriter openWriter(RunId id) { throw new AssertionError("openWriter"); }
 			@Override public RunRecord read(RunId id) throws RunStoreException { return actual.read(id); }
 			@Override public List<RunId> list() throws RunStoreException { return actual.list(); }
+			@Override public List<RunId> children(RunId parent) throws RunStoreException { return actual.children(parent); }
 			@Override public OpaqueRun export(RunId id) throws RunStoreException { return actual.export(id); }
 		};
 		DelegationRecovery recovery = new DelegationRecovery(readOnly);

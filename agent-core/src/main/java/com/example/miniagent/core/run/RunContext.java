@@ -165,10 +165,8 @@ public final class RunContext {
 	/** Reconcile only complete acknowledged prefixes; never infer a result from an unfinished tool. */
 	public void reconcileChildUsage(RunStore runs) throws RunStoreException {
 		requireActiveParent();
-		for (RunId id : runs.list()) {
-			if (id.equals(this.spec.runId())) continue;
+		for (RunId id : runs.children(this.spec.runId())) {
 			RunRecord child = runs.read(id);
-			if (!this.spec.runId().equals(child.spec().parentRunId())) continue;
 			if (child.state() == RunState.RUNNING || child.state() == RunState.WAITING_APPROVAL) {
 				throw new Stop(Stop.Kind.INTERRUPTED,
 						"Active child must stop before parent recovery");

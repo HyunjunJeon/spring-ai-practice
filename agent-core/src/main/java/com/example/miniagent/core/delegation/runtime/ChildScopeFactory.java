@@ -331,6 +331,7 @@ public final class ChildScopeFactory {
 				@Override public RunWriter openWriter(RunId id) throws RunStoreException { return observeWriter(runs.openWriter(id)); }
 				@Override public RunRecord read(RunId id) throws RunStoreException { return runs.read(id); }
 				@Override public List<RunId> list() throws RunStoreException { return runs.list(); }
+				@Override public List<RunId> children(RunId parent) throws RunStoreException { return runs.children(parent); }
 				@Override public OpaqueRun export(RunId id) throws RunStoreException { return runs.export(id); }
 			};
 			this.executor = new RunExecutor(childAgent, registry, selections, observedRuns, requests, clock,

@@ -130,6 +130,7 @@ public final class FileRunStore implements RunStore {
 			try (var paths = Files.list(this.runs)) {
 				List<RunId> ids = new ArrayList<>();
 				for (Path path : paths.sorted().toList()) {
+					if (osMetadata(path)) continue;
 					checkDirectory(path);
 					ids.add(new RunId(path.getFileName().toString()));
 				}
@@ -138,6 +139,46 @@ public final class FileRunStore implements RunStore {
 		}
 		catch (IOException | IllegalArgumentException ex) {
 			throw failure(ex);
+		}
+	}
+
+	// Finder and AppleDouble metadata only; any other unknown entry still fails closed.
+	private static boolean osMetadata(Path path) {
+		String name = path.getFileName().toString();
+		return name.equals(".DS_Store") || name.startsWith("._");
+	}
+
+	/** Lineage comes from spec.json alone, so damage in an unrelated run's journal cannot fail this scan. */
+	@Override
+	public List<RunId> children(RunId parent) throws RunStoreException {
+		// Every spec and frame carries its writing build's schema, and a child is created only inside an
+		// attempt its parent journaled. Reading the parent proves no newer build ever drove it, so a
+		// future-schema spec names some other parent. Any other unreadable spec may be a child.
+		read(parent);
+		List<RunId> children = new ArrayList<>();
+		for (RunId id : list()) {
+			if (id.equals(parent)) continue;
+			try {
+				if (parent.equals(spec(id).parentRunId())) children.add(id);
+			}
+			catch (RunStoreException ex) {
+				if (ex.code() != FUTURE_SCHEMA) throw ex;
+			}
+		}
+		return List.copyOf(children);
+	}
+
+	private RunSpec spec(RunId id) throws RunStoreException {
+		try {
+			Path specPath = directory(id).resolve("spec.json");
+			checkFile(specPath);
+			return parseSpec(readBytes(specPath), id);
+		}
+		catch (IOException ex) {
+			throw failure(ex);
+		}
+		catch (RuntimeException ex) {
+			throw new RunStoreException(CORRUPT, "Invalid run serialization", ex);
 		}
 	}
 
@@ -173,15 +214,7 @@ public final class FileRunStore implements RunStore {
 		checkFile(specPath);
 		checkFile(logPath);
 		try {
-			JsonNode node = JSON.readTree(readBytes(specPath));
-			if (node == null || !node.isObject() || !node.path("schemaVersion").isInt()) {
-				throw new RunStoreException(CORRUPT, "Invalid run spec");
-			}
-			checkSchema(node.path("schemaVersion").intValue());
-			RunSpec spec = JSON.treeToValue(node, RunSpec.class);
-			if (!spec.runId().equals(id)) {
-				throw new RunStoreException(CORRUPT, "Spec ID differs from directory");
-			}
+			RunSpec spec = parseSpec(readBytes(specPath), id);
 			byte[] log = readBytes(logPath);
 			List<RunEvent> events = new ArrayList<>();
 			int start = 0;
@@ -224,6 +257,19 @@ public final class FileRunStore implements RunStore {
 		catch (RuntimeException ex) {
 			throw new RunStoreException(CORRUPT, "Invalid run serialization", ex);
 		}
+	}
+
+	private static RunSpec parseSpec(byte[] json, RunId id) throws RunStoreException {
+		JsonNode node = JSON.readTree(json);
+		if (node == null || !node.isObject() || !node.path("schemaVersion").isInt()) {
+			throw new RunStoreException(CORRUPT, "Invalid run spec");
+		}
+		checkSchema(node.path("schemaVersion").intValue());
+		RunSpec spec = JSON.treeToValue(node, RunSpec.class);
+		if (!spec.runId().equals(id)) {
+			throw new RunStoreException(CORRUPT, "Spec ID differs from directory");
+		}
+		return spec;
 	}
 
 	private static void checkSchema(int version) throws RunStoreException {

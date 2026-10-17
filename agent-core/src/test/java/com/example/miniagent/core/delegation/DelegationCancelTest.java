@@ -472,6 +472,7 @@ class DelegationCancelTest {
 				@Override public RunWriter openWriter(RunId id) throws RunStoreException { return wrap(runs.openWriter(id)); }
 				@Override public RunRecord read(RunId id) throws RunStoreException { return runs.read(id); }
 				@Override public List<RunId> list() { throw new AssertionError("Lifecycle must not scan historical runs"); }
+				@Override public List<RunId> children(RunId parent) { throw new AssertionError("Lifecycle must not scan historical runs"); }
 				@Override public OpaqueRun export(RunId id) throws RunStoreException { return runs.export(id); }
 			};
 			factory = new ChildScopeFactory(agent, home, observed, requests, selections, clock, broker,
