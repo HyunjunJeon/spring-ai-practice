@@ -9,7 +9,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -140,9 +139,6 @@ class RepositoryDurabilityTest {
 		assertThat(Files.readString(this.dir.resolve("child.jsonl"))).endsWith("\n");
 	}
 
-	@Disabled("SUSPECT plugins-ui:G9: saveAll rewrites the session file without the cross-process file lock "
-			+ "that append takes; it returns at once while another process holds the lock, so an append "
-			+ "from that process can be lost")
 	@Test
 	void saveAllWaitsUntilAnotherProcessReleasesTheSessionLock() throws Exception {
 		Files.createDirectories(this.dir);
