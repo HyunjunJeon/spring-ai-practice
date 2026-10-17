@@ -11,7 +11,6 @@ import com.example.miniagent.core.goal.GoalRecord;
 import com.example.miniagent.core.goal.GoalRequest;
 import com.example.miniagent.core.goal.GoalService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,6 @@ class GoalNoProgressClampTest {
 		assertThat(goal.results()).hasSize(1);
 	}
 
-	@Disabled("SUSPECT goal-lesson:G28: with the gate timeout above the remaining wall the goal ends FAILED STEP_LIMIT "
-			+ "after 3 gate launches with 3 distinct configuration digests, because each step hashes a different clamped timeout")
 	@Test void unchangedFailureBlocksForNoProgressWhenTheGateTimeoutExceedsTheRemainingWall() throws Exception {
 		var goal = executeFalseGate(WALL_MILLIS + 10_000);
 

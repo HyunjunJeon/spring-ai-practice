@@ -139,15 +139,26 @@ public final class VerificationRunner {
 	/** Same clone, sandbox, capture and cleanup for proposals and distinct read-only snapshots. */
 	public TargetResult run(VerificationTarget target, List<String> argv, Duration timeout, int maxOutputBytes,
 			CompletableFuture<Void> cancellation, java.util.function.Consumer<Binding> prepared) throws IOException {
+		return run(target, argv, timeout, timeout, maxOutputBytes, cancellation, prepared);
+	}
+
+	/**
+	 * {@code timeout} is the limit enforced on this launch and may be clamped, for instance to a remaining wall budget;
+	 * the configuration digest hashes {@code configuredTimeout} so a clamp does not make repeated runs look different.
+	 */
+	public TargetResult run(VerificationTarget target, List<String> argv, Duration timeout, Duration configuredTimeout,
+			int maxOutputBytes, CompletableFuture<Void> cancellation, java.util.function.Consumer<Binding> prepared)
+			throws IOException {
 		var request = new Request(target.id(), target.owner(), target.digest(), target.revision(),
 				argv, timeout, maxOutputBytes);
 		byte[][] captured = { new byte[0] };
-		Result result = runTarget(target, request, cancellation, prepared, captured);
+		Result result = runTarget(target, request, configuredTimeout, cancellation, prepared, captured);
 		return new TargetResult(result, captured[0]);
 	}
 
-	private Result runTarget(VerificationTarget target, Request request, CompletableFuture<Void> cancellation,
-			java.util.function.Consumer<Binding> prepared, byte[][] captured) throws IOException {
+	private Result runTarget(VerificationTarget target, Request request, Duration configuredTimeout,
+			CompletableFuture<Void> cancellation, java.util.function.Consumer<Binding> prepared, byte[][] captured)
+			throws IOException {
 		Objects.requireNonNull(cancellation);
 		var cancelSignal = cancellation.thenApply(ignored -> Code.CANCELLED);
 		boolean interrupted = Thread.interrupted();
@@ -194,7 +205,7 @@ public final class VerificationRunner {
 			catch (Refusal ex) { return new Result(ex.code(), null); }
 			interrupted |= Thread.interrupted();
 			if (interrupted) return new Result(Code.CANCELLED, null);
-			String configuration = configuration(request, launch);
+			String configuration = configuration(request, configuredTimeout, launch);
 			prepared.accept(new Binding(request.sourceRevision(), configuration));
 			if (!current(set, live, stage)) return new Result(Code.STALE, null);
 			if (cancellation.isDone()) return new Result(Code.CANCELLED, null);
@@ -309,7 +320,7 @@ public final class VerificationRunner {
 			if (f.kind() == EntryKind.DIRECTORY)
 				Files.setPosixFilePermissions(root.resolve(f.relativePath()), Files.getPosixFilePermissions(stage.resolve(f.relativePath())));
 	}
-	public static String configuration(Request request, Launch launch) throws IOException {
+	public static String configuration(Request request, Duration configuredTimeout, Launch launch) throws IOException {
 		var bytes = new ByteArrayOutputStream();
 		var data = new DataOutputStream(bytes);
 		for (String s : List.of("verification-v1-filtered-source-no-links", System.getProperty("os.name"),
@@ -318,7 +329,7 @@ public final class VerificationRunner {
 			DiffRenderer.field(data, s);
 		data.writeInt(request.argv().size());
 		for (String arg : request.argv()) DiffRenderer.field(data, arg);
-		data.writeLong(request.timeout().toNanos());
+		data.writeLong(configuredTimeout.toNanos());
 		data.writeInt(request.maxOutputBytes());
 		return Fingerprinter.sha256(bytes.toByteArray());
 	}
