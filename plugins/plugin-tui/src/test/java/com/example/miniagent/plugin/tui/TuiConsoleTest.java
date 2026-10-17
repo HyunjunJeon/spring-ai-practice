@@ -25,7 +25,6 @@ import com.example.miniagent.core.approval.ApprovalDecision;
 import com.example.miniagent.core.approval.ApprovalRequest;
 import com.example.miniagent.core.run.RunId;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -291,9 +290,6 @@ class TuiConsoleTest {
 		assertThat(this.redraws).hasValue(4);
 	}
 
-	@Disabled("SUSPECT plugins-ui:G10: TuiConsole.endReply() only redraws while active, so the next streamed reply is "
-			+ "appended to the previous AGENT entry (\"first answersecond answer\") unless another entry, such as the "
-			+ "token INFO line, was logged in between")
 	@Test
 	void endReplyClosesTheStreamedEntrySoTheNextReplyStartsANewOne() {
 		activate();
@@ -304,6 +300,18 @@ class TuiConsoleTest {
 
 		assertThat(this.log.snapshot()).containsExactly(new ChatLog.Entry(ChatLog.Role.AGENT, "first answer"),
 				new ChatLog.Entry(ChatLog.Role.AGENT, "second answer"));
+	}
+
+	@Test
+	void streamedReplyAfterACompleteReplyStartsItsOwnEntry() {
+		activate();
+
+		this.console.reply("complete answer");
+		this.console.appendReply("streamed answer");
+		this.console.endReply();
+
+		assertThat(this.log.snapshot()).containsExactly(new ChatLog.Entry(ChatLog.Role.AGENT, "complete answer"),
+				new ChatLog.Entry(ChatLog.Role.AGENT, "streamed answer"));
 	}
 
 	@Test

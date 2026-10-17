@@ -33,6 +33,9 @@ public class TuiConsole extends AgentConsole {
 
 	private volatile boolean active;
 
+	/** 스트리밍 중인 답이 대화 패널의 마지막 AGENT 항목에 이어 붙고 있는지. endReply 가 닫는다. */
+	private volatile boolean replyOpen;
+
 	private volatile @Nullable String pendingQuestion;
 
 	private volatile Runnable redraw = () -> {
@@ -186,12 +189,19 @@ public class TuiConsole extends AgentConsole {
 			super.appendReply(delta);
 			return;
 		}
-		this.log.append(ChatLog.Role.AGENT, delta);
+		if (this.replyOpen) {
+			this.log.append(ChatLog.Role.AGENT, delta);
+		}
+		else {
+			this.log.add(ChatLog.Role.AGENT, delta);
+			this.replyOpen = true;
+		}
 		this.redraw.run();
 	}
 
 	@Override
 	public void endReply() {
+		this.replyOpen = false;
 		if (!this.active) {
 			super.endReply();
 			return;
