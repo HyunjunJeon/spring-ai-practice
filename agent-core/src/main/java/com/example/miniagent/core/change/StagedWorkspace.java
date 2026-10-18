@@ -39,6 +39,7 @@ public final class StagedWorkspace implements AutoCloseable {
 		Path stage;
 		try (var lease = store.acquireStaging()) {
 			stage = lease.stagingDirectory(this.owner);
+			// Unlike the stores, OS metadata is not skipped: the stage tree is the proposal, so a .DS_Store would ship.
 			try (var entries = Files.list(stage)) {
 				if (entries.findAny().isPresent()) throw new IOException("Owner stage already contains source");
 			}

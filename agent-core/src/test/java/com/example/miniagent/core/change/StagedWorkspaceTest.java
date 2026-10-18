@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.example.miniagent.core.model.*;
+import com.example.miniagent.core.run.RunId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.ai.chat.client.ChatClient;
@@ -148,6 +149,24 @@ class StagedWorkspaceTest {
 			assertThat(Files.readString(old.resolve("source"))).isEqualTo("first");
 			assertThat(Files.readString(stage.resolve("source", false, List.of()))).isEqualTo("base");
 		}
+	}
+
+	/**
+	 * Unlike the stores, the stage does not skip OS metadata: its whole tree is the proposal, so a .DS_Store left in a
+	 * fresh owner stage would be proposed as a new workspace file. The stage is refused and the file is left in place.
+	 */
+	@Test void anOsMetadataFileInAFreshOwnerStageStillRefusesTheStage() throws Exception {
+		var store = new FileChangeStore(this.state, this.work);
+		var turn = turn("metadata");
+		var owner = new ChangeOwner(turn.sessionId(), new RunId(turn.runId()), turn.attemptId(), turn.turnId());
+		Path metadata;
+		try (var lease = store.acquire()) {
+			metadata = Files.createFile(lease.stagingDirectory(owner).resolve(".DS_Store"));
+		}
+		assertThatThrownBy(() -> StagedWorkspace.open(store, turn, Clock.systemUTC()))
+				.isExactlyInstanceOf(java.io.IOException.class).hasMessage("Owner stage already contains source");
+		assertThat(metadata).exists();
+		assertThat(this.work.resolve(".DS_Store")).doesNotExist();
 	}
 
 	@Test void liveExternalEditMarksProposalStaleWithoutOverwritingEitherTree() throws Exception {
