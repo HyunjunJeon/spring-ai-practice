@@ -77,22 +77,20 @@ class TraceAdvisorsTest {
 	}
 
 	@Test
-	void streamWithTwoToolRoundsPublishesTheTurnAndEveryRoundInOrder() throws InterruptedException {
+	void streamWithTwoToolRoundsPublishesTheTurnAndEveryRoundInOrder() {
 		ScriptedModel model = new ScriptedModel(twoToolRoundsThenAnswer());
 
 		List<String> chunks = traced(model).prompt().user("hello").stream().content().collectList().block();
 
 		assertThat(String.join("", chunks)).isEqualTo("done");
-		awaitTurnFinished();
 		assertTwoToolRoundTurn(model);
 	}
 
 	@Test
-	void streamedRoundsKeepTheReasoningEffortTheProviderReported() throws InterruptedException {
+	void streamedRoundsKeepTheReasoningEffortTheProviderReported() {
 		ScriptedModel model = new ScriptedModel(twoToolRoundsThenAnswer());
 
 		traced(model).prompt().user("hello").stream().content().collectList().block();
-		awaitTurnFinished();
 
 		assertThat(events(TraceEvent.RoundFinished.class)).extracting(TraceEvent.RoundFinished::reasoningEffort)
 			.containsExactly("low", "low", "high");
@@ -101,11 +99,10 @@ class TraceAdvisorsTest {
 	}
 
 	@Test
-	void streamedRoundsKeepTheCachedTokensTheProviderReported() throws InterruptedException {
+	void streamedRoundsKeepTheCachedTokensTheProviderReported() {
 		ScriptedModel model = new ScriptedModel(twoToolRoundsThenAnswer());
 
 		traced(model).prompt().user("hello").stream().content().collectList().block();
-		awaitTurnFinished();
 
 		assertThat(events(TraceEvent.RoundFinished.class)).extracting(round -> round.tokens().cached())
 			.containsExactly(40L, 60L, 80L);
@@ -114,7 +111,7 @@ class TraceAdvisorsTest {
 	}
 
 	@Test
-	void streamedRoundKeepsTheValuesReportedEarlierWhenALaterChunkReportsNone() throws InterruptedException {
+	void streamedRoundKeepsTheValuesReportedEarlierWhenALaterChunkReportsNone() {
 		ChatModel chunked = new ChatModel() {
 			@Override
 			public ChatResponse call(Prompt prompt) {
@@ -135,7 +132,6 @@ class TraceAdvisorsTest {
 
 		assertThat(String.join("", traced(chunked).prompt().user("hello").stream().content().collectList().block()))
 			.isEqualTo("done");
-		awaitTurnFinished();
 
 		assertThat(events(TraceEvent.RoundFinished.class)).singleElement().satisfies(round -> {
 			assertThat(round.reasoningEffort()).isEqualTo("low");
@@ -160,7 +156,7 @@ class TraceAdvisorsTest {
 	}
 
 	@Test
-	void streamFailingInTheSecondRoundStillFinishesTheTurnWithTheUsageSoFar() throws InterruptedException {
+	void streamFailingInTheSecondRoundStillFinishesTheTurnWithTheUsageSoFar() {
 		ScriptedModel model = new ScriptedModel(List.of(
 				() -> toolRound(1, "tool_calls", "fake-1", "low", 100, 10, 40),
 				() -> {
@@ -171,7 +167,6 @@ class TraceAdvisorsTest {
 			.isInstanceOf(IllegalStateException.class)
 			.hasMessage("model down");
 
-		awaitTurnFinished();
 		assertFailedTurn();
 		assertThat(this.settings.currentTurn()).isNull();
 	}
@@ -201,7 +196,8 @@ class TraceAdvisorsTest {
 
 		subscription.dispose();
 
-		awaitTurnFinished();
+		// 취소는 구독을 넘겨받은 boundedElastic 스레드에서 정리될 수 있어, 턴 종료 이벤트를 한도 안에서 기다린다.
+		assertThat(this.turnFinished.await(5, TimeUnit.SECONDS)).as("TurnFinished published").isTrue();
 		assertThat(this.settings.currentTurn()).isNull();
 		assertThat(events(TraceEvent.TurnFinished.class)).singleElement().satisfies(finished -> {
 			assertThat(finished.answered()).isFalse();
@@ -229,11 +225,10 @@ class TraceAdvisorsTest {
 	}
 
 	@Test
-	void streamedRoundWithoutProviderMetadataReportsNoUsageModelOrEffort() throws InterruptedException {
+	void streamedRoundWithoutProviderMetadataReportsNoUsageModelOrEffort() {
 		ScriptedModel model = new ScriptedModel(List.of(() -> new ChatResponse(List.of(new Generation(new AssistantMessage("ok"))))));
 
 		traced(model).prompt().user("hello").stream().content().collectList().block();
-		awaitTurnFinished();
 
 		assertThat(events(TraceEvent.RoundFinished.class)).singleElement().satisfies(round -> {
 			assertThat(round.tokens()).isEqualTo(Tokens.ZERO);
@@ -360,11 +355,6 @@ class TraceAdvisorsTest {
 		if (event instanceof TraceEvent.TurnFinished) {
 			this.turnFinished.countDown();
 		}
-	}
-
-	/** 스트림의 doFinally 는 구독자에게 완료를 알린 뒤에 돌 수 있어, 턴 종료 이벤트를 한도 안에서 기다린다. */
-	private void awaitTurnFinished() throws InterruptedException {
-		assertThat(this.turnFinished.await(5, TimeUnit.SECONDS)).as("TurnFinished published").isTrue();
 	}
 
 	private <T extends TraceEvent> List<T> events(Class<T> type) {
