@@ -162,14 +162,17 @@ public final class LessonSkillExport {
 			throw new IOException("Invalid skill name: lowercase letters, digits and single hyphens, at most 64");
 	}
 	/** The live root the skills plugin reads for this scope, and its sibling retired root, which it never reads. */
-	private record Roots(Path live, Path retired) {}
+	record Roots(Path live, Path retired) {
+		/** PROJECT roots are in the workspace, GLOBAL roots in the home. Callers have already refused other scopes. */
+		static Roots of(Scope scope, String workspace, Path home) {
+			if (scope != Scope.PROJECT) return new Roots(StatePaths.userSkills(home), StatePaths.userRetiredSkills(home));
+			Path root = Path.of(workspace);
+			return new Roots(StatePaths.projectSkills(root), StatePaths.projectRetiredSkills(root));
+		}
+	}
 	private Roots roots(Scope scope, Actor actor) throws IOException {
-		Path workspace = Path.of(actor.workspace());
-		return switch (scope) {
-			case PROJECT -> new Roots(StatePaths.projectSkills(workspace), StatePaths.projectRetiredSkills(workspace));
-			case GLOBAL -> new Roots(StatePaths.userSkills(home), StatePaths.userRetiredSkills(home));
-			case null, default -> throw new IOException("Skill scope must be PROJECT or GLOBAL");
-		};
+		if (scope != Scope.PROJECT && scope != Scope.GLOBAL) throw new IOException("Skill scope must be PROJECT or GLOBAL");
+		return Roots.of(scope, actor.workspace(), home);
 	}
 	/**
 	 * The usage identity of a linked skill; its workspace follows the same rule as the link the export wrote. Reading

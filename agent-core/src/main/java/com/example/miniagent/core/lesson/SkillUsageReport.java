@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.LongSupplier;
 import java.util.stream.Stream;
-import com.example.miniagent.core.StatePaths;
 import com.example.miniagent.core.change.Fingerprinter;
 import static com.example.miniagent.core.lesson.LessonRecord.*;
 
@@ -108,14 +107,9 @@ public final class SkillUsageReport {
 	 * root next to that one.
 	 */
 	private Path skillFile(SkillUsage entry) {
-		boolean retired = entry.retiredAt() != null;
-		Path root;
-		if (entry.scope() == Scope.PROJECT) {
-			Path workspace = Path.of(entry.workspace());
-			root = retired ? StatePaths.projectRetiredSkills(workspace) : StatePaths.projectSkills(workspace);
-		}
-		else root = retired ? StatePaths.userRetiredSkills(home) : StatePaths.userSkills(home);
-		return root.resolve(entry.name()).resolve("SKILL.md");
+		// The usage store holds only PROJECT and GLOBAL skills.
+		var roots = LessonSkillExport.Roots.of(entry.scope(), entry.workspace(), home);
+		return (entry.retiredAt() != null ? roots.retired() : roots.live()).resolve(entry.name()).resolve("SKILL.md");
 	}
 	/** SHA-256 of a regular file, or null when there is none. A link is not followed. */
 	private static String digest(Path file) throws IOException {
