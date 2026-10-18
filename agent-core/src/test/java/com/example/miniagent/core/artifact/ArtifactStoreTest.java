@@ -226,7 +226,8 @@ class ArtifactStoreTest {
 		for (int i = 0; i < 8; i++) Files.createFile(scope.resolve("._copy-" + i));
 		store.put(authority, "second");
 		// The artifact quota still holds: metadata neither fills it nor frees a slot.
-		code(QUOTA, () -> store.put(authority, "third"));
+		assertThatThrownBy(() -> store.put(authority, "third")).isInstanceOf(ArtifactStore.Failure.class)
+				.hasMessageContaining("scope byte or artifact quota exceeded");
 	}
 
 	@Test void anotherUnknownFileInAScopeStillRefusesPublication() throws Exception {

@@ -54,8 +54,6 @@ class TraceAdvisorsTest {
 
 	private final CountDownLatch roundStarted = new CountDownLatch(1);
 
-	private final CountDownLatch turnFinished = new CountDownLatch(1);
-
 	private final TraceSettings settings = new TraceSettings("summary");
 
 	@Test
@@ -196,8 +194,7 @@ class TraceAdvisorsTest {
 
 		subscription.dispose();
 
-		// 취소는 구독을 넘겨받은 boundedElastic 스레드에서 정리될 수 있어, 턴 종료 이벤트를 한도 안에서 기다린다.
-		assertThat(this.turnFinished.await(5, TimeUnit.SECONDS)).as("TurnFinished published").isTrue();
+		// Flux.using 은 dispose() 를 부른 스레드에서 턴을 정리하므로 턴 종료 이벤트를 기다리지 않는다.
 		assertThat(this.settings.currentTurn()).isNull();
 		assertThat(events(TraceEvent.TurnFinished.class)).singleElement().satisfies(finished -> {
 			assertThat(finished.answered()).isFalse();
@@ -351,9 +348,6 @@ class TraceAdvisorsTest {
 		this.events.add(event);
 		if (event instanceof TraceEvent.RoundStarted) {
 			this.roundStarted.countDown();
-		}
-		if (event instanceof TraceEvent.TurnFinished) {
-			this.turnFinished.countDown();
 		}
 	}
 
