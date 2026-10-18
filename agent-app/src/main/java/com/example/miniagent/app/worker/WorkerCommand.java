@@ -2,6 +2,7 @@ package com.example.miniagent.app.worker;
 
 import java.time.Duration;
 import java.util.UUID;
+import com.example.miniagent.core.ControlInput;
 import com.example.miniagent.core.SlashCommand;
 import com.example.miniagent.core.run.command.RunCommand;
 
@@ -12,9 +13,7 @@ public final class WorkerCommand implements SlashCommand {
 	public WorkerCommand(WorkerController controller) { this.controller = controller; }
 	@Override public String name() { return "worker"; }
 	@Override public String description() { return "start | status | stop | wakeup | resume <goalId> [run resume options]"; }
-	public static boolean isControlInput(String input) {
-		return input.strip().matches("/worker\\s+status");
-	}
+	public static boolean isControlInput(String input) { return ControlInput.isWorkerControl(input); }
 	@Override public void execute(String args, CommandContext context) { executeWithStatus(args, context); }
 	@Override public boolean executeWithStatus(String args, CommandContext context) {
 		try {

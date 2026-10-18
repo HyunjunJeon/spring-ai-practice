@@ -158,7 +158,7 @@ public class AgentInputHandler {
 		return ControlInput.isRunControl(input)
 				|| ControlInput.isGoalControl(input)
 				|| ControlInput.isLessonControl(input)
-				|| input.strip().matches("/worker\\s+status")
+				|| ControlInput.isWorkerControl(input)
 				|| input.strip().matches("/message\\s+(read|archive)\\s+.+")
 				|| ControlInput.isDelegateControl(input)
 				|| input.strip().split("\\s+", 2)[0].equals("/changes");

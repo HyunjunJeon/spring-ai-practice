@@ -30,6 +30,10 @@ public final class ControlInput {
 				|| List.of("show", "inspect", "history", "lookup").contains(parts[1]) && parts.length == 3;
 	}
 
+	public static boolean isWorkerControl(String input) {
+		return input.strip().matches("/worker\\s+status");
+	}
+
 	public static boolean isDelegateControl(String input) {
 		var parts = input.strip().split("\\s+");
 		return parts.length > 1 && parts[0].equals("/delegate")
