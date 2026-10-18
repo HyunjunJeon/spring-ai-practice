@@ -10,6 +10,7 @@ import com.example.miniagent.core.execution.RunExecutor;
 import com.example.miniagent.core.goal.GoalRecord;
 import com.example.miniagent.core.goal.GoalService;
 import com.example.miniagent.core.goal.GoalStore;
+import com.example.miniagent.core.run.OsMetadata;
 
 /** One OS worker, one bounded goal at a time, using GoalService's existing managed tool loop. */
 public final class WorkerRuntime {
@@ -174,32 +175,31 @@ public final class WorkerRuntime {
 	}
 	private void consumeRequests() throws IOException {
 		files.privateDirectory(files.inbox);
-		try (var entries = Files.list(files.inbox)) {
-			var requests = entries.limit(257).toList();
-			if (requests.size() > 256) throw new IOException("Worker inbox full");
-			for (Path path : requests.stream().sorted().toList()) {
-				if (path.getFileName().toString().startsWith(".pending-")) {
-					continue; // Unpublished bytes never grant control.
-				}
-				var request = files.request(path);
-				synchronized (admission) {
-					if (request.instance().equals(instance)) {
-						switch (request.operation()) {
-							case "stop" -> stopping = true;
-							case "wakeup" -> { }
-							case "resume" -> {
-								if (!stopping) {
-									if (resumes.size() >= 256) throw new IOException("Worker resume queue full");
-									resumes.addLast(request);
-								}
+		// OS metadata is never a request; it is skipped before the bound and left in place.
+		var requests = OsMetadata.entries(files.inbox, 257);
+		if (requests.size() > 256) throw new IOException("Worker inbox full");
+		for (Path path : requests.stream().sorted().toList()) {
+			if (path.getFileName().toString().startsWith(".pending-")) {
+				continue; // Unpublished bytes never grant control.
+			}
+			var request = files.request(path);
+			synchronized (admission) {
+				if (request.instance().equals(instance)) {
+					switch (request.operation()) {
+						case "stop" -> stopping = true;
+						case "wakeup" -> { }
+						case "resume" -> {
+							if (!stopping) {
+								if (resumes.size() >= 256) throw new IOException("Worker resume queue full");
+								resumes.addLast(request);
 							}
-							default -> throw new IOException("Invalid operation");
 						}
+						default -> throw new IOException("Invalid operation");
 					}
 				}
-				// Validated private request only; stale instance requests cannot affect this worker.
-				Files.delete(path);
 			}
+			// Validated private request only; stale instance requests cannot affect this worker.
+			Files.delete(path);
 		}
 		if (stopping) publish();
 	}

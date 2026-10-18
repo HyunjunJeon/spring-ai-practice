@@ -143,6 +143,27 @@ class WorkerRuntimeTest {
 				.isEqualTo(expected);
 	}
 
+	@Test
+	void osMetadataInTheInboxIsNotARequestAndIsLeftInPlace() throws Exception {
+		Path workspace = temporary.toRealPath();
+		Path home = workspace.resolve("home");
+		var store = new GoalStore(home);
+		var files = new WorkerFiles(workspace, home);
+		Path finder = Files.createFile(files.inbox.resolve(".DS_Store"));
+		Path appleDouble = Files.createFile(files.inbox.resolve("._" + UUID.randomUUID() + ".json"));
+		String instance = UUID.randomUUID().toString();
+		var controller = controller(workspace, home);
+		var done = run(new WorkerRuntime(workspace, home, instance, store, mock(GoalService.class)));
+		try {
+			assertThat(controller.awaitStarted(instance, WAIT).owned()).isTrue();
+			controller.stop(instance);
+			done.get(10, TimeUnit.SECONDS);
+			assertThat(finder).exists();
+			assertThat(appleDouble).exists();
+		}
+		finally { stop(controller, instance, done); }
+	}
+
 	private static WorkerController controller(Path workspace, Path home) {
 		return new WorkerController(workspace, home, () -> { throw new AssertionError("Unit test must not launch"); });
 	}

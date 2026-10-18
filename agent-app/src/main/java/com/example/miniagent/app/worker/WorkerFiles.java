@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.example.miniagent.core.change.AtomicFiles;
 import com.example.miniagent.core.change.Fingerprinter;
 import com.example.miniagent.core.execution.RunExecutor;
+import com.example.miniagent.core.run.OsMetadata;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -138,15 +139,14 @@ final class WorkerFiles {
 	}
 	void checkLayout() throws IOException {
 		privateDirectory(directory); privateDirectory(inbox); file(claim, 0);
-		try (var entries = Files.list(directory)) {
-			var paths = entries.limit(17).toList();
-			if (paths.size() > 16) throw new IOException("Worker storage recovery required");
-			for (Path entry : paths) {
-				String name = entry.getFileName().toString();
-				if (name.startsWith(".pending-")) continue; // Unpublished bytes are never authority.
-				else if (!Set.of("claim.lock", "state.json", "inbox", "exit").contains(name))
-					throw new IOException("Worker storage recovery required");
-			}
+		// OS metadata is skipped before the bound: it is neither counted nor taken for an unknown entry.
+		var paths = OsMetadata.entries(directory, 17);
+		if (paths.size() > 16) throw new IOException("Worker storage recovery required");
+		for (Path entry : paths) {
+			String name = entry.getFileName().toString();
+			if (name.startsWith(".pending-")) continue; // Unpublished bytes are never authority.
+			else if (!Set.of("claim.lock", "state.json", "inbox", "exit").contains(name))
+				throw new IOException("Worker storage recovery required");
 		}
 		if (Files.exists(metadata, LinkOption.NOFOLLOW_LINKS)) read();
 		if (Files.exists(directory.resolve("exit"), LinkOption.NOFOLLOW_LINKS)) exitInstance();
@@ -183,9 +183,7 @@ final class WorkerFiles {
 	}
 	void send(Request request) throws IOException {
 		privateDirectory(inbox);
-		try (var files = Files.list(inbox)) {
-			if (files.limit(257).count() >= 256) throw new IOException("Worker inbox full");
-		}
+		if (OsMetadata.entries(inbox, 257).size() >= 256) throw new IOException("Worker inbox full");
 		Path path = inbox.resolve(request.id() + ".json");
 		if (Files.exists(path, LinkOption.NOFOLLOW_LINKS)) throw new IOException("Duplicate request");
 		AtomicFiles.write(path, JSON.writeValueAsBytes(request), LIMIT);

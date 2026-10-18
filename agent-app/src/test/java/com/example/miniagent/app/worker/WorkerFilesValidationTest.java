@@ -211,6 +211,38 @@ class WorkerFilesValidationTest {
 		try (var entries = Files.list(directory)) { assertThat(entries).hasSize(16); }
 	}
 
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._state.json" })
+	void anOsMetadataFileInTheWorkerDirectoryIsIgnoredAndKept(String name) throws Exception {
+		Path metadata = files().directory.resolve(name);
+		Files.createFile(metadata);
+		assertThat(files().directory).isEqualTo(metadata.getParent());
+		assertThat(metadata).exists();
+	}
+
+	@Test
+	void metadataFilesDoNotCountTowardTheSixteenEntryLimit() throws Exception {
+		Path directory = files().directory;
+		for (int i = 0; i < 14; i++) plant(directory.resolve(".pending-" + i), new byte[0]);
+		Files.createFile(directory.resolve(".DS_Store"));
+		for (int i = 0; i < 8; i++) Files.createFile(directory.resolve("._copy-" + i));
+		assertThat(files().directory).isEqualTo(directory);
+		// One more real entry is still one over the limit, whatever metadata sits beside it.
+		plant(directory.resolve(".pending-14"), new byte[0]);
+		assertRefused(this::files, RECOVERY);
+	}
+
+	@Test
+	void osMetadataInTheInboxNeitherFillsItNorBlocksASend() throws Exception {
+		var files = files();
+		Files.createFile(files.inbox.resolve(".DS_Store"));
+		for (int i = 0; i < 300; i++) Files.createFile(files.inbox.resolve("._copy-" + i));
+		var request = stopRequest();
+		files.send(request);
+		assertThat(files.request(files.inbox.resolve(request.id() + ".json"))).isEqualTo(request);
+	}
+
 	@Test
 	void requestFileNamedAfterAnotherIdIsRefusedAndKept() throws Exception {
 		var files = files();
