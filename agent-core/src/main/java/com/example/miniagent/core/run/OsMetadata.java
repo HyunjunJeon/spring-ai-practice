@@ -8,7 +8,8 @@ import java.util.List;
 /**
  * Finder and AppleDouble files the OS drops into any folder. A store never opens or deletes them; every other unknown
  * entry still fails the store closed. The one predicate lives in run because run may depend only on model, while
- * change (which already uses run) and the goal and lesson features can reach it without a package cycle.
+ * change (which already uses run), the features and the app can reach it without a package cycle. A staged workspace
+ * does not skip them: its whole tree is the proposal.
  */
 public final class OsMetadata {
 	private OsMetadata() {}

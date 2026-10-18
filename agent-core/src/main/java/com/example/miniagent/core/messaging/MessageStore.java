@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.example.miniagent.core.change.AtomicFiles;
 import com.example.miniagent.core.change.Fingerprinter;
+import com.example.miniagent.core.run.OsMetadata;
 import com.example.miniagent.core.run.RunId;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DeserializationFeature;
@@ -98,10 +99,10 @@ public final class MessageStore {
 				if (lease == null) throw new IOException("Mailbox busy");
 				var threads = new ArrayList<ThreadBox>();
 				Path data = directory.resolve("mailboxes.json");
-				try (var paths = Files.list(directory)) {
-					if (paths.limit(4).anyMatch(p -> !Set.of("store.lock", "mailboxes.json").contains(p.getFileName().toString())))
-						throw new IOException("Mailbox storage recovery required");
-				}
+				// OS metadata is skipped before the bound, so it neither fails the check nor hides a stray file.
+				if (OsMetadata.entries(directory, 4).stream()
+						.anyMatch(p -> !Set.of("store.lock", "mailboxes.json").contains(p.getFileName().toString())))
+					throw new IOException("Mailbox storage recovery required");
 				if (Files.exists(data, LinkOption.NOFOLLOW_LINKS)) {
 					var envelope = JSON.readValue(AtomicFiles.read(data, MAX_BYTES), Envelope.class);
 					// Schema 1 cannot distinguish complete responses from silently truncated previews.

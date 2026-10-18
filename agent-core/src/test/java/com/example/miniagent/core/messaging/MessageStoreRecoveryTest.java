@@ -96,6 +96,25 @@ class MessageStoreRecoveryTest {
 		assertReadStillWorks();
 	}
 
+	// The Finder folder file, and the AppleDouble file macOS writes next to a file copied to a foreign volume.
+	@ParameterizedTest @ValueSource(strings = {".DS_Store", "._mailboxes.json"})
+	void anOsMetadataFileIsIgnoredByReadAndTransactionAndLeftInPlace(String metadata) throws Exception {
+		commitOneReceipt();
+		Files.createFile(messages.resolve(metadata));
+		assertReadStillWorks();
+		commitOneReceipt();
+		assertReadStillWorks();
+		assertThat(messages.resolve(metadata)).exists();
+	}
+
+	@Test void metadataFilesDoNotCrowdAStrayFileOutOfTheRecoveryCheck() throws Exception {
+		commitOneReceipt();
+		Files.createFile(messages.resolve(".DS_Store"));
+		for (int i = 0; i < 300; i++) Files.createFile(messages.resolve("._copy-" + i));
+		Files.createFile(messages.resolve("notes.txt"));
+		assertReadRefused("Mailbox storage recovery required");
+	}
+
 	@ParameterizedTest @ValueSource(strings = {
 		"{\"schema\":2,\"digest\":\"x\",\"threads\":[],\"extra\":1}",
 		"{\"schema\":2,\"schema\":2,\"digest\":\"x\",\"threads\":[]}",

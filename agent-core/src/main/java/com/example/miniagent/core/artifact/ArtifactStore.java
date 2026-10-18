@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.example.miniagent.core.model.TurnContext;
+import com.example.miniagent.core.run.OsMetadata;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -178,9 +179,11 @@ public final class ArtifactStore {
 		int entries = 0;
 		try (var stream = Files.newDirectoryStream(scope.directory())) {
 			for (Path entry : stream) {
+				String name = entry.getFileName().toString();
+				// OS metadata is neither opened nor counted toward the entry limit.
+				if (OsMetadata.matches(name)) continue;
 				if (++entries > this.maxArtifacts + 1)
 					throw failure(Code.QUOTA, "scope entry limit exceeded");
-				String name = entry.getFileName().toString();
 				if (name.equals("scope.lock")) { checkFile(entry); continue; }
 				if (name.startsWith(".pending-"))
 					throw failure(Code.RECOVERY_REQUIRED, "incomplete publication requires operator recovery");

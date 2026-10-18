@@ -17,6 +17,8 @@ import com.example.miniagent.core.model.ModelRef;
 import com.example.miniagent.core.model.TurnContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 
@@ -196,6 +198,45 @@ class ArtifactStoreTest {
 		assertThat(store.read(authority, saved.artifactId(), 0, 10).content()).isEqualTo("result");
 		Files.writeString(entry.resolve("manifest.json"), "x".repeat(1025));
 		code(CORRUPT, () -> store.read(authority, saved.artifactId(), 0, 10));
+	}
+
+	@ParameterizedTest
+	// The Finder folder file, and the AppleDouble file macOS writes next to an entry copied to a foreign volume.
+	@ValueSource(strings = { ".DS_Store", "._payload" })
+	void anOsMetadataFileInAScopeIsIgnoredByPublicationAndLeftInPlace(String metadata) throws Exception {
+		var store = store(new ArtifactProperties());
+		var authority = turn();
+		var saved = store.put(authority, "first");
+		Path scope = entry(saved.artifactId()).getParent();
+		Files.createFile(scope.resolve(metadata));
+		var next = store.put(authority, "second");
+		assertThat(store.read(authority, next.artifactId(), 0, 10).content()).isEqualTo("second");
+		assertThat(store.read(authority, saved.artifactId(), 0, 10).content()).isEqualTo("first");
+		assertThat(scope.resolve(metadata)).exists();
+	}
+
+	@Test void metadataFilesDoNotCountAgainstTheScopeEntryLimit() throws Exception {
+		var properties = new ArtifactProperties();
+		properties.setMaxArtifacts(2);
+		var store = store(properties);
+		var authority = turn();
+		var saved = store.put(authority, "first");
+		Path scope = entry(saved.artifactId()).getParent();
+		Files.createFile(scope.resolve(".DS_Store"));
+		for (int i = 0; i < 8; i++) Files.createFile(scope.resolve("._copy-" + i));
+		store.put(authority, "second");
+		// The artifact quota still holds: metadata neither fills it nor frees a slot.
+		code(QUOTA, () -> store.put(authority, "third"));
+	}
+
+	@Test void anotherUnknownFileInAScopeStillRefusesPublication() throws Exception {
+		var store = store(new ArtifactProperties());
+		var authority = turn();
+		var saved = store.put(authority, "first");
+		Path scope = entry(saved.artifactId()).getParent();
+		Files.createFile(scope.resolve("notes.txt"));
+		code(INVALID_ID, () -> store.put(authority, "second"));
+		assertThat(scope.resolve("notes.txt")).exists();
 	}
 
 	@Test void concurrentStoreInstancesCannotOverrunFinalQuotaSlot() throws Exception {
